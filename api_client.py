@@ -8,7 +8,7 @@ dotenv.load_dotenv()
 
 class WeaveAPIClient:
     def __init__(self):
-        self.base_url = "https://trace.wandb.ai/calls"
+        self.base_url = "https://trace.wandb.ai"
         self.auth = self._get_auth()
 
     def _get_auth(self):
@@ -52,7 +52,7 @@ class WeaveAPIClient:
             "filter": base_filter,
             "query": base_query
         }
-        response = self._make_request("query_stats", payload=payload)
+        response = self._make_request("calls/query_stats", payload=payload)
         return response['count']
 
     def get_calls(self, project_id, start=0, end=10, additional_filter=None, additional_query=None):
@@ -91,7 +91,7 @@ class WeaveAPIClient:
         }
 
         try:
-            response = self._make_request("stream_query", payload=payload)
+            response = self._make_request("calls/stream_query", payload=payload)
             print(response)
             print(type(response))
             return response 
@@ -99,4 +99,47 @@ class WeaveAPIClient:
             print(f"Error fetching calls: {e}")
             return []
 
-    # Add more methods for other endpoints as needed
+    def get_feedback_for_call(self, project_id, call_id):
+        payload = {
+            "project_id": project_id,
+            "query": {
+                "$expr": {
+                    "$and": [
+                        {
+                            "$eq": [
+                                {
+                                    "$getField": "weave_ref"
+                                },
+                                {
+                                    "$literal": f"weave:///{project_id}/call/{call_id}"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+        
+        response = self._make_request("feedback/query", payload=payload)
+        
+        return response
+    
+    def post_feedback(self, project_id: str, call_id: str, feedback: list[dict]):
+        #iterate over feedback and post each item
+        for item in feedback:
+            # check if feedback has note key in it and set feedback_type to wandb.note.1 else wandb.emoji.1
+            if "note" in item:
+                feedback_type = f"wandb.note.1"
+            if "emoji" in item:
+                feedback_type = f"wandb.reaction.1"
+
+            payload = {
+                "project_id": project_id,
+                "weave_ref": f"weave:///{project_id}/call/{call_id}",
+                "feedback_type": feedback_type,
+                "payload": item
+            }
+            print(payload)
+            response = self._make_request("feedback/create", payload=payload)
+            print(response)
+        return response

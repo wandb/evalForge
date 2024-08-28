@@ -11,8 +11,12 @@ weave_client = WeaveAPIClient()
 basic_auth = base64.b64encode(f"{os.getenv('WANDB_USERNAME')}:{os.getenv('WANDB_API_KEY')}".encode()).decode()
 
 # Set up the app, including daisyui and tailwind for the chat component
-tlink = Script(src="https://cdn.tailwindcss.com?plugins=typography"),
+tlink = Script(src="https://cdn.tailwindcss.com?plugins=typography")
+jtlink = Script(src="https://cdn.jsdelivr.net/gh/williamtroup/JsonTree.js@2.9.0/dist/jsontree.min.js")
+mainjs = Script(open('main.js').read(), type='text/javascript')
 dlink = Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css")
+jtcss = Link(rel="stylesheet", href="https://cdn.jsdelivr.net/gh/williamtroup/JsonTree.js@2.9.0/dist/jsontree.js.css")
+maincss = Style(open('main.css').read(), type='text/css')
 
 # Define a global variable for total items length
 total_items_length = 0
@@ -22,9 +26,32 @@ total_items_length = 0
 def render(Item):
     messages = json.loads(Item.inputs)
     
+    # get the annotattion from the client 
+    annotation = weave_client.get_feedback_for_call(Item.project_id, Item.trace_id)
+    has_thumbsup = False
+    has_thumbsdown = False
+    feedback_note = ""
+    try:
+        for result in annotation["result"]:
+            print(f"result: {json.dumps(result, indent=2)}")
+            if result["payload"]["emoji"] == "👍":
+                has_thumbsup = True
+            if result["payload"]["emoji"] == "👎":
+                has_thumbsdown = True
+            if result["payload"]['feedback_type'] == "wandb.note.1":
+                feedback_note = result["payload"]["note"]
+    except Exception as e:
+        print(e)
+        pass
+    
+    print(f"has_thumbsup: {has_thumbsup}, has_thumbsdown: {has_thumbsdown}, feedback_note: {feedback_note}")
+
     card_header = Div(
         Div(
-            H3(f"Sample {Item.id} out of {total_items_length}" if total_items_length else "No samples in DB", cls="text-base font-semibold leading-6 text-gray-9000"),
+            H3(
+                Span(f"Sample {Item.id} out of {total_items_length}" if total_items_length else "No samples in DB"),
+                A("(weave link)", href=f"https://wandb.ai/{Item.project_id}/weave/calls/{Item.trace_id}", target="_blank", cls="link text-blue-500 text-xs"), 
+                cls="text-base font-semibold leading-6 text-gray-9000"),
             Div(
                 A(
                     Span("←", cls="sr-only"),
@@ -43,23 +70,61 @@ def render(Item):
                 ),
                 cls="flex-shrink-0"
             ),
-            cls="flex justify-between items-center mb-4"
-        ),
-        Div(
+            cls="flex justify-between items-center mx-2"
+        ), cls=" w-full"
+    )
+    inputs_div = Div(
+            H3("Inputs", cls="text-base font-semibold leading-6 text-gray-9000 p-4"),
             Div(
-                P(messages, cls="mt-1 text-sm text-gray-500 max-h-16 overflow-y-auto whitespace-pre-wrap"),
-                cls="ml-4 mt-4"
+                Div(messages, 
+                    cls="mt-1 text-sm text-gray-500 max-h-16 overflow-y-auto whitespace-pre-wrap w-full",
+                    data_jsontree_js=f"""{{ 
+                        'showCounts': false, 
+                        'showStringQuotes': false,
+                        'showArrayItemsAsSeparateObjects': true,
+                        'title': {{
+                            showTreeControls: false,
+                            
+                            'text': 'Inputs'
+                        }},
+                        'data': {Item.inputs} 
+                    }}""",
+                    id="tree-1"
+                    ),
+                cls="m-2"
             ),
-            cls="-ml-4 -mt-4 flex flex-wrap items-center justify-between sm:flex-nowrap"
-        ),
-        cls="border-b border-gray-200 bg-white p-4"
+            cls="w-1/2 shrink-0 bg-white rounded-lg mr-2 overflow-y-auto"
+        )
+        
+    outputs_div = Div(
+            H3("Output", cls="text-base font-semibold leading-6 text-gray-9000 p-4"),
+            Div(
+                Div(json.dumps(Item.output), 
+                    cls="mt-1 text-sm text-gray-500 whitespace-pre-wrap w-half",
+                    data_jsontree_js=f"""{{ 
+                        'showCounts': false, 
+                        'showStringQuotes': false,
+                        'showArrayItemsAsSeparateObjects': true,
+                        'title': {{
+                            showTreeControls: false,
+                            
+                            'text': 'Output'
+                        }},
+                        'data': {Item.output} 
+                    }}""",
+                    id="tree-2"
+                    ),
+                id="main_text",
+                cls="m-2 rounded-t-lg text-sm whitespace-pre-wrap"
+            ),
+            cls="w-1/2 shrink-0 bg-white rounded-lg"
     )
     card_buttons_form = Div(
         Form(
             Input(
                 type="text",
                 name="notes",
-                value=Item.feedback,
+                value=annotation.get('notes', ''),
                 placeholder="Additional notes?",
                 cls="flex-grow p-2 my-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-transparent"
             ),
@@ -67,42 +132,39 @@ def render(Item):
                 Button("Correct",  
                        name="feedback", 
                        value="correct", 
-                       cls=f"btn btn-success mr-2 hover:text-white {'' if Item.feedback == 'correct' else 'btn-outline'}"
+                       cls=f"btn btn-success mr-2 hover:text-white {'' if has_thumbsup else 'btn-outline'}"
                        ),
                 Button("Incorrect", 
                        name="feedback", 
                        value="incorrect", 
-                        cls=f"btn btn-error hover:text-white {'' if Item.feedback == 'incorrect' else 'btn-outline'}"
+                        cls=f"btn btn-error hover:text-white {'' if has_thumbsdown else 'btn-outline'}"
                        ),
                 cls="flex-shrink-0 ml-4"
             ),
             cls="flex items-center",
             method="post",
-            hx_post=f"/feedback/{Item.id}", target_id=f"item_{Item.id}", hx_swap="outerHTML", hx_encoding="multipart/form-data"
+            hx_post=f"/feedback/{Item.trace_id}", target_id=f"item_{Item.trace_id}", hx_swap="outerHTML", hx_encoding="multipart/form-data"
             
         ),
-        cls="mt-4"
+        cls="mt-4 max-w-2xl w-1/2 "
     )
     
     # Card component
     card = Div(
         card_header,
-        Div(
-            Div(
-                Item.output,
-                id="main_text",
-                cls="mt-2 w-full rounded-t-lg text-sm whitespace-pre-wrap h-auto marked"
-            ),
-            cls="bg-white shadow rounded-b-lg p-4 pt-0 pb-10 flex-grow overflow-scroll"
+        Div(    
+            inputs_div,
+            outputs_div,
+            cls="flex flex-row w-full flex-grow shrink-1 overflow-hidden  my-4"
         ),
         card_buttons_form,
-        cls="  flex flex-col h-full flex-grow overflow-auto",
-        id=f"item_{Item.id}",
+        cls="flex flex-col h-full flex-grow overflow-hidden items-center shrink-0 overflow-y-auto",
+        id=f"item_{Item.trace_id}",
         style="min-height: calc(100vh - 6rem); max-height: calc(100vh - 16rem);"
     )
     return card
 
-app, rt, texts_db, Item = fast_app('texts.db',hdrs=(tlink, dlink, picolink, MarkdownJS(), HighlightJS()), live=True, id=int, trace_id=str, inputs=str, output=str, feedback=str, pk='trace_id', render=render, bodykw={"data-theme":"light"})
+app, rt, texts_db, Item = fast_app('texts.db',hdrs=(tlink, dlink, jtlink, jtcss, picolink, MarkdownJS(), HighlightJS(), mainjs, maincss), live=True, id=int, trace_id=str, inputs=str, output=str, feedback=str, project_id=str, pk='trace_id', render=render, bodykw={"data-theme":"light"})
 
 
 title = 'EvalGen project'
@@ -120,21 +182,40 @@ total_items_length = len(texts_db())
 #     print(f"Inserted {total_items_length} items from dummy data")
 
 
-@rt("/feedback/{idx}", methods=['post'])
-def post(idx: int, feedback: str = None, notes: str = None):
-    print(f"Posting feedback: {feedback} and notes: {notes} for item {idx}")
-    items = texts_db()
-    item = texts_db.get(idx)
+@rt("/feedback/{trace_id}", methods=['post'])
+def post(trace_id: str, feedback: str = None, notes: str = None):
+    print(f"Posting feedback: {feedback} and notes: {notes} for item {trace_id}")
     
-    item.feedback = feedback
-    item.notes = notes
+    payload = []
+
+    if feedback is None:
+        return
+    if feedback == 'correct':
+        feedback_emoji =  {
+                "emoji": "👍"
+            }
+        
+    elif feedback == 'incorrect':
+        feedback_emoji =  {
+                "emoji": "👎"
+            }
+    payload.append(feedback_emoji)
+    if notes:
+        payload.append({"note": notes})
+    items = texts_db()
+    item = texts_db.get(trace_id)
+    item.feedback = payload
     texts_db.update(item)
+    
+
+    # post feedback to weave api
+    weave_client.post_feedback(item.project_id, item.trace_id, payload)
     
     # find the next item using list comprehension
     next_item = next((i for i in items if i.id > item.id), items[0])
     # next_item = items[idx + 1] if idx < len(items) - 1 else items[0]
     
-    print(f"Updated item {item.id} with feedback: {feedback} and notes: {notes} moving to {next_item.id}")
+    print(f"Updated item {item.id} with feedback: {feedback} and notes: {notes} moving to {next_item.trace_id}")
     return next_item
 
 @rt("/", methods=['get'])
@@ -188,15 +269,20 @@ def get(project_id: str):
 @app.route("/start-annotation", methods=['post', 'put'])
 def post(start: int, end: int, project_id: str):
     print(f"Starting annotation from {start} to {end} for project {project_id}")
-    
+
     # Fetch calls from the Weave API
     calls = weave_client.get_calls(project_id, int(start), int(end))
-    
+    all_items = texts_db()
     # Insert calls into the database
     for call in calls:
+        
         feedback = call.get('feedback', None)
         ttal = len(texts_db())
-        texts_db.insert(id=ttal+1, trace_id=call.get('trace_id'), inputs=call.get('inputs'), output=call.get('output'), feedback=feedback)
+        if [item for item in all_items if item.trace_id == call.get('id')]:
+            print(f"Item {call.get('trace_id')} already exists")
+        else:
+            texts_db.insert(id=ttal+1, project_id=project_id, trace_id=call.get('id'), inputs=call.get('inputs'), output=call.get('output'), feedback=feedback)
+            print(f"Item {call.get('trace_id')} already exists")
     
     # Update total_items_length
     global total_items_length
@@ -219,14 +305,20 @@ def get(idx: int = 0):
     content = Div(
         H1(title,cls="text-xl font-bold text-center text-gray-800 mb-8"),
         items[index],
-        cls="w-full max-w-2xl mx-auto flex flex-col max-h-full"
+        cls="container w-full mx-auto flex flex-col max-h-full"
     )
     
     return Main(
         content,
-        cls="container mx-auto min-h-screen bg-gray-100 p-8 flex flex-col",
+        cls="bg-gray-100 m-0",
         hx_target="this"
     )
 
+@app.route("/run_evalgen", methods=['post'])
+def run_evalgen(project_id: str):
+    print(f"Running evalgen for project {project_id}")
+    # run evalgen
+    # return evalgen results
+    return "Evalgen results"
 
 serve()

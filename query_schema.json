@@ -1,0 +1,180 @@
+{
+    "project_id": "string",
+    "filter": {
+      "op_names": [
+        "string"
+      ],
+      "input_refs": [
+        "string"
+      ],
+      "output_refs": [
+        "string"
+      ],
+      "parent_ids": [
+        "string"
+      ],
+      "trace_ids": [
+        "string"
+      ],
+      "call_ids": [
+        "string"
+      ],
+      "trace_roots_only": true,
+      "wb_user_ids": [
+        "string"
+      ],
+      "wb_run_ids": [
+        "string"
+      ]
+    },
+    "limit": 0,
+    "offset": 0,
+    "sort_by": [
+      {
+        "field": "string",
+        "direction": "asc"
+      }
+    ],
+    "query": {
+      "$expr": {
+        "$and": [
+          {
+            "$literal": "string"
+          },
+          {
+            "$literal": "string",
+            "$getField": "string"
+          },
+          {
+            "$literal": "string",
+            "$convert": {
+              "input": {
+                "$literal": "string"
+              },
+              "to": "double"
+            }
+          },
+          {
+            "$literal": "string"
+          },
+          {
+            "$literal": "string",
+            "$or": [
+              {
+                "$literal": "string"
+              },
+              {
+                "$literal": "string",
+                "$getField": "string"
+              },
+              {
+                "$literal": "string"
+              },
+              {
+                "$literal": "string"
+              },
+              {
+                "$literal": "string"
+              },
+              {
+                "$literal": "string",
+                "$not": [
+                  null
+                ]
+              },
+              {
+                "$literal": "string",
+                "$eq": [
+                  null,
+                  null
+                ]
+              },
+              {
+                "$literal": "string",
+                "$gt": [
+                  null,
+                  null
+                ]
+              },
+              {
+                "$literal": "string",
+                "$gte": [
+                  null,
+                  null
+                ]
+              },
+              {
+                "$literal": "string",
+                "$in": [
+                  null,
+                  null
+                ]
+              },
+              {
+                "$literal": "string",
+                "$contains": {
+                  "input": {
+                    "$literal": "string"
+                  },
+                  "substr": {
+                    "$literal": "string"
+                  },
+                  "case_insensitive": false
+                }
+              }
+            ]
+          },
+          {
+            "$literal": "string",
+            "$not": [
+              null
+            ]
+          },
+          {
+            "$literal": "string",
+            "$eq": [
+              null,
+              null
+            ]
+          },
+          {
+            "$literal": "string",
+            "$gt": [
+              null,
+              null
+            ]
+          },
+          {
+            "$literal": "string",
+            "$gte": [
+              null,
+              null
+            ]
+          },
+          {
+            "$literal": "string",
+            "$in": [
+              null,
+              null
+            ]
+          },
+          {
+            "$literal": "string",
+            "$contains": {
+              "input": {
+                "$literal": "string"
+              },
+              "substr": {
+                "$literal": "string"
+              },
+              "case_insensitive": false
+            }
+          }
+        ]
+      }
+    },
+    "include_costs": false,
+    "columns": [
+      "string"
+    ]
+  }

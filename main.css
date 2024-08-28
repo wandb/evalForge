@@ -1,0 +1,71 @@
+:root {
+    /* Colors */
+    --json-tree-js-color-dark-black: #fff;
+    --json-tree-js-color-black: #F5F5F5;
+    --json-tree-js-color-white: #AAAAAA;
+    --json-tree-js-color-snow-white: #eee;
+    --json-tree-js-color-light-gray: #AAAAAA;
+
+    /* Colors - Types */
+    --json-tree-js-color-array: #F5F5F5;
+    --json-tree-js-color-object: #eee;
+    --json-tree-js-color-map: #BDB5D5;
+    --json-tree-js-color-set: #989800;
+    --json-tree-js-color-boolean: #FF0000;
+    --json-tree-js-color-decimal: #F4BB44;
+    --json-tree-js-color-number: #666bf9;
+    --json-tree-js-color-bigint: #6495ED;
+    --json-tree-js-color-string: #2e2e2e;
+    --json-tree-js-color-date: #a656f5;
+    --json-tree-js-color-null: var(--json-tree-js-color-light-gray);
+    --json-tree-js-color-undefined: var(--json-tree-js-color-null);
+    --json-tree-js-color-symbol: #DAA06D;
+    --json-tree-js-color-function: var(--json-tree-js-color-null);
+    --json-tree-js-color-unknown: var(--json-tree-js-color-null);
+    --json-tree-js-color-guid: #c45600;
+    --json-tree-js-color-regexp: #AA336A;
+    
+    /* Colors - Editable Fields */
+    --json-tree-js-editable-text-color: var(--json-tree-js-color-white);
+    --json-tree-js-editable-background-color: var(--json-tree-js-color-snow-white);
+
+    /* ToolTip */
+    --json-tree-js-tooltip-background-color: var(--json-tree-js-container-background-color);
+    --json-tree-js-tooltip-border-color: var(--json-tree-js-container-border-color);
+    --json-tree-js-tooltip-text-color: var(--json-tree-js-color-white);
+
+    /* Containers */
+    --json-tree-js-container-background-color: #fff;
+    --json-tree-js-container-border-color: #eee;
+
+    /* Button */
+    --json-tree-js-button-background-color: #e8e6e6;
+    --json-tree-js-button-border-color: var(--json-tree-js-container-border-color);
+    --json-tree-js-button-text-color: var(--json-tree-js-color-white);
+    --json-tree-js-button-background-color-hover: var(--json-tree-js-container-border-color);
+    --json-tree-js-button-text-color-hover: var(--json-tree-js-color-snow-white);
+    --json-tree-js-button-background-color-active: #616b79;
+    --json-tree-js-button-text-color-active: var(--json-tree-js-color-snow-white);
+}
+.json-tree-js{
+    max-width: none !important;
+    border:none !important;
+}
+.title-bar{
+    display:none !important;
+}
+.title-bar .title{
+    color: var(--json-tree-js-color-string);
+}
+.contents{
+    display: block !important;
+}
+
+div.json-tree-js div.object-type-contents div.object-type-value{
+    white-space: pre-wrap;
+}
+
+div.json-tree-js div.object-type-contents div.object-type-value .string.value{
+    /* display: block;
+    padding: 10px 20px; */
+}
