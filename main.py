@@ -24,13 +24,17 @@ total_items_length = 0
 
 #this render function must be defined before the app is created 
 def render(Item):
-    messages = json.loads(Item.inputs)
+    try:
+        messages = json.loads(Item.inputs)
+    except:
+        messages = Item.inputs
+    try:
+        outputs = json.loads(Item.output)
+    except:
+        outputs = Item.output
     
     # get the annotattion from the client 
     annotations = weave_client.get_feedback_for_call(Item.project_id, Item.trace_id)
-    
-    
-    print(f"annotations: {annotations}")
 
     card_header = Div(
         Div(
@@ -85,7 +89,7 @@ def render(Item):
     outputs_div = Div(
             H3("Output", cls="text-base font-semibold leading-6 text-gray-9000 p-4"),
             Div(
-                Div(json.dumps(Item.output), 
+                Div(outputs, 
                     cls="mt-1 text-sm text-gray-500 whitespace-pre-wrap w-half",
                     data_jsontree_js=f"""{{ 
                         'showCounts': false, 
@@ -96,7 +100,7 @@ def render(Item):
                             
                             'text': 'Output'
                         }},
-                        'data': {Item.output} 
+                        'data': {outputs} 
                     }}""",
                     id="tree-2"
                     ),
@@ -150,7 +154,7 @@ def render(Item):
     )
     return card
 
-app, rt, texts_db, Item = fast_app('texts.db',hdrs=(tlink, dlink, jtlink, jtcss, picolink, MarkdownJS(), HighlightJS(), mainjs, maincss), live=True, id=int, trace_id=str, inputs=str, output=str, feedback=str, project_id=str, pk='trace_id', render=render, bodykw={"data-theme":"light"})
+app, rt, texts_db, Item = fast_app('texts.db',hdrs=(tlink, dlink, jtlink, jtcss, picolink, MarkdownJS(), HighlightJS(), mainjs, maincss), live=True, id=int, trace_id=str, inputs=str, output=str, feedback=str, project_id=str, annotation_type=str, pk='trace_id', render=render, bodykw={"data-theme":"light"})
 
 
 title = 'EvalGen project'
@@ -241,6 +245,11 @@ def get(project_id: str):
                 cls="grid grid-cols-2 gap-4"
             ),
             Div(
+                Label("If you are annotating for a specific type, add here otherwise leave blank", for_="category", cls="block text-sm font-medium text-gray-700 mb-1"),
+                Input(name="annotation_type", type="text", id="annotation_type", placeholder="Annotation type (Truthfulness, Correctness, Retrieval Coherence, etc.)", cls="w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"),
+                cls="mb-4"
+            ),
+            Div(
                 Button("Start Annotation", type="submit", cls="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"),
                 cls="flex justify-end mt-6"
             ),
@@ -249,25 +258,39 @@ def get(project_id: str):
             cls="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4"
         ),
         id="count-form",
-        cls="w-full max-w-md mx-auto"
+        cls="w-full max-w-lg mx-auto"
     )
 
 @app.route("/start-annotation", methods=['post', 'put'])
-def post(start: int, end: int, project_id: str):
+def post(start: int, end: int, project_id: str, annotation_type: str = None):
     print(f"Starting annotation from {start} to {end} for project {project_id}")
 
     # Fetch calls from the Weave API
     calls = weave_client.get_calls(project_id, int(start), int(end))
     all_items = texts_db()
+    if len(all_items) > 0:
+        import os 
+        from datetime import datetime
+        # move the existing database to a backup
+        os.rename('./texts.db', f'./backups/{project_id}_samples_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.db')
+        # Delete the existing database
+        os.remove('./texts.db-shm')
+        os.remove('./texts.db-wal')
+
     # Insert calls into the database
     for call in calls:
-        
         feedback = call.get('feedback', None)
         ttal = len(texts_db())
         if [item for item in all_items if item.trace_id == call.get('id')]:
             print(f"Item {call.get('trace_id')} already exists")
         else:
-            texts_db.insert(id=ttal+1, project_id=project_id, trace_id=call.get('id'), inputs=call.get('inputs'), output=call.get('output'), feedback=feedback)
+            texts_db.insert(id=ttal+1, 
+                            project_id=project_id, 
+                            trace_id=call.get('id'), 
+                            inputs=call.get('inputs'), 
+                            output=call.get('output'), 
+                            feedback=feedback,
+                            annotation_type=annotation_type)
             print(f"Item {call.get('trace_id')} already exists")
     
     # Update total_items_length
