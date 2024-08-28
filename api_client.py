@@ -37,6 +37,17 @@ class WeaveAPIClient:
                             {"$getField": "exception"},
                             {"$literal": None}
                         ]
+                    },
+                    {
+                        "$not": [
+                            {
+                                "$contains": {
+                                    "input": {"$getField": "op_name"},
+                                    "substr": {"$literal": "evaluation"},
+                                    "case_insensitive": True
+                                }
+                            }
+                        ],
                     }
                 ]
             }
@@ -64,6 +75,17 @@ class WeaveAPIClient:
                         "$eq": [
                             {"$getField": "exception"},
                             {"$literal": None}
+                        ]
+                    },
+                    {  
+                        "$not": [
+                            {
+                                "$contains": {
+                                    "input": {"$getField": "op_name"},
+                                    "substr": {"$literal": "evaluation"},
+                                    "case_insensitive": True
+                                }
+                            }
                         ]
                     }
                 ]
