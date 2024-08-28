@@ -27,24 +27,10 @@ def render(Item):
     messages = json.loads(Item.inputs)
     
     # get the annotattion from the client 
-    annotation = weave_client.get_feedback_for_call(Item.project_id, Item.trace_id)
-    has_thumbsup = False
-    has_thumbsdown = False
-    feedback_note = ""
-    try:
-        for result in annotation["result"]:
-            print(f"result: {json.dumps(result, indent=2)}")
-            if result["payload"]["emoji"] == "👍":
-                has_thumbsup = True
-            if result["payload"]["emoji"] == "👎":
-                has_thumbsdown = True
-            if result["payload"]['feedback_type'] == "wandb.note.1":
-                feedback_note = result["payload"]["note"]
-    except Exception as e:
-        print(e)
-        pass
+    annotations = weave_client.get_feedback_for_call(Item.project_id, Item.trace_id)
     
-    print(f"has_thumbsup: {has_thumbsup}, has_thumbsdown: {has_thumbsdown}, feedback_note: {feedback_note}")
+    
+    print(f"annotations: {annotations}")
 
     card_header = Div(
         Div(
@@ -124,7 +110,7 @@ def render(Item):
             Input(
                 type="text",
                 name="notes",
-                value=annotation.get('notes', ''),
+                value=annotations.get('feedback_note', ''),
                 placeholder="Additional notes?",
                 cls="flex-grow p-2 my-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-transparent"
             ),
@@ -132,12 +118,12 @@ def render(Item):
                 Button("Correct",  
                        name="feedback", 
                        value="correct", 
-                       cls=f"btn btn-success mr-2 hover:text-white {'' if has_thumbsup else 'btn-outline'}"
+                       cls=f"btn btn-success mr-2 hover:text-white {'' if annotations.get('has_thumbsup') else 'btn-outline'}"
                        ),
                 Button("Incorrect", 
                        name="feedback", 
                        value="incorrect", 
-                        cls=f"btn btn-error hover:text-white {'' if has_thumbsdown else 'btn-outline'}"
+                        cls=f"btn btn-error hover:text-white {'' if annotations.get('has_thumbsdown') else 'btn-outline'}"
                        ),
                 cls="flex-shrink-0 ml-4"
             ),

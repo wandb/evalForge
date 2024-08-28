@@ -99,7 +99,7 @@ class WeaveAPIClient:
             print(f"Error fetching calls: {e}")
             return []
 
-    def get_feedback_for_call(self, project_id, call_id):
+    def get_feedback_for_call(self, project_id: str, call_id: str) -> list[dict]:
         payload = {
             "project_id": project_id,
             "query": {
@@ -121,8 +121,22 @@ class WeaveAPIClient:
         }
         
         response = self._make_request("feedback/query", payload=payload)
+        has_thumbsup = False
+        has_thumbsdown = False
+        feedback_notes = []
+        try:
+            for feedback in response.get("result", []):
+                print(f"feedback: {json.dumps(feedback, indent=2)}")
+                if feedback["feedback_type"] == "wandb.reaction.1":
+                    has_thumbsup = feedback["payload"]["emoji"] == "👍"
+                    has_thumbsdown = feedback["payload"]["emoji"] == "👎"
+                if feedback["feedback_type"] == "wandb.note.1":
+                    feedback_notes.append(feedback.get('payload', {}).get('note', ''))
+        except Exception as e:
+            print(e)
+            pass
         
-        return response
+        return {"has_thumbsup": has_thumbsup, "has_thumbsdown": has_thumbsdown, "feedback_note": ",".join(feedback_notes)}
     
     def post_feedback(self, project_id: str, call_id: str, feedback: list[dict]):
         #iterate over feedback and post each item
