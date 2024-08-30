@@ -3,6 +3,7 @@ import json
 import os
 import base64
 import dotenv
+import openai
 
 dotenv.load_dotenv()
 
@@ -163,19 +164,26 @@ class WeaveAPIClient:
     def post_feedback(self, project_id: str, call_id: str, feedback: list[dict]):
         #iterate over feedback and post each item
         for item in feedback:
-            # check if feedback has note key in it and set feedback_type to wandb.note.1 else wandb.emoji.1
-            if "note" in item:
-                feedback_type = f"wandb.note.1"
-            if "emoji" in item:
-                feedback_type = f"wandb.reaction.1"
-
             payload = {
                 "project_id": project_id,
                 "weave_ref": f"weave:///{project_id}/call/{call_id}",
-                "feedback_type": feedback_type,
-                "payload": item
+                "feedback_type": item["feedback_type"],
+                "payload": item["payload"]
             }
             print(payload)
             response = self._make_request("feedback/create", payload=payload)
             print(response)
         return response
+    
+    def get_category_from_task(self, task: str):
+        openai.api_key = os.getenv('OPENAI_API_KEY')
+        client = openai.OpenAI()
+        response = client.chat.completions.create(
+            model="chatgpt-4o-latest",
+            messages=[
+                {"role": "system", "content": "User will provide his task for this annottation session, and you will answer with 1 word category name for the task."},
+                {"role": "user", "content": f"Classify the following task into a category: {task}"}
+            ],
+            max_tokens=100
+        )
+        return response.choices[0].message.content

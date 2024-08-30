@@ -3,6 +3,9 @@ import json
 from api_client import WeaveAPIClient
 import os
 import dotenv
+import asyncio
+from starlette.responses import StreamingResponse, Response
+
 dotenv.load_dotenv()
 
 # Initialize the WeaveAPIClient
@@ -116,7 +119,7 @@ def render(Item):
                 name="notes",
                 value=annotations.get('feedback_note', ''),
                 placeholder="Additional notes?",
-                cls="flex-grow p-2 my-4 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-transparent"
+                cls="flex-grow p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-transparent"
             ),
             Div(
                 Button("Correct",  
@@ -131,12 +134,21 @@ def render(Item):
                        ),
                 cls="flex-shrink-0 ml-4"
             ),
-            cls="flex items-center",
+            cls="flex grow max-w-xl",
             method="post",
             hx_post=f"/feedback/{Item.trace_id}", target_id=f"item_{Item.trace_id}", hx_swap="outerHTML", hx_encoding="multipart/form-data"
             
         ),
-        cls="mt-4 max-w-2xl w-1/2 "
+        Div(
+            
+            A("Run EvalGen", 
+                   cls="btn btn-primary", 
+                   href="/run_evalgen" 
+            ),
+            Div("finished annotating? run EvalGen!"),
+            cls="shrink ml-4 justify-end"
+        ),
+        cls="mt-4  w-full flex flex-row justify-between"
     )
     
     # Card component
@@ -148,13 +160,27 @@ def render(Item):
             cls="flex flex-row w-full flex-grow shrink-1 overflow-hidden  my-4"
         ),
         card_buttons_form,
-        cls="flex flex-col h-full flex-grow overflow-hidden items-center shrink-0 overflow-y-auto",
+        cls="flex flex-col h-full flex-grow overflow-hidden shrink-0 overflow-y-auto",
         id=f"item_{Item.trace_id}",
         style="min-height: calc(100vh - 6rem); max-height: calc(100vh - 16rem);"
     )
     return card
 
-app, rt, texts_db, Item = fast_app('texts.db',hdrs=(tlink, dlink, jtlink, jtcss, picolink, MarkdownJS(), HighlightJS(), mainjs, maincss), live=True, id=int, trace_id=str, inputs=str, output=str, feedback=str, project_id=str, annotation_type=str, pk='trace_id', render=render, bodykw={"data-theme":"light"})
+app, rt, texts_db, Item = fast_app('texts.db',
+                                   hdrs=(tlink, dlink, jtlink, jtcss, picolink, MarkdownJS(), HighlightJS(), mainjs, maincss), 
+                                   live=True, 
+                                   render=render, 
+                                   bodykw={"data-theme":"light"},
+                                   id=int, 
+                                   trace_id=str, 
+                                   inputs=str, 
+                                   output=str, 
+                                   feedback=str, 
+                                   project_id=str, 
+                                   annotation_task=str,
+                                   additional_metrics=str,
+                                   annotation_type=str, 
+                                   pk='trace_id' )
 
 
 title = 'EvalGen project'
@@ -175,31 +201,31 @@ total_items_length = len(texts_db())
 @rt("/feedback/{trace_id}", methods=['post'])
 def post(trace_id: str, feedback: str = None, notes: str = None):
     print(f"Posting feedback: {feedback} and notes: {notes} for item {trace_id}")
-    
-    payload = []
-
-    if feedback is None:
-        return
-    if feedback == 'correct':
-        feedback_emoji =  {
-                "emoji": "👍"
-            }
-        
-    elif feedback == 'incorrect':
-        feedback_emoji =  {
-                "emoji": "👎"
-            }
-    payload.append(feedback_emoji)
-    if notes:
-        payload.append({"note": notes})
     items = texts_db()
     item = texts_db.get(trace_id)
-    item.feedback = payload
+    feedback_type = item.annotation_type
+
+    weave_feedback = []
+    
+    # but make sure to make it look nice for the rest of weave
+    if feedback == 'correct':
+        weave_feedback.append({"feedback_type": "wandb.reaction.1", "payload": {"emoji": "👍"}})
+    elif feedback == 'incorrect':
+        weave_feedback.append({"feedback_type": "wandb.reaction.1", "payload": {"emoji": "👎"}})
+    
+    #if a specific feedback type was provided, add it to the specific weave feedback
+    if feedback_type != '':
+        weave_feedback.append({"feedback_type": feedback_type, "payload": {"value": feedback, "notes": notes}})
+    elif notes:
+        weave_feedback.append({"feedback_type": "wandb.note.1", "payload": {"note": notes}})
+            
+    
+    item.feedback = weave_feedback
     texts_db.update(item)
     
 
     # post feedback to weave api
-    weave_client.post_feedback(item.project_id, item.trace_id, payload)
+    weave_client.post_feedback(item.project_id, item.trace_id, weave_feedback)
     
     # find the next item using list comprehension
     next_item = next((i for i in items if i.id > item.id), items[0])
@@ -217,7 +243,7 @@ def get():
             Input(name="project_id", type="text", value="wandb/weave-evalgen-simprod", placeholder="Enter project ID", cls="w-full p-2 mb-4 border rounded"),
             Input(type="submit", value="Submit", cls="w-full p-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"),
             hx_get="/get_count",
-            cls="w-full max-w-md mx-auto",
+            cls="w-full max-w-md mx-auto"
         ),
         cls="container mx-auto min-h-screen bg-gray-100 p-8 flex flex-col items-center justify-center"
     )
@@ -245,12 +271,19 @@ def get(project_id: str):
                 cls="grid grid-cols-2 gap-4"
             ),
             Div(
-                Label("If you are annotating for a specific type, add here otherwise leave blank", for_="category", cls="block text-sm font-medium text-gray-700 mb-1"),
-                Input(name="annotation_type", type="text", id="annotation_type", placeholder="Annotation type (Truthfulness, Correctness, Retrieval Coherence, etc.)", cls="w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"),
+                Label("* What is your annotation task? Provide in natural language a short description to help the LLM judge learn from what you're doing", for_="category", cls="block text-sm font-medium text-gray-700 mb-1"),
+                Textarea(name="annotation_task", id="annotation_task", placeholder="I'm looking at customer support calls and trying to judge if responses include PII", cls="w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm", rows=3),
                 cls="mb-4"
-            ),
+            ), 
             Div(
-                Button("Start Annotation", type="submit", cls="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"),
+                Label("* Write any additional details about metrics you want calculated by the LLM Judge creator", for_="category", cls="block text-sm font-medium text-gray-700 mb-1"),
+                Textarea(name="additional_metrics", id="additional_metrics", placeholder="I want a specific finance metric which looks at a weighted moving average over the data which involves arrays", cls="w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm", rows=3),
+                cls="mb-4"
+            ), 
+            Div("* Optional", cls="text-xs text-gray-500"),
+            Div(
+                
+                Button("Start annotating", type="submit", cls="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"),
                 cls="flex justify-end mt-6"
             ),
             hx_post="/start-annotation",
@@ -262,7 +295,7 @@ def get(project_id: str):
     )
 
 @app.route("/start-annotation", methods=['post', 'put'])
-def post(start: int, end: int, project_id: str, annotation_type: str = None):
+def post(start: int, end: int, project_id: str, annotation_task: str = None, additional_metrics: str = None):
     print(f"Starting annotation from {start} to {end} for project {project_id}")
 
     # Fetch calls from the Weave API
@@ -276,6 +309,15 @@ def post(start: int, end: int, project_id: str, annotation_type: str = None):
         # Delete the existing database
         os.remove('./texts.db-shm')
         os.remove('./texts.db-wal')
+    
+    annotation_type = ''
+    try:
+        if annotation_task:
+            annotation_type = weave_client.get_category_from_task(annotation_task)
+    except Exception as e:
+        print("could not get category from task")
+        print(e)
+    
 
     # Insert calls into the database
     for call in calls:
@@ -290,6 +332,8 @@ def post(start: int, end: int, project_id: str, annotation_type: str = None):
                             inputs=call.get('inputs'), 
                             output=call.get('output'), 
                             feedback=feedback,
+                            annotation_task=annotation_task,
+                            additional_metrics=additional_metrics,
                             annotation_type=annotation_type)
             print(f"Item {call.get('trace_id')} already exists")
     
@@ -323,11 +367,21 @@ def get(idx: int = 0):
         hx_target="this"
     )
 
-@app.route("/run_evalgen", methods=['post'])
-def run_evalgen(project_id: str):
-    print(f"Running evalgen for project {project_id}")
-    # run evalgen
-    # return evalgen results
-    return "Evalgen results"
+
+
+@app.route('/run_evalgen', methods=['get'])
+def run_evalgen():
+
+    
+
+    all_items = texts_db()
+    for item in all_items:
+        #Anish - here are all the items from the DB
+        print(item)
+    
+    return Div(
+        "I have started running EvalGen... please sit back and relax and stuff will happen, I promise!"
+    )
+
 
 serve()
