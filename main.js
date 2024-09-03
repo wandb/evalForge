@@ -18,14 +18,21 @@ document.addEventListener('DOMContentLoaded', function() {
     //     htmx.find("#progress").setAttribute("value", evt.detail.loaded/1000 * 100)
     // });
 
-    document.body.addEventListener('htmx:sseMessage', function(event) {
+    htmx.on('htmx:sseMessage', function(event) {
         console.log("Event:", event);
-        var data = JSON.parse(event.detail.message);
-        if (data.progress !== undefined) {
-            var progressBar = document.getElementById("progress-bar");
-            var progressText = document.getElementById("progress-text");
-            progressBar.value = data.progress;
-            progressText.textContent = Math.round(data.progress) + "%";
+        
+        var consoleOutput = document.getElementById("console_output");
+        if (consoleOutput) {
+            // Store the current scroll position and check if we're at the bottom
+            var isScrolledToBottom = consoleOutput.scrollHeight - consoleOutput.clientHeight <= consoleOutput.scrollTop + 1;
+            
+            // Append the new message
+            // (Assuming the message is being appended by htmx, we don't need to do it manually here)
+            
+            // If we were at the bottom before the new message, scroll to the bottom again
+            if (isScrolledToBottom) {
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
         }
     });
 });

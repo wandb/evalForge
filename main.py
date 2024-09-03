@@ -4,7 +4,8 @@ from api_client import WeaveAPIClient
 import os
 import dotenv
 import asyncio
-from starlette.responses import StreamingResponse, Response
+import random
+from fasthtml.common import signal_shutdown, sse_message, EventStream
 
 dotenv.load_dotenv()
 
@@ -13,13 +14,16 @@ weave_client = WeaveAPIClient()
 
 basic_auth = base64.b64encode(f"{os.getenv('WANDB_USERNAME')}:{os.getenv('WANDB_API_KEY')}".encode()).decode()
 
-# Set up the app, including daisyui and tailwind for the chat component
+# Set up the app headers, including daisyui and tailwind for the chat component
 tlink = Script(src="https://cdn.tailwindcss.com?plugins=typography")
 jtlink = Script(src="https://cdn.jsdelivr.net/gh/williamtroup/JsonTree.js@2.9.0/dist/jsontree.min.js")
 mainjs = Script(open('main.js').read(), type='text/javascript')
 dlink = Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css")
 jtcss = Link(rel="stylesheet", href="https://cdn.jsdelivr.net/gh/williamtroup/JsonTree.js@2.9.0/dist/jsontree.js.css")
 maincss = Style(open('main.css').read(), type='text/css')
+sse = Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js")
+
+headers = (tlink, dlink, jtlink, jtcss, picolink, MarkdownJS(), HighlightJS(), mainjs, maincss, sse)
 
 # Define a global variable for total items length
 total_items_length = 0
@@ -52,14 +56,14 @@ def render(Item):
                     hx_get=f"/annotate/{Item.id - 2}" if Item.id > 0 else "#",
                     hx_swap="outerHTML",
                     
-                    cls="relative inline-flex items-center rounded-l-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" + (" pointer-events-none opacity-50" if Item.id == 1 else "")
+                    cls="relative inline-flex items-center rounded-l-md bg-cyan-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-cyan-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500" + (" pointer-events-none opacity-50" if Item.id == 1 else "")
                 ),
                 A(
                     Span("→", cls="sr-only"),
                     Span("→", cls="h-5 w-5", aria_hidden="true"),
                     hx_get=f"/annotate/{Item.id}" if Item.id < total_items_length - 1 else "#",
                     hx_swap="outerHTML",
-                    cls="relative -ml-px inline-flex items-center rounded-r-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" + (" pointer-events-none opacity-50" if Item.id == total_items_length - 1 else "")
+                    cls="relative -ml-px inline-flex items-center rounded-r-md bg-cyan-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-cyan-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500" + (" pointer-events-none opacity-50" if Item.id == total_items_length - 1 else "")
                 ),
                 cls="flex-shrink-0"
             ),
@@ -142,7 +146,7 @@ def render(Item):
         Div(
             
             A("Run EvalGen", 
-                   cls="btn btn-primary", 
+                   cls="btn  bg-cyan-500 hover:bg-cyan-600 outline outline-cyan-500 border-0", 
                    href="/run_evalgen" 
             ),
             Div("finished annotating? run EvalGen!"),
@@ -167,7 +171,7 @@ def render(Item):
     return card
 
 app, rt, texts_db, Item = fast_app('texts.db',
-                                   hdrs=(tlink, dlink, jtlink, jtcss, picolink, MarkdownJS(), HighlightJS(), mainjs, maincss), 
+                                   hdrs=headers, 
                                    live=True, 
                                    render=render, 
                                    bodykw={"data-theme":"light"},
@@ -237,11 +241,11 @@ def post(trace_id: str, feedback: str = None, notes: str = None):
 @rt("/", methods=['get'])
 def get():
     return Main(
-        H1("Welcome to Weave EvalGen", cls="text-2xl font-bold text-center text-gray-800 mb-4"),
+        H1("Welcome to Weave LLM Judge Improver", cls="text-2xl font-bold text-center text-amber-500 mb-4"),
         Form(
             H2("Enter your Weave project ID to begin", cls="text-lg text-center text-gray-600 mb-8"),
             Input(name="project_id", type="text", value="wandb/weave-evalgen-simprod", placeholder="Enter project ID", cls="w-full p-2 mb-4 border rounded"),
-            Input(type="submit", value="Submit", cls="w-full p-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"),
+            Input(type="submit", value="Submit", cls="w-full p-2 bg-cyan-500 text-white rounded cursor-pointer hover:bg-cyan-600"),
             hx_get="/get_count",
             cls="w-full max-w-md mx-auto"
         ),
@@ -283,7 +287,7 @@ def get(project_id: str):
             Div("* Optional", cls="text-xs text-gray-500"),
             Div(
                 
-                Button("Start annotating", type="submit", cls="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"),
+                Button("Start annotating", type="submit", cls="btn btn-primary bg-cyan-500 hover:bg-cyan-600"),
                 cls="flex justify-end mt-6"
             ),
             hx_post="/start-annotation",
@@ -367,21 +371,55 @@ def get(idx: int = 0):
         hx_target="this"
     )
 
-
-
-@app.route('/run_evalgen', methods=['get'])
+@rt("/run_evalgen", methods=['get'])
 def run_evalgen():
+    return Div(
+        Div(
+            Div(
+                H2("Running LLM Improver...", cls="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl"),
+                P("Started running LLM Improver, this will take a while... You can return to this page to see progress, or check the ./output folder for results", cls="mt-6 text-lg leading-8 text-gray-600"),
+                cls="mx-auto max-w-2xl text-center"
+            ),
+            cls="px-6 py-24 sm:py-32 lg:px-8"
+        ),
+        Div(
+            Div(
+                H3("EvalGen is running, this will take a while...", cls="text-lg font-semibold mb-2 text-gray-200"),
+                Pre(
+                    id="console_output",
+                    hx_ext="sse",
+                    sse_connect="/progress-stream",
+                    hx_swap="beforeend show:bottom",
+                    sse_swap="message",
+                    cls="bg-black text-green-400 font-mono p-4 rounded-md h-64 overflow-y-auto whitespace-pre-wrap"
+                ),
+                cls="w-full max-w-3xl mx-auto"
+            ),
+            cls="bg-gray-800 p-6 rounded-lg shadow-lg"
+        ),
+        cls="bg-white"
+    )
+# @app.route('/run_evalgen', methods=['get'])
+# def run_evalgen():
+#     return Div(
+#         H3("EvalGen is running, this will take a while..."),
+#         hx_ext="sse", 
+#         sse_connect="/progress-stream", 
+#         hx_swap="show:bottom", 
+#         sse_swap="message",
+#         cls="w-full"
+#     )
 
-    
-
+async def number_generator():
     all_items = texts_db()
     for item in all_items:
-        #Anish - here are all the items from the DB
-        print(item)
+        await asyncio.sleep(1)
+        yield sse_message(Div(f"Processing sample {item.id} of {len(all_items)}"))
     
-    return Div(
-        "I have started running EvalGen... please sit back and relax and stuff will happen, I promise!"
-    )
+    yield sse_message(Div("EvalGen is done!"))
 
+
+@rt("/progress-stream")
+async def get(): return EventStream(number_generator())
 
 serve()

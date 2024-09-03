@@ -46,7 +46,21 @@
     --json-tree-js-button-text-color-hover: var(--json-tree-js-color-snow-white);
     --json-tree-js-button-background-color-active: #616b79;
     --json-tree-js-button-text-color-active: var(--json-tree-js-color-snow-white);
+
+    --primary-50: #f0f0f0;
+    --primary-100: #d9d9d9;
+    --primary-200: #bfbfbf;
+    --primary-300: #a6a6a6;
+    --primary-400: #8c8c8c;
+    --primary-500: #737373;
+    --primary-600: #595959;
+    --primary-700: #404040;
+    --primary-800: #262626;
+    --primary-900: #0d0d0d;
+
 }
+
+
 .json-tree-js{
     max-width: none !important;
     border:none !important;
