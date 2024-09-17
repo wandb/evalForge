@@ -10,8 +10,10 @@ import sys
 from stdlib_list import stdlib_list
 import weave
 import json
+import textwrap
 
-class CodeFormatter:
+
+class CodeFormatter(weave.Object):
     @weave.op()
     def lint_code(self, code: str) -> str:
         code = code.replace('\\n', '\n')
@@ -60,7 +62,9 @@ class CodeFormatter:
         test_dir = os.path.join(base_dir, "tests")
         os.makedirs(test_dir, exist_ok=True)
 
-        for assertion_name, assertion_code in assertions.items():
+        for assertion in assertions:
+            assertion_name = assertion.test_name
+            assertion_code = assertion.code
             file_name = f"test_{assertion_name}.py"
             full_code = self.create_test_file_content(assertion_name, assertion_code)
             with open(os.path.join(test_dir, file_name), "w") as f:
@@ -76,18 +80,25 @@ class CodeFormatter:
 
         return base_dir
 
+
+    @weave.op()
     def create_test_file_content(self, assertion_name: str, assertion_code: str) -> str:
+        # Dedent the assertion code to remove any existing indentation
+        dedented_assertion_code = textwrap.dedent(assertion_code).strip()
+        # Re-indent the assertion code to match the class indentation (4 spaces)
+        indented_assertion_code = textwrap.indent(dedented_assertion_code, '    ')
         return f"""
 import unittest
 from run_tests import OutputTestCase
 
-class Test{assertion_name.capitalize()}(OutputTestCase):
-    {assertion_code}
+class Test_{assertion_name}(OutputTestCase):
+{indented_assertion_code}
 
 if __name__ == '__main__':
     unittest.main()
 """
 
+    @weave.op()
     def get_run_tests_content(self) -> str:
         return '''
 import unittest
