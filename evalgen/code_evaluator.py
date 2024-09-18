@@ -65,17 +65,27 @@ class CodeAssertionScorer(weave.Scorer):
         # Collect individual test results
         test_result_dict = {}
         for test_name, result in test_results:
+            test_name_without_prefix = test_name  # Assuming test_name is the same as assertion.test_name
             if result == "ok":
-                test_result_dict[f"{test_name}_result"] = "PASS"
-                test_result_dict[f"{test_name}_score"] = 1
+                test_result_dict[test_name_without_prefix] = {
+                    "score": 1,
+                    "result": "PASS",
+                    "type": "code"
+                }
                 passed += 1
             elif result == "FAIL":
-                test_result_dict[f"{test_name}_result"] = "FAIL"
-                test_result_dict[f"{test_name}_score"] = 0
+                test_result_dict[test_name_without_prefix] = {
+                    "score": 0,
+                    "result": "FAIL",
+                    "type": "code"
+                }
                 failures += 1
             elif result == "ERROR":
-                test_result_dict[f"{test_name}_result"] = "ERROR"
-                test_result_dict[f"{test_name}_score"] = 0
+                test_result_dict[test_name_without_prefix] = {
+                    "score": 0,
+                    "result": "ERROR",
+                    "type": "code"
+                }
                 errors += 1
 
         return {

@@ -12,11 +12,22 @@ from instructor_models import PythonAssertion, LLMAssertion
 def predict_passthrough(model_output: Dict[str, Any], task_description: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
     return model_output
 
+# evalgen/combined_scorer.py
+
+import weave
+from typing import List, Dict, Any, Optional, Union
+from pydantic import Field
+from code_evaluator import CodeFormatter
+from instructor_models import LLMAssertion, PythonAssertion
+from llm_evaluator import LLMAssertionScorer
+from code_evaluator import CodeAssertionScorer
+from criterion_assertion_map import CriterionAssertionMap
+
 class AssertionScorer(weave.Scorer):
-    assertions: List[Union[LLMAssertion, PythonAssertion]]
+    criterion_assertion_map: CriterionAssertionMap
     llm_model: str = Field(default="gpt-4o-2024-08-06")
-    prompt_template: str = Field(default_factory=str)
-    system_prompt: str = Field(default_factory=str)
+    prompt_template: str = Field(default='')
+    system_prompt: str = Field(default='')
     code_formatter: CodeFormatter = Field(default_factory=CodeFormatter)
 
     @weave.op()
@@ -29,18 +40,18 @@ class AssertionScorer(weave.Scorer):
         if model_output is None:
             return {"error": "No model output provided"}
 
+        # Collect all assertions from the mapping
+        all_assertions = []
+        for assertions in self.criterion_assertion_map.criterion_to_assertions.values():
+            all_assertions.extend(assertions)
+
         # Separate assertions into LLM and Python assertions
-        llm_assertions = []
-        python_assertions = []
-        for assertion in self.assertions:
-            if isinstance(assertion, LLMAssertion):
-                llm_assertions.append(assertion)
-            elif isinstance(assertion, PythonAssertion):
-                python_assertions.append(assertion)
+        llm_assertions = [a for a in all_assertions if isinstance(a, LLMAssertion)]
+        python_assertions = [a for a in all_assertions if isinstance(a, PythonAssertion)]
 
         results = {}
 
-        # If there are LLM assertions, use LLMAssertionScorer
+        # Process LLM assertions
         if llm_assertions:
             llm_scorer = LLMAssertionScorer(
                 assertions=llm_assertions,
@@ -51,16 +62,34 @@ class AssertionScorer(weave.Scorer):
             llm_results = await llm_scorer.score(model_output, task_description, input_data)
             results["llm_assertion_results"] = llm_results.get("llm_assertion_results", {})
 
-        # If there are Python assertions, use CodeAssertionScorer
+        # Process Python assertions
         if python_assertions:
             code_scorer = CodeAssertionScorer(
                 assertions=python_assertions,
                 code_formatter=self.code_formatter,
             )
-            code_results = code_scorer.score(model_output["output"], input_data, task_description)
+            code_results = code_scorer.score(
+                model_output,
+                input_data,
+                task_description
+            )
             results["code_assertion_results"] = code_results.get("code_assertion_results", {})
 
-        return results
+        # Map results back to criteria using the mapping class
+        criterion_results: Dict[str, Dict[str, Any]] = {}
+        for test_name, result in results.get("llm_assertion_results", {}).items():
+            criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
+            if criterion not in criterion_results:
+                criterion_results[criterion] = {}
+            criterion_results[criterion][test_name] = result
+
+        for test_name, result in results.get("code_assertion_results", {}).get("test_results", {}).items():
+            criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
+            if criterion not in criterion_results:
+                criterion_results[criterion] = {}
+            criterion_results[criterion][test_name] = result
+
+        return criterion_results
 
 async def main():
     import weave

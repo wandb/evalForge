@@ -2,9 +2,8 @@ import weave
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 import openai
-from instructor_models import PythonAssertion, LLMAssertion
+from instructor_models import LLMAssertion
 import asyncio
-
 
 class LLMAssertionScorer(weave.Scorer):
     assertions: List[LLMAssertion]
@@ -59,17 +58,35 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
             )
 
             result = response.choices[0].message.content.strip()
-            return assertion.test_name, 1 if result == "PASS" else 0
+
+            # Map the LLM response to a score and standardize the result
+            if result == "PASS":
+                score = 1
+            elif result == "FAIL":
+                score = 0
+            else:
+                # Handle unexpected responses
+                score = 0  # Treat unexpected responses as failures
+                result = "FAIL"  # Standardize the result text
+
+            # Return a dictionary similar to code assertions
+            return assertion.test_name, {
+                'score': score,
+                'result': result,
+                'type': 'llm'
+            }
 
         # Create tasks for all assertions
         tasks = [process_assertion(assertion) for assertion in self.assertions]
 
         # Run all tasks concurrently and gather results
-        results = dict(await asyncio.gather(*tasks))
+        assertion_results = await asyncio.gather(*tasks)
+        results = dict(assertion_results)
 
         return {"llm_assertion_results": results}
 
 def main():
+    # Example usage
     weave.init("llm_evaluator_test")
     # Example LLM assertions
     assertions = [
@@ -92,33 +109,22 @@ def main():
             )
         ),
         LLMAssertion(
-            test_name="Conciseness and Privacy Compliance",
+            test_name="conciseness_and_privacy_compliance",
             text=(
                 "Evaluate the following output for conciseness and privacy compliance: Does the output summarize the "
                 "key information effectively within 150 words while ensuring no personal identifiable information (PII) "
                 "like name, age, gender, or ID is present? Provide your assessment as PASS for compliance or FAIL otherwise."
             )
         ),
-        LLMAssertion(
-            test_name="TestSummaryIncludesKeySections",
-            text=(
-                "Evaluate the output to ensure it contains concise summaries of all key sections: chief complaint, history "
-                "of present illness, physical examination findings, symptoms, new medications or changes, and follow-up "
-                "instructions. The output should focus on essential information while remaining concise. Return 'PASS' if "
-                "all sections are adequately summarized; otherwise, return 'FAIL'."
-            )
-        )
+        # Add more assertions as needed...
     ]
 
     # Create the LLMAssertionScorer
     scorer = LLMAssertionScorer(assertions=assertions)
 
     # Example task description, input data, and model output
-    task_description = (
-        "Transform a dialogue between a doctor and a patient into a structured medical note summary, adhering to privacy "
-        "guidelines and specified formatting instructions."
-    )
-    
+    task_description = "Transform a dialogue between a doctor and a patient into a structured medical note summary, adhering to privacy guidelines and specified formatting instructions."
+
     input_data = {
         "dialogue": (
             "Doctor: What brings you in today?\n"
@@ -130,26 +136,28 @@ def main():
             "Doctor: I see. Let's do a quick examination."
         )
     }
-    
+
     model_output = {
         "output": (
             "• Chief complaint: Severe headaches for the past week\n"
             "• History of present illness: The patient reports daily headaches, particularly in the afternoon, accompanied "
-            "by nausea and photophobia\n"
-            "• Physical examination: Performed, details not provided\n"
-            "• Symptoms experienced by the patient: Headaches, nausea, light sensitivity\n"
-            "• New medications prescribed or changed: N/A\n"
-            "• Follow-up instructions: N/A"
+            "by nausea and photophobia.\n"
+            "• Physical examination: Performed; details not provided.\n"
+            "• Symptoms experienced by the patient: Headaches, nausea, light sensitivity.\n"
+            "• New medications prescribed or changed: N/A.\n"
+            "• Follow-up instructions: N/A."
         )
     }
 
-    # Score the model output
-    results = scorer.score(model_output, task_description, input_data)
+    # Since the score method is asynchronous, use an async function to run it
+    async def run_scorer():
+        results = await scorer.score(model_output, task_description, input_data)
+        print("Evaluation Results:")
+        for test_name, result in results["llm_assertion_results"].items():
+            print(f"{test_name}: {result}")
 
-    # Print the results
-    print("Evaluation Results:")
-    for test_name, result in results["llm_assertion_results"].items():
-        print(f"{test_name}: {'PASS' if result == True else 'FAIL'}")
+    # Run the async function
+    asyncio.run(run_scorer())
 
 if __name__ == "__main__":
     main()

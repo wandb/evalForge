@@ -23,7 +23,7 @@ class CodeFormatter(weave.Object):
         code = import_statements + "\n\n" + code
         code = fix_code(code, remove_all_unused_imports=True, remove_unused_variables=True)
         code = isort.code(code)
-        code = autopep8.fix_code(code, options={'aggressive': 1})
+        code = autopep8.fix_code(code, options={'aggressive': 2})
         return code
 
     def get_required_imports(self, tree: ast.AST) -> Set[tuple]:

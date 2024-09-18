@@ -12,6 +12,14 @@ class Criterion(BaseModel):
     explanation: str = Field(..., description="A detailed explanation of the criterion's importance and potential evaluation methods")
     evaluation_method: Literal["code", "llm"] = Field(..., description="The primary method for evaluating this criterion: 'code' for programmatic checks, 'llm' for language model-based assessment")
 
+    def __hash__(self):
+        return hash((self.criterion, self.explanation, self.evaluation_method))
+
+    def __eq__(self, other):
+        if isinstance(other, Criterion):
+            return (self.criterion, self.explanation, self.evaluation_method) == (other.criterion, other.explanation, other.evaluation_method)
+        return False
+    
 class EvaluationCriteria(BaseModel):
     criteria: List[Criterion] = Field(
         ...,
