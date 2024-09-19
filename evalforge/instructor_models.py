@@ -24,8 +24,8 @@ class EvaluationCriteria(BaseModel):
     criteria: List[Criterion] = Field(
         ...,
         min_items=1,
-        max_items=3,
-        description="A list of 1-3 distinct evaluation criteria, each focusing on a different aspect of output quality"
+        max_items=2,
+        description="A list of 1-2 distinct evaluation criteria, each focusing on a different aspect of output quality"
     )
 
 class PythonAssertion(BaseModel):

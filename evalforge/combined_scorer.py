@@ -26,8 +26,25 @@ from criterion_assertion_map import CriterionAssertionMap
 class AssertionScorer(weave.Scorer):
     criterion_assertion_map: CriterionAssertionMap
     llm_model: str = Field(default="gpt-4o-2024-08-06")
-    prompt_template: str = Field(default='')
-    system_prompt: str = Field(default='')
+    prompt_template: str = Field(default="""
+Task Description:
+{task_description}
+
+Evaluate the following output based on the given task, input, and assertion:
+
+Input:
+{input_data}
+
+Output:
+{model_output}
+
+Assertion:
+{assertion_text}
+
+Consider the task description and input when evaluating the output against the assertion.
+Respond with either 'PASS' if the output meets the assertion criteria in the context of the task and input, or 'FAIL' if it does not.
+""")
+    system_prompt: str = Field(default="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions.")
     code_formatter: CodeFormatter = Field(default_factory=CodeFormatter)
 
     @weave.op()

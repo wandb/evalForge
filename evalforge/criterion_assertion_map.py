@@ -1,12 +1,11 @@
 from typing import Dict, List, Union
 from instructor_models import Criterion, LLMAssertion, PythonAssertion
+from pydantic import BaseModel
+import weave
 
-class CriterionAssertionMap:
-    def __init__(self):
-        # Maps criterion names to lists of assertions
-        self.criterion_to_assertions: Dict[str, List[Union[LLMAssertion, PythonAssertion]]] = {}
-        # Maps assertion test names to criterion names
-        self.assertion_to_criterion: Dict[str, str] = {}
+class CriterionAssertionMap(weave.Object):
+    criterion_to_assertions: Dict[str, List[Union[LLMAssertion, PythonAssertion]]] = {}
+    assertion_to_criterion: Dict[str, str] = {}
 
     def add_assertion(self, criterion: Criterion, assertion: Union[LLMAssertion, PythonAssertion]):
         criterion_name = criterion.criterion
