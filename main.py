@@ -6,6 +6,8 @@ import dotenv
 import asyncio
 import random
 from fasthtml.common import signal_shutdown, sse_message, EventStream
+from evalforge.evalforge import EvalForge
+import weave
 
 dotenv.load_dotenv()
 
@@ -399,16 +401,24 @@ def run_evalgen():
         ),
         cls="bg-white"
     )
-# @app.route('/run_evalgen', methods=['get'])
-# def run_evalgen():
-#     return Div(
-#         H3("EvalGen is running, this will take a while..."),
-#         hx_ext="sse", 
-#         sse_connect="/progress-stream", 
-#         hx_swap="show:bottom", 
-#         sse_swap="message",
-#         cls="w-full"
-#     )
+@app.route('/run_evalgen', methods=['get'])
+def run_evalgen():
+    weave.init("evalgen_project")
+    all_items = texts_db()
+    data = [item.to_dict() for item in all_items]
+    forger = EvalForge()
+    results = forger.predict(data)
+    forged_judge = results["forged_judges"]["judge"]
+    weave.publish(forged_judge, name="final_judge")
+    weave.finish()
+    return Div(
+        H3("EvalGen is running, this will take a while..."),
+        hx_ext="sse", 
+        sse_connect="/progress-stream", 
+        hx_swap="show:bottom", 
+        sse_swap="message",
+        cls="w-full"
+    )
 
 async def number_generator():
     all_items = texts_db()
