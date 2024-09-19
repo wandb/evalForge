@@ -2,50 +2,77 @@ from typing import Dict, List, Tuple, Any, Optional
 from itertools import combinations
 
 def calculate_alignment_metrics(assertion_results: Dict[str, Dict[str, List[Tuple[Dict[str, Any], int]]]]) -> Dict[str, Any]:
+    """
+    Calculate alignment metrics for each criterion and its assertions.
+
+    Args:
+        assertion_results (Dict[str, Dict[str, List[Tuple[Dict[str, Any], int]]]]):
+            Nested dictionary containing assertion results.
+            Structure: {criterion: {assertion: List[Tuple[score_dict, human_annotation]]}}
+
+    Returns:
+        Dict[str, Any]: A dictionary containing alignment metrics per criterion and per assertion.
+    """
     metrics = {}
 
+    # Iterate over each criterion in the assertion results
     for criterion, assertions in assertion_results.items():
         criterion_metrics = {}
-        # Initialize per-criterion totals
-        criterion_total_outputs = 0
-        criterion_total_bad = 0
-        criterion_total_good = 0
 
-        criterion_passes = 0
-        criterion_fails = 0
-        criterion_fails_on_bad = 0
-        criterion_fails_on_good = 0
+        # Initialize per-criterion totals to aggregate over all assertions
+        criterion_total_outputs = 0      # Total number of outputs across all assertions for this criterion
+        criterion_total_bad = 0          # Total number of bad outputs across all assertions
+        criterion_total_good = 0         # Total number of good outputs across all assertions
 
+        criterion_passes = 0             # Total number of outputs that passed across all assertions
+        criterion_fails = 0              # Total number of outputs that failed across all assertions
+        criterion_fails_on_bad = 0       # Total number of bad outputs correctly failed
+        criterion_fails_on_good = 0      # Total number of good outputs incorrectly failed
+
+        # Iterate over each assertion under the current criterion
         for assertion, results in assertions.items():
-            # Process each assertion
-            total_outputs = len(results)
+            # Process each assertion's results
+            total_outputs = len(results)     # Total number of outputs for this assertion
 
-            # Assuming human_annotation: 0 = bad, 1 = good
+            # Count the number of bad and good outputs based on human annotations
+            # Assuming human_annotation: 0 = bad output, 1 = good output
             total_bad = sum(1 for _, human_annotation in results if human_annotation == 0)
             total_good = sum(1 for _, human_annotation in results if human_annotation == 1)
 
+            # Count the number of passes and fails based on the assertion's scoring
             passes = sum(1 for score_dict, _ in results if score_dict['score'] == 1)
-            fails = total_outputs - passes
+            fails = total_outputs - passes   # Outputs that did not pass are considered failed
 
-            fails_on_bad = sum(1 for score_dict, human_annotation in results if human_annotation == 0 and score_dict['score'] == 0)
-            fails_on_good = sum(1 for score_dict, human_annotation in results if human_annotation == 1 and score_dict['score'] == 0)
+            # Count how many bad outputs were correctly failed
+            fails_on_bad = sum(
+                1 for score_dict, human_annotation in results
+                if human_annotation == 0 and score_dict['score'] == 0
+            )
+            # Count how many good outputs were incorrectly failed
+            fails_on_good = sum(
+                1 for score_dict, human_annotation in results
+                if human_annotation == 1 and score_dict['score'] == 0
+            )
 
+            # Calculate selectivity: proportion of outputs that passed
             selectivity = passes / total_outputs if total_outputs > 0 else 0.0
 
-            # Coverage: Proportion of bad outputs that are correctly failed
+            # Calculate coverage: proportion of bad outputs correctly failed
             coverage = (fails_on_bad / total_bad) if total_bad > 0 else 0.0
 
-            # FFR: Proportion of good outputs that are incorrectly failed
+            # Calculate False Failure Rate (FFR): proportion of good outputs incorrectly failed
             ffr = (fails_on_good / total_good) if total_good > 0 else 0.0
 
-            # Calculate alignment
+            # Calculate alignment using the given formula
+            # Alignment measures the trade-off between coverage and FFR
             numerator = 2 * coverage * (1 - ffr)
             denominator = coverage + (1 - ffr)
             alignment = (numerator / denominator) if denominator > 0 else 0.0
 
+            # Get the evaluation type ('llm' or 'code') for this assertion
             eval_type = results[0][0]['type'] if results else "unknown"
 
-            # Store per-assertion metrics
+            # Store per-assertion metrics in the criterion's metrics dictionary
             criterion_metrics[assertion] = {
                 "type": eval_type,
                 "selectivity": selectivity,
@@ -61,7 +88,7 @@ def calculate_alignment_metrics(assertion_results: Dict[str, Dict[str, List[Tupl
                 "fails_on_good": fails_on_good
             }
 
-            # Aggregate totals for criterion-level metrics
+            # Aggregate counts for criterion-level metrics
             criterion_total_outputs += total_outputs
             criterion_total_bad += total_bad
             criterion_total_good += total_good
@@ -70,19 +97,27 @@ def calculate_alignment_metrics(assertion_results: Dict[str, Dict[str, List[Tupl
             criterion_fails_on_bad += fails_on_bad
             criterion_fails_on_good += fails_on_good
 
-        # Compute per-criterion metrics
+        # After processing all assertions under the criterion, calculate criterion-level metrics
+
+        # Criterion-level selectivity: proportion of outputs that passed across all assertions
         criterion_selectivity = (criterion_passes / criterion_total_outputs) if criterion_total_outputs > 0 else 0.0
 
+        # Criterion-level coverage: proportion of bad outputs correctly failed across all assertions
         criterion_coverage = (criterion_fails_on_bad / criterion_total_bad) if criterion_total_bad > 0 else 0.0
 
+        # Criterion-level FFR: proportion of good outputs incorrectly failed across all assertions
         criterion_ffr = (criterion_fails_on_good / criterion_total_good) if criterion_total_good > 0 else 0.0
 
-        # Calculate criterion-level alignment
+        # Calculate criterion-level alignment using the aggregated coverage and FFR
+        # Note:
+        # - Even if individual assertions have coverage of 0 or FFR of 1 (leading to alignment of 0),
+        #   the aggregated coverage and FFR across all assertions may result in values that produce a non-zero alignment.
+        # - This happens because the aggregation considers the total counts, which can balance out the extremes of individual assertions.
         numerator = 2 * criterion_coverage * (1 - criterion_ffr)
         denominator = criterion_coverage + (1 - criterion_ffr)
         criterion_alignment = (numerator / denominator) if denominator > 0 else 0.0
 
-        # Store both per-assertion and per-criterion metrics
+        # Store both per-assertion and per-criterion metrics in the final metrics dictionary
         metrics[criterion] = {
             "per_assertion": criterion_metrics,
             "criterion_metrics": {
@@ -217,22 +252,17 @@ def select_best_criteria(
 
 def format_alignment_metrics(metrics):
     output = ""
-    output += "{:<40} {:<40} {:<10} {:<10}\n".format("Criterion", "Assertion", "Type", "Alignment")
-    output += "-" * 100 + "\n"
+    output += "| Criterion                               | Assertion                               | Type      | Alignment |\n"
+    output += "|-----------------------------------------|-----------------------------------------|-----------|-----------|\n"
     for criterion, criterion_data in metrics.items():
-        output += "{:<40} {:<40} {:<10} {:<10.2f}\n".format(
-            criterion[:40],
-            "OVERALL",
-            "",
+        output += "| {} | **OVERALL**                             |           | {:.2f}     |\n".format(
+            criterion[:40].ljust(40),
             criterion_data['criterion_metrics']['alignment']
         )
-        output += "-" * 100 + "\n"
         for assertion, assertion_data in criterion_data['per_assertion'].items():
-            output += "{:<40} {:<40} {:<10} {:<10.2f}\n".format(
-                "",
-                assertion[:40],
-                assertion_data['type'],
+            output += "|                                         | {} | {} | {:.2f}     |\n".format(
+                assertion[:40].ljust(40),
+                assertion_data['type'].ljust(9),
                 assertion_data['alignment']
             )
-        output += "-" * 100 + "\n"
     return output

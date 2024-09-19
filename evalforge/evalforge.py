@@ -381,11 +381,9 @@ You are an AI assistant designed to create testable assertions for a given task 
             llm_model=self.MODEL,
         )
 
-        forged_alignment_metrics_str = "Alignment metrics for forged judges:\n"
-        forged_alignment_metrics_str += format_alignment_metrics(new_metrics)
+        forged_alignment_metrics_str = format_alignment_metrics(new_metrics)
 
-        raw_alignment_metrics_str = "Alignment metrics for raw judges:\n"
-        raw_alignment_metrics_str += format_alignment_metrics(metrics)
+        raw_alignment_metrics_str = format_alignment_metrics(metrics)
 
         return {
             "forged_judges": {
