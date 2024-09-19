@@ -19,23 +19,29 @@ def calculate_alignment_metrics(assertion_results: Dict[str, Dict[str, List[Tupl
         for assertion, results in assertions.items():
             # Process each assertion
             total_outputs = len(results)
+
+            # Assuming human_annotation: 0 = bad, 1 = good
             total_bad = sum(1 for _, human_annotation in results if human_annotation == 0)
-            total_good = total_outputs - total_bad
+            total_good = sum(1 for _, human_annotation in results if human_annotation == 1)
 
             passes = sum(1 for score_dict, _ in results if score_dict['score'] == 1)
             fails = total_outputs - passes
+
             fails_on_bad = sum(1 for score_dict, human_annotation in results if human_annotation == 0 and score_dict['score'] == 0)
             fails_on_good = sum(1 for score_dict, human_annotation in results if human_annotation == 1 and score_dict['score'] == 0)
 
-            selectivity = passes / total_outputs if total_outputs > 0 else 0
-            coverage = fails_on_bad / total_bad if total_bad > 0 else 1  # If no bad outputs, perfect coverage
-            ffr = fails_on_good / total_good if total_good > 0 else 0  # If no good outputs, no false failures
+            selectivity = passes / total_outputs if total_outputs > 0 else 0.0
+
+            # Coverage: Proportion of bad outputs that are correctly failed
+            coverage = (fails_on_bad / total_bad) if total_bad > 0 else 0.0
+
+            # FFR: Proportion of good outputs that are incorrectly failed
+            ffr = (fails_on_good / total_good) if total_good > 0 else 0.0
 
             # Calculate alignment
-            if coverage + (1 - ffr) > 0:
-                alignment = 2 * (coverage * (1 - ffr)) / (coverage + (1 - ffr))
-            else:
-                alignment = 0
+            numerator = 2 * coverage * (1 - ffr)
+            denominator = coverage + (1 - ffr)
+            alignment = (numerator / denominator) if denominator > 0 else 0.0
 
             eval_type = results[0][0]['type'] if results else "unknown"
 
@@ -65,14 +71,16 @@ def calculate_alignment_metrics(assertion_results: Dict[str, Dict[str, List[Tupl
             criterion_fails_on_good += fails_on_good
 
         # Compute per-criterion metrics
-        criterion_selectivity = criterion_passes / criterion_total_outputs if criterion_total_outputs > 0 else 0
-        criterion_coverage = criterion_fails_on_bad / criterion_total_bad if criterion_total_bad > 0 else 1
-        criterion_ffr = criterion_fails_on_good / criterion_total_good if criterion_total_good > 0 else 0
+        criterion_selectivity = (criterion_passes / criterion_total_outputs) if criterion_total_outputs > 0 else 0.0
 
-        if criterion_coverage + (1 - criterion_ffr) > 0:
-            criterion_alignment = 2 * (criterion_coverage * (1 - criterion_ffr)) / (criterion_coverage + (1 - criterion_ffr))
-        else:
-            criterion_alignment = 0
+        criterion_coverage = (criterion_fails_on_bad / criterion_total_bad) if criterion_total_bad > 0 else 0.0
+
+        criterion_ffr = (criterion_fails_on_good / criterion_total_good) if criterion_total_good > 0 else 0.0
+
+        # Calculate criterion-level alignment
+        numerator = 2 * criterion_coverage * (1 - criterion_ffr)
+        denominator = criterion_coverage + (1 - criterion_ffr)
+        criterion_alignment = (numerator / denominator) if denominator > 0 else 0.0
 
         # Store both per-assertion and per-criterion metrics
         metrics[criterion] = {
@@ -206,3 +214,25 @@ def select_best_criteria(
     best_criteria = dict(threshold_filtered)
     
     return best_criteria
+
+def format_alignment_metrics(metrics):
+    output = ""
+    output += "{:<40} {:<40} {:<10} {:<10}\n".format("Criterion", "Assertion", "Type", "Alignment")
+    output += "-" * 100 + "\n"
+    for criterion, criterion_data in metrics.items():
+        output += "{:<40} {:<40} {:<10} {:<10.2f}\n".format(
+            criterion[:40],
+            "OVERALL",
+            "",
+            criterion_data['criterion_metrics']['alignment']
+        )
+        output += "-" * 100 + "\n"
+        for assertion, assertion_data in criterion_data['per_assertion'].items():
+            output += "{:<40} {:<40} {:<10} {:<10.2f}\n".format(
+                "",
+                assertion[:40],
+                assertion_data['type'],
+                assertion_data['alignment']
+            )
+        output += "-" * 100 + "\n"
+    return output

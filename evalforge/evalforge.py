@@ -13,7 +13,7 @@ import asyncio
 import nest_asyncio
 from criterion_assertion_map import CriterionAssertionMap
 from combined_scorer import AssertionScorer, predict_passthrough
-from evalforge_alignment import calculate_alignment_metrics, select_best_assertions, filter_assertion_results, select_best_criteria
+from evalforge_alignment import calculate_alignment_metrics, select_best_assertions, filter_assertion_results, select_best_criteria, format_alignment_metrics
 
 client = instructor.from_openai(openai.AsyncOpenAI())
 DataPoint = Tuple[dict, dict, Literal[0, 1], Optional[str], Optional[str], Optional[str]]  # (input, output, annotation, note, human_description_for_task_or_judge, human_description_for_metric_details)
@@ -211,7 +211,7 @@ Format your response as a JSON object with the following structure:
 You are an AI assistant designed to create testable assertions for a given task and criterion.
 """
     num_assertions_per_criterion: Optional[int] = None
-    alignment_threshold: float = 0.7
+    alignment_threshold: float = 0.4
     num_criteria: int = 3
 
 
@@ -373,9 +373,7 @@ You are an AI assistant designed to create testable assertions for a given task 
         filtered_assertion_results = filter_assertion_results(assertion_results, best_assertions)
         new_metrics = calculate_alignment_metrics(filtered_assertion_results)
         best_criteria = select_best_criteria(new_metrics, self.alignment_threshold, self.num_criteria)
-        print("best_criteria: ", best_criteria)
         filtered_criterion_assertion_map = filter_best_assertions(best_criteria, all_assertions, criteria)
-        print("filtered_criterion_assertion_map: ", filtered_criterion_assertion_map.criterion_to_assertions)
 
         final_judge = AssertionScorer(
             name="final_judge",
@@ -383,16 +381,24 @@ You are an AI assistant designed to create testable assertions for a given task 
             llm_model=self.MODEL,
         )
 
+        forged_alignment_metrics_str = "Alignment metrics for forged judges:\n"
+        forged_alignment_metrics_str += format_alignment_metrics(new_metrics)
+
+        raw_alignment_metrics_str = "Alignment metrics for raw judges:\n"
+        raw_alignment_metrics_str += format_alignment_metrics(metrics)
+
         return {
             "forged_judges": {
                 "judge": final_judge,
                 "alignment_metrics": new_metrics,
                 "assertion_results": filtered_assertion_results,
+                "summary": forged_alignment_metrics_str,
             },
             "raw_judges": {
                 "judge": scorer,
                 "alignment_metrics": metrics,
                 "assertion_results": assertion_results,
+                "summary": raw_alignment_metrics_str,
             },
             "annotation_examples": annotation_examples,
             "finalized_task_description": finalized_task_description,

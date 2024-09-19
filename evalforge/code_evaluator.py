@@ -8,6 +8,7 @@ import weave
 from code_runner import CodeFormatter
 from instructor_models import PythonAssertion, LLMAssertion
 import os
+import shutil
 
 class CodeAssertionScorer(weave.Scorer):
     assertions: List[PythonAssertion]
@@ -26,17 +27,22 @@ class CodeAssertionScorer(weave.Scorer):
 
         output = model_output["output"]
 
-        # Use the code_formatter to write assertions to files
-        temp_dir = self.code_formatter.write_assertions_to_files(self.assertions)
+        try:
+            # Use the code_formatter to write assertions to files
+            temp_dir = self.code_formatter.write_assertions_to_files(self.assertions)
 
-        # Run the tests and capture the output
-        test_output = self.run_tests(temp_dir, output)
+            # Run the tests and capture the output
+            test_output = self.run_tests(temp_dir, output)
 
-        # Parse the test results to extract scores
-        scores = self.parse_test_results(test_output)
-        scores["raw_output"] = test_output  # Include raw test output for reference
+            # Parse the test results to extract scores
+            scores = self.parse_test_results(test_output)
+            scores["raw_output"] = test_output  # Include raw test output for reference
 
-        return {"code_assertion_results": scores}
+            return {"code_assertion_results": scores}
+        finally:
+            # Delete the temporary directory
+            if temp_dir:
+                shutil.rmtree(temp_dir)
 
     def run_tests(self, temp_dir: str, output: Any) -> str:
         import json
