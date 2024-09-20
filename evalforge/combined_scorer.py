@@ -1,30 +1,37 @@
-import weave
-from typing import List, Dict, Any, Optional, Union
-from pydantic import BaseModel, Field
 import asyncio
 from pathlib import Path
-
-from evalforge.llm_evaluator import LLMAssertionScorer
-from evalforge.code_evaluator import CodeAssertionScorer, CodeFormatter
-from evalforge.instructor_models import PythonAssertion, LLMAssertion, Criterion
-
-@weave.op()
-def predict_passthrough(model_output: Dict[str, Any], task_description: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
-    return model_output
+from typing import Any, Dict, Optional
 
 import weave
-from typing import List, Dict, Any, Optional, Union
 from pydantic import Field
-from evalforge.code_evaluator import CodeFormatter
-from evalforge.instructor_models import LLMAssertion, PythonAssertion
+
+from evalforge.code_evaluator import CodeAssertionScorer, CodeFormatter
+from evalforge.instructor_models import (Criterion, LLMAssertion,
+                                         PythonAssertion)
 from evalforge.llm_evaluator import LLMAssertionScorer
-from evalforge.code_evaluator import CodeAssertionScorer
+
+
+@weave.op()
+def predict_passthrough(
+    model_output: Dict[str, Any], task_description: str, input_data: Dict[str, Any]
+) -> Dict[str, Any]:
+    return model_output
+
+
+from typing import Any, Dict
+
+import weave
+
 from evalforge.criterion_assertion_map import CriterionAssertionMap
 
+
 class AssertionScorer(weave.Scorer):
-    criterion_assertion_map: CriterionAssertionMap = Field(default_factory=CriterionAssertionMap)
+    criterion_assertion_map: CriterionAssertionMap = Field(
+        default_factory=CriterionAssertionMap
+    )
     llm_model: str = Field(default="gpt-4o-2024-08-06")
-    prompt_template: str = Field(default="""
+    prompt_template: str = Field(
+        default="""
 Task Description:
 {task_description}
 
@@ -41,8 +48,11 @@ Assertion:
 
 Consider the task description and input when evaluating the output against the assertion.
 Respond with either 'PASS' if the output meets the assertion criteria in the context of the task and input, or 'FAIL' if it does not.
-""")
-    system_prompt: str = Field(default="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions.")
+"""
+    )
+    system_prompt: str = Field(
+        default="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions."
+    )
     code_formatter: CodeFormatter = Field(default_factory=CodeFormatter)
 
     def get_grouped_assertions_by_type(self):
@@ -53,7 +63,9 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
 
         # Separate assertions into LLM and Python assertions
         llm_assertions = [a for a in all_assertions if isinstance(a, LLMAssertion)]
-        python_assertions = [a for a in all_assertions if isinstance(a, PythonAssertion)]
+        python_assertions = [
+            a for a in all_assertions if isinstance(a, PythonAssertion)
+        ]
         return llm_assertions, python_assertions
 
     @weave.op()
@@ -78,8 +90,12 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
                 prompt_template=self.prompt_template,
                 system_prompt=self.system_prompt,
             )
-            llm_results = await llm_scorer.score(model_output, task_description, input_data)
-            results["llm_assertion_results"] = llm_results.get("llm_assertion_results", {})
+            llm_results = await llm_scorer.score(
+                model_output, task_description, input_data
+            )
+            results["llm_assertion_results"] = llm_results.get(
+                "llm_assertion_results", {}
+            )
 
         # Process Python assertions
         if python_assertions:
@@ -87,29 +103,33 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
                 assertions=python_assertions,
                 code_formatter=self.code_formatter,
             )
-            code_results = code_scorer.score(
-                model_output,
-                input_data,
-                task_description
+            code_results = code_scorer.score(model_output, input_data, task_description)
+            results["code_assertion_results"] = code_results.get(
+                "code_assertion_results", {}
             )
-            results["code_assertion_results"] = code_results.get("code_assertion_results", {})
 
         # Map results back to criteria using the mapping class
         criterion_results: Dict[str, Dict[str, Any]] = {}
         for test_name, result in results.get("llm_assertion_results", {}).items():
-            criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
+            criterion = self.criterion_assertion_map.get_criterion_by_assertion(
+                test_name
+            )
             if criterion not in criterion_results:
                 criterion_results[criterion] = {}
             criterion_results[criterion][test_name] = result
 
-        for test_name, result in results.get("code_assertion_results", {}).get("test_results", {}).items():
-            criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
+        for test_name, result in (
+            results.get("code_assertion_results", {}).get("test_results", {}).items()
+        ):
+            criterion = self.criterion_assertion_map.get_criterion_by_assertion(
+                test_name
+            )
             if criterion not in criterion_results:
                 criterion_results[criterion] = {}
             criterion_results[criterion][test_name] = result
 
         return criterion_results
-    
+
     def export(self, base_dir: str = "forged_judge"):
         base_dir = Path(base_dir)
         llm_dir = base_dir / "llm_assertions"
@@ -130,7 +150,9 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
     def export_assertions_by_criteria(self, assertions, base_dir: Path):
         # Save assertions in subfolders matching their criteria
         for assertion in assertions:
-            criterion = self.criterion_assertion_map.get_criterion_by_assertion(assertion.test_name)
+            criterion = self.criterion_assertion_map.get_criterion_by_assertion(
+                assertion.test_name
+            )
             if criterion is None:
                 criterion = "unknown_criterion"
             criterion_dir = base_dir / criterion
@@ -139,11 +161,11 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
             if isinstance(assertion, LLMAssertion):
                 filename = f"{assertion.test_name}.txt"
                 file_path = criterion_dir / filename
-                file_path.write_text(assertion.text, encoding='utf-8')
+                file_path.write_text(assertion.text, encoding="utf-8")
             elif isinstance(assertion, PythonAssertion):
                 filename = f"{assertion.test_name}.py"
                 file_path = criterion_dir / filename
-                file_path.write_text(assertion.code, encoding='utf-8')
+                file_path.write_text(assertion.code, encoding="utf-8")
 
     def import_assertions(self, base_dir: str = "forged_judge"):
         base_dir = Path(base_dir)
@@ -154,7 +176,9 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
         llm_assertions = self.load_assertions_by_criteria(llm_dir, LLMAssertion)
 
         # Load Python Assertions
-        python_assertions = self.load_assertions_by_criteria(python_dir, PythonAssertion)
+        python_assertions = self.load_assertions_by_criteria(
+            python_dir, PythonAssertion
+        )
 
         # Clear existing mappings
         self.criterion_assertion_map.criterion_to_assertions = {}
@@ -162,9 +186,11 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
 
         # Update the criterion_assertion_map
         for item in llm_assertions + python_assertions:
-            criterion = item['criterion']
-            assertion = item['assertion']
-            self.criterion_assertion_map.add_assertion(Criterion(criterion=criterion), assertion)
+            criterion = item["criterion"]
+            assertion = item["assertion"]
+            self.criterion_assertion_map.add_assertion(
+                Criterion(criterion=criterion), assertion
+            )
 
     def load_assertions_by_criteria(self, base_dir: Path, assertion_cls):
         assertions = []
@@ -174,22 +200,30 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
                 for file in criterion_dir.iterdir():
                     if file.is_file():
                         test_name = file.stem
-                        content = file.read_text(encoding='utf-8')
+                        content = file.read_text(encoding="utf-8")
 
                         if assertion_cls == LLMAssertion:
-                            assertion = LLMAssertion(test_name=test_name, text=content, evaluation_type="llm")
+                            assertion = LLMAssertion(
+                                test_name=test_name, text=content, evaluation_type="llm"
+                            )
                         elif assertion_cls == PythonAssertion:
-                            assertion = PythonAssertion(test_name=test_name, code=content, evaluation_type="python")
+                            assertion = PythonAssertion(
+                                test_name=test_name,
+                                code=content,
+                                evaluation_type="python",
+                            )
                         else:
                             continue
 
-                        assertions.append({'criterion': criterion, 'assertion': assertion})
+                        assertions.append(
+                            {"criterion": criterion, "assertion": assertion}
+                        )
         return assertions
 
 
 async def main():
     import weave
-    
+
     weave.init("combined_scorer_test")
 
     # Example assertions (combining both LLM and Python assertions)
@@ -211,7 +245,7 @@ async def main():
                 "should be correctly applied when there is no applicable information. The format should adhere to "
                 "bullet points starting with the key. Based on this assessment, respond with 'PASS' if all criteria "
                 "are met, otherwise 'FAIL'."
-            )
+            ),
         ),
         LLMAssertion(
             test_name="conciseness_and_privacy_compliance",
@@ -219,7 +253,7 @@ async def main():
                 "Evaluate the following output for conciseness and privacy compliance: Does the output summarize the "
                 "key information effectively within 150 words while ensuring no personal identifiable information (PII) "
                 "like name, age, gender, or ID is present? Provide your assessment as PASS for compliance or FAIL otherwise."
-            )
+            ),
         ),
         # Python Assertions
         PythonAssertion(
@@ -237,7 +271,7 @@ async def main():
         output_text = self.output['output'].lower()
         for key in essential_keys:
             self.assertIn(key, output_text, f"Output is missing essential information: {key}.")
-            """
+            """,
         ),
         PythonAssertion(
             test_name="no_excessive_information",
@@ -247,8 +281,8 @@ async def main():
         output_text = self.output['output'].lower()
         for term in disallowed_terms:
             self.assertNotIn(term, output_text, f"Output contains disallowed information: {term}.")
-            """
-        )
+            """,
+        ),
     ]
 
     # Examples
@@ -281,7 +315,7 @@ async def main():
                     "• New medications prescribed or changed: N/A.\n"
                     "• Follow-up instructions: N/A."
                 )
-            }
+            },
             # Expected outcomes:
             # - LLM Assertions: One PASS, one FAIL
             # - Code Assertions: One PASS, one FAIL
@@ -311,7 +345,7 @@ async def main():
                     "• Follow-up instructions: Return if symptoms worsen.\n"
                     "• Name: John Doe\n"  # Included disallowed term to induce failure
                 )
-            }
+            },
             # Expected outcomes:
             # - LLM Assertions: One PASS, one FAIL
             # - Code Assertions: One PASS, one FAIL
@@ -342,11 +376,11 @@ async def main():
                     # Included 'Age' to induce failure
                     "• Age: 30\n"
                 )
-            }
+            },
             # Expected outcomes:
             # - LLM Assertions: One PASS, one FAIL
             # - Code Assertions: One PASS, one FAIL
-        }
+        },
     ]
 
     # Initialize the AssertionScorer with the assertions
@@ -371,7 +405,7 @@ Assertion:
 Consider the task description and input when evaluating the output against the assertion.
 Respond with either 'PASS' if the output meets the assertion criteria in the context of the task and input, or 'FAIL' if it does not.
 """,
-        system_prompt="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions."
+        system_prompt="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions.",
     )
 
     evaluation = weave.Evaluation(
@@ -379,8 +413,8 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
         dataset=examples,
     )
 
-
     await evaluation.evaluate(predict_passthrough)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

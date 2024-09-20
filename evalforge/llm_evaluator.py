@@ -1,14 +1,18 @@
-import weave
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
-import openai
-from evalforge.instructor_models import LLMAssertion
 import asyncio
+from typing import Any, Dict, List, Optional
+
+import openai
+import weave
+from pydantic import Field
+
+from evalforge.instructor_models import LLMAssertion
+
 
 class LLMAssertionScorer(weave.Scorer):
     assertions: List[LLMAssertion]
     model: str = Field(default="gpt-4o-2024-08-06")
-    prompt_template: str = Field(default="""
+    prompt_template: str = Field(
+        default="""
 Task Description:
 {task_description}
 
@@ -25,8 +29,11 @@ Assertion:
 
 Consider the task description and input when evaluating the output against the assertion.
 Respond with either 'PASS' if the output meets the assertion criteria in the context of the task and input, or 'FAIL' if it does not.
-""")
-    system_prompt: str = Field(default="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions.")
+"""
+    )
+    system_prompt: str = Field(
+        default="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions."
+    )
 
     @weave.op()
     async def score(
@@ -37,7 +44,7 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
     ) -> Dict[str, Any]:
         if model_output is None:
             return {"error": "No model output provided"}
-        
+
         # Initialize OpenAI client
         client = openai.AsyncOpenAI()
 
@@ -46,15 +53,15 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
                 task_description=task_description,
                 input_data=input_data,
                 model_output=model_output["output"],
-                assertion_text=assertion.text
+                assertion_text=assertion.text,
             )
 
             response = await client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": prompt}
-                ]
+                    {"role": "user", "content": prompt},
+                ],
             )
 
             result = response.choices[0].message.content.strip()
@@ -71,9 +78,9 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
 
             # Return a dictionary similar to code assertions
             return assertion.test_name, {
-                'score': score,
-                'result': result,
-                'type': 'llm'
+                "score": score,
+                "result": result,
+                "type": "llm",
             }
 
         # Create tasks for all assertions
@@ -84,6 +91,7 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
         results = dict(assertion_results)
 
         return {"llm_assertion_results": results}
+
 
 def main():
     # Example usage
@@ -106,7 +114,7 @@ def main():
                 "should be correctly applied when there is no applicable information. The format should adhere to "
                 "bullet points starting with the key. Based on this assessment, respond with 'PASS' if all criteria "
                 "are met, otherwise 'FAIL'."
-            )
+            ),
         ),
         LLMAssertion(
             test_name="conciseness_and_privacy_compliance",
@@ -114,7 +122,7 @@ def main():
                 "Evaluate the following output for conciseness and privacy compliance: Does the output summarize the "
                 "key information effectively within 150 words while ensuring no personal identifiable information (PII) "
                 "like name, age, gender, or ID is present? Provide your assessment as PASS for compliance or FAIL otherwise."
-            )
+            ),
         ),
         # Add more assertions as needed...
     ]
@@ -158,6 +166,7 @@ def main():
 
     # Run the async function
     asyncio.run(run_scorer())
+
 
 if __name__ == "__main__":
     main()

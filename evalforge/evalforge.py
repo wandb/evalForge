@@ -1,22 +1,27 @@
-import openai
-import json
-from typing import List, Tuple, Dict, Optional
-from collections import defaultdict
-import instructor
-import weave
-from set_env import set_env
-from pydantic import BaseModel, Field
-from typing import List, Literal, Union, Any
-from pprint import pprint
-from evalforge.instructor_models import TaskDescription, CombinedTaskDescription, Criterion, EvaluationCriteria, PythonAssertion, LLMAssertion, CriterionAssertions
 import asyncio
-import nest_asyncio
+import json
+from typing import Any, Dict, List, Literal, Optional, Tuple
+
+import instructor
+import openai
+import weave
+
+from evalforge.combined_scorer import AssertionScorer
 from evalforge.criterion_assertion_map import CriterionAssertionMap
-from evalforge.combined_scorer import AssertionScorer, predict_passthrough
-from evalforge.evalforge_alignment import calculate_alignment_metrics, select_best_assertions, filter_assertion_results, select_best_criteria, format_alignment_metrics
+from evalforge.evalforge_alignment import (calculate_alignment_metrics,
+                                           filter_assertion_results,
+                                           format_alignment_metrics,
+                                           select_best_assertions,
+                                           select_best_criteria)
+from evalforge.instructor_models import (CombinedTaskDescription, Criterion,
+                                         CriterionAssertions,
+                                         EvaluationCriteria, TaskDescription)
 
 client = instructor.from_openai(openai.AsyncOpenAI())
-DataPoint = Tuple[dict, dict, Literal[0, 1], Optional[str], Optional[str], Optional[str]]  # (input, output, annotation, note, human_description_for_task_or_judge, human_description_for_metric_details)
+DataPoint = Tuple[
+    dict, dict, Literal[0, 1], Optional[str], Optional[str], Optional[str]
+]  # (input, output, annotation, note, human_description_for_task_or_judge, human_description_for_metric_details)
+
 
 def format_single_datapoint(dp: DataPoint, finalized_task_description: str) -> str:
     input_data, output_data, annotation, note = dp[0], dp[1], dp[2], dp[3]
@@ -26,13 +31,17 @@ def format_single_datapoint(dp: DataPoint, finalized_task_description: str) -> s
         f"Task Description: {finalized_task_description}",
         "",
         "Input:",
-        "\n".join(f"  {key.capitalize()}: {value}" for key, value in input_data.items()),
+        "\n".join(
+            f"  {key.capitalize()}: {value}" for key, value in input_data.items()
+        ),
         "",
         "Output:",
-        "\n".join(f"  {key.capitalize()}: {value}" for key, value in output_data.items()),
+        "\n".join(
+            f"  {key.capitalize()}: {value}" for key, value in output_data.items()
+        ),
         "",
         f"Annotation: {'Correct' if annotation == 1 else 'Incorrect'}",
-        f"Note: {note}"
+        f"Note: {note}",
     ]
 
     if metrics_details:
@@ -40,40 +49,51 @@ def format_single_datapoint(dp: DataPoint, finalized_task_description: str) -> s
 
     return "\n".join(formatted)
 
-#TODO: improve this function
-def format_all_datapoints(data: List[DataPoint], finalized_task_description: str) -> str:
+
+# TODO: improve this function
+def format_all_datapoints(
+    data: List[DataPoint], finalized_task_description: str
+) -> str:
     formatted = [f"Task Description: {finalized_task_description}\n"]
-    
+
     for i, dp in enumerate(data, 1):
         input_data, output_data, annotation, note = dp[0], dp[1], dp[2], dp[3]
-        
-        formatted.extend([
-            f"Example {i}:",
-            "Input:",
-            json.dumps(input_data, indent=2),
-            "",
-            "Output:",
-            json.dumps(output_data, indent=2),
-            "",
-            f"Annotation: {'Correct' if annotation == 1 else 'Incorrect'}",
-            f"Note: {note}",
-            "\n" + "-"*50 + "\n"  # Separator between examples
-        ])
-    
+
+        formatted.extend(
+            [
+                f"Example {i}:",
+                "Input:",
+                json.dumps(input_data, indent=2),
+                "",
+                "Output:",
+                json.dumps(output_data, indent=2),
+                "",
+                f"Annotation: {'Correct' if annotation == 1 else 'Incorrect'}",
+                f"Note: {note}",
+                "\n" + "-" * 50 + "\n",  # Separator between examples
+            ]
+        )
+
     return "\n".join(formatted)
 
-def convert_datapoint_to_example(task_description: str, data: List[DataPoint]) -> List[Dict[str, Any]]:
+
+def convert_datapoint_to_example(
+    task_description: str, data: List[DataPoint]
+) -> List[Dict[str, Any]]:
     examples = []
     for dp in data:
         input_data, output_data, annotation, note = dp[0], dp[1], dp[2], dp[3]
-        examples.append({
-            "task_description": task_description,
-            "input_data": input_data,
-            "model_output": {"output": output_data},
-            "annotation": annotation,
-            "note": note
-        })
+        examples.append(
+            {
+                "task_description": task_description,
+                "input_data": input_data,
+                "model_output": {"output": output_data},
+                "annotation": annotation,
+                "note": note,
+            }
+        )
     return examples
+
 
 def filter_best_assertions(best_criteria, all_assertions, criteria):
     filtered_criterion_assertion_map = CriterionAssertionMap()
@@ -82,18 +102,18 @@ def filter_best_assertions(best_criteria, all_assertions, criteria):
     for criterion_name, criterion_data in best_criteria.items():
         if criterion_name in original_criteria:
             original_criterion = original_criteria[criterion_name]
-            best_assertion_names = set(criterion_data['per_assertion'].keys())
-            
+            best_assertion_names = set(criterion_data["per_assertion"].keys())
+
             assertions = all_assertions.get_assertions_by_criterion(criterion_name)
             if assertions:
                 for assertion in assertions:
                     if assertion.test_name in best_assertion_names:
                         filtered_criterion_assertion_map.add_assertion(
-                            original_criterion,
-                            assertion
+                            original_criterion, assertion
                         )
-    
+
     return filtered_criterion_assertion_map
+
 
 class EvalForge(weave.Model):
 
@@ -214,79 +234,99 @@ You are an AI assistant designed to create testable assertions for a given task 
     alignment_threshold: float = 0.4
     num_criteria: int = 3
 
-
-
     # TODO: Batch this as opposed to one at a time
     # or sample the dataset and ensure that taking into tokens (maybe something fun with a distribution)
     # distribution = more stuff we can grab and throw into prompt in smart way
     @weave.op()
     async def get_task_description(self, data: List[DataPoint]) -> str:
         task_description = ""
-        
+
         for i, datapoint in enumerate(data):
-            input_data, output_data, annotation, note = datapoint[0], datapoint[1], datapoint[2], datapoint[3]
-            
-            prompt = self.task_prompt.format(task_description=task_description, input_data=input_data, output_data=output_data, annotation="Correct" if annotation == 1 else "Incorrect", note=note)
+            input_data, output_data, annotation, note = (
+                datapoint[0],
+                datapoint[1],
+                datapoint[2],
+                datapoint[3],
+            )
+
+            prompt = self.task_prompt.format(
+                task_description=task_description,
+                input_data=input_data,
+                output_data=output_data,
+                annotation="Correct" if annotation == 1 else "Incorrect",
+                note=note,
+            )
 
             response = await client.chat.completions.create(
                 model=self.MODEL,
                 messages=[
                     {"role": "system", "content": self.task_system_prompt},
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": prompt},
                 ],
-                response_model=TaskDescription
+                response_model=TaskDescription,
             )
-            
+
             new_description = response.description
-            
+
             # TODO: Add guardrails to prevent LLM from saying no update needed
             if new_description.lower().startswith("no update needed"):
                 continue
-            
+
             task_description = new_description
 
         return task_description
-    
+
     @weave.op()
-    async def combine_human_and_llm_descriptions(self,data: List[DataPoint], llm_description: str) -> str:
+    async def combine_human_and_llm_descriptions(
+        self, data: List[DataPoint], llm_description: str
+    ) -> str:
         human_descriptions = set()
         for dp in data:
             if len(dp) > 4 and dp[4]:  # Check if human description exists
                 human_descriptions.add(dp[4])
-        
+
         if not human_descriptions:
             return llm_description
-        
+
         human_context = "\n".join(f"- {desc}" for desc in human_descriptions)
-        
-        prompt = self.combined_task_prompt.format(llm_description=llm_description, human_context=human_context)
+
+        prompt = self.combined_task_prompt.format(
+            llm_description=llm_description, human_context=human_context
+        )
 
         response = await client.chat.completions.create(
             model=self.MODEL,
             messages=[
                 {"role": "system", "content": self.combined_task_system_prompt},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": prompt},
             ],
             response_model=CombinedTaskDescription,
         )
-        
+
         return response.description
-    
+
     @weave.op()
-    async def process_criteria(self, formatted_data: str, all_criteria: str) -> EvaluationCriteria:
-        prompt = self.criteria_prompt.format(formatted_data=formatted_data, generated_criteria=str([c.model_dump() for c in all_criteria]))
+    async def process_criteria(
+        self, formatted_data: str, all_criteria: str
+    ) -> EvaluationCriteria:
+        prompt = self.criteria_prompt.format(
+            formatted_data=formatted_data,
+            generated_criteria=str([c.model_dump() for c in all_criteria]),
+        )
         response = await client.chat.completions.create(
             model=self.MODEL,
             messages=[
                 {"role": "system", "content": self.criteria_system_prompt},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": prompt},
             ],
-            response_model=EvaluationCriteria
+            response_model=EvaluationCriteria,
         )
         return response
 
     @weave.op()
-    async def generate_criteria(self, data: List[DataPoint], finalized_task_description: str) -> List[Criterion]:
+    async def generate_criteria(
+        self, data: List[DataPoint], finalized_task_description: str
+    ) -> List[Criterion]:
         all_criteria = []
         formatted_data = format_all_datapoints(data, finalized_task_description)
 
@@ -295,21 +335,31 @@ You are an AI assistant designed to create testable assertions for a given task 
             all_criteria.extend(response.criteria)
 
         return all_criteria
-    
+
     @weave.op()
-    async def create_candidate_assertions(self, formatted_data_string: str, criterion: Criterion) -> CriterionAssertions:
-        prompt = self.candidate_assertion_prompt.format(formatted_data_string=formatted_data_string, criterion=criterion.model_dump())
+    async def create_candidate_assertions(
+        self, formatted_data_string: str, criterion: Criterion
+    ) -> CriterionAssertions:
+        prompt = self.candidate_assertion_prompt.format(
+            formatted_data_string=formatted_data_string,
+            criterion=criterion.model_dump(),
+        )
         response = await client.chat.completions.create(
             model=self.MODEL,
-            messages=[{"role": "system", "content": self.candidate_assertion_system_prompt}, {"role": "user", "content": prompt}],
-            response_model=CriterionAssertions
+            messages=[
+                {"role": "system", "content": self.candidate_assertion_system_prompt},
+                {"role": "user", "content": prompt},
+            ],
+            response_model=CriterionAssertions,
         )
         return response
 
     @weave.op()
     async def generate_all_assertions(self, criteria, formatted_data):
         async def process_criterion(criterion):
-            candidate_assertions = await self.create_candidate_assertions(formatted_data, criterion)
+            candidate_assertions = await self.create_candidate_assertions(
+                formatted_data, criterion
+            )
             assertions = candidate_assertions.assertions
             return criterion, assertions
 
@@ -320,9 +370,11 @@ You are an AI assistant designed to create testable assertions for a given task 
         criterion_assertion_map = CriterionAssertionMap.from_assertions(results)
 
         return criterion_assertion_map
-    
+
     @weave.op()
-    async def run_assertions(self, scorer: AssertionScorer, annotation_examples: List[Dict[str, Any]]) -> Dict[str, Dict[str, List[Tuple[int, int]]]]:
+    async def run_assertions(
+        self, scorer: AssertionScorer, annotation_examples: List[Dict[str, Any]]
+    ) -> Dict[str, Dict[str, List[Tuple[int, int]]]]:
         # The outer dict maps criterion names to assertion results
         criterion_assertion_results = {}
 
@@ -330,15 +382,17 @@ You are an AI assistant designed to create testable assertions for a given task 
             result = await scorer.score(
                 model_output={"output": example["model_output"]["output"]},
                 task_description=example["task_description"],
-                input_data=example["input_data"]
+                input_data=example["input_data"],
             )
             return result, example["annotation"]
 
         # Run all examples concurrently
-        results = await asyncio.gather(*[process_example(example) for example in annotation_examples])
+        results = await asyncio.gather(
+            *[process_example(example) for example in annotation_examples]
+        )
 
         # Process the results to accumulate scores
-        for (criterion_results, human_annotation) in results:
+        for criterion_results, human_annotation in results:
             # criterion_results is a dict mapping criteria to their assertion results
             for criterion, assertion_results in criterion_results.items():
                 if criterion not in criterion_assertion_results:
@@ -347,33 +401,47 @@ You are an AI assistant designed to create testable assertions for a given task 
                     if assertion_name not in criterion_assertion_results[criterion]:
                         criterion_assertion_results[criterion][assertion_name] = []
                     # Append the (score, human_annotation) tuple
-                    criterion_assertion_results[criterion][assertion_name].append((score, human_annotation))
+                    criterion_assertion_results[criterion][assertion_name].append(
+                        (score, human_annotation)
+                    )
 
         return criterion_assertion_results
-    
+
     @weave.op()
     async def predict(self, data: List[DataPoint]) -> List[float]:
         llm_task_description = await self.get_task_description(data)
-        finalized_task_description = await self.combine_human_and_llm_descriptions(data, llm_task_description)
+        finalized_task_description = await self.combine_human_and_llm_descriptions(
+            data, llm_task_description
+        )
         criteria = await self.generate_criteria(data, finalized_task_description)
         formatted_data = format_all_datapoints(data, finalized_task_description)
         all_assertions = await self.generate_all_assertions(criteria, formatted_data)
-        annotation_examples = convert_datapoint_to_example(finalized_task_description, data)
+        annotation_examples = convert_datapoint_to_example(
+            finalized_task_description, data
+        )
         scorer = AssertionScorer(
             criterion_assertion_map=all_assertions,
             llm_model=self.MODEL,
         )
-        assertion_results = asyncio.run(self.run_assertions(scorer, annotation_examples))
+        assertion_results = asyncio.run(
+            self.run_assertions(scorer, annotation_examples)
+        )
         metrics = calculate_alignment_metrics(assertion_results)
         best_assertions = select_best_assertions(
             metrics,
             assertion_results,
-            num_assertions_per_criterion=self.num_assertions_per_criterion  # Use intelligent selection
+            num_assertions_per_criterion=self.num_assertions_per_criterion,  # Use intelligent selection
         )
-        filtered_assertion_results = filter_assertion_results(assertion_results, best_assertions)
+        filtered_assertion_results = filter_assertion_results(
+            assertion_results, best_assertions
+        )
         new_metrics = calculate_alignment_metrics(filtered_assertion_results)
-        best_criteria = select_best_criteria(new_metrics, self.alignment_threshold, self.num_criteria)
-        filtered_criterion_assertion_map = filter_best_assertions(best_criteria, all_assertions, criteria)
+        best_criteria = select_best_criteria(
+            new_metrics, self.alignment_threshold, self.num_criteria
+        )
+        filtered_criterion_assertion_map = filter_best_assertions(
+            best_criteria, all_assertions, criteria
+        )
 
         final_judge = AssertionScorer(
             name="final_judge",

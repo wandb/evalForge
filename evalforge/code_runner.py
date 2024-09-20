@@ -1,27 +1,29 @@
-import os
 import ast
 import importlib
-from typing import Set, List, Dict, Optional
+import os
+import textwrap
+from datetime import datetime
+from typing import Dict, Optional, Set
+
 import autopep8
 import isort
-from autoflake import fix_code
-from datetime import datetime
 import weave
-import json
-import textwrap
+from autoflake import fix_code
 
 
 class CodeFormatter(weave.Object):
     @weave.op()
     def lint_code(self, code: str) -> str:
-        code = code.replace('\\n', '\n')
+        code = code.replace("\\n", "\n")
         tree = ast.parse(code)
         required_imports = self.get_required_imports(tree)
         import_statements = self.generate_import_statements(required_imports)
         code = import_statements + "\n\n" + code
-        code = fix_code(code, remove_all_unused_imports=True, remove_unused_variables=True)
+        code = fix_code(
+            code, remove_all_unused_imports=True, remove_unused_variables=True
+        )
         code = isort.code(code)
-        code = autopep8.fix_code(code, options={'aggressive': 2})
+        code = autopep8.fix_code(code, options={"aggressive": 2})
         return code
 
     def get_required_imports(self, tree: ast.AST) -> Set[tuple]:
@@ -54,7 +56,9 @@ class CodeFormatter(weave.Object):
         return "\n".join(import_statements)
 
     @weave.op()
-    def write_assertions_to_files(self, assertions: Dict[str, str], base_dir: Optional[str] = None) -> str:
+    def write_assertions_to_files(
+        self, assertions: Dict[str, str], base_dir: Optional[str] = None
+    ) -> str:
         if base_dir is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             base_dir = f"generated_assertions_{timestamp}"
@@ -79,13 +83,12 @@ class CodeFormatter(weave.Object):
 
         return base_dir
 
-
     @weave.op()
     def create_test_file_content(self, assertion_name: str, assertion_code: str) -> str:
         # Dedent the assertion code to remove any existing indentation
         dedented_assertion_code = textwrap.dedent(assertion_code).strip()
         # Re-indent the assertion code to match the class indentation (4 spaces)
-        indented_assertion_code = textwrap.indent(dedented_assertion_code, '    ')
+        indented_assertion_code = textwrap.indent(dedented_assertion_code, "    ")
         return f"""
 import unittest
 from run_tests import OutputTestCase
@@ -99,7 +102,7 @@ if __name__ == '__main__':
 
     @weave.op()
     def get_run_tests_content(self) -> str:
-        return '''
+        return """
 import unittest
 import sys
 import os
@@ -135,7 +138,8 @@ if __name__ == '__main__':
     # Exit with non-zero status if there were failures
     if not unittest.TextTestRunner().run(load_tests(None, None, None)).wasSuccessful():
         sys.exit(1)
-'''
+"""
+
 
 def main():
     # Usage example:
@@ -163,12 +167,13 @@ def main():
             output_text = self.output['output'].lower()
             for term in disallowed_terms:
                 self.assertNotIn(term, output_text, f"Output contains disallowed information: {term}.")
-        """
+        """,
     }
 
     # Write assertions to files
     temp_dir = code_formatter.write_assertions_to_files(assertions)
     print(f"Generated assertions and tests written to: {temp_dir}")
+
 
 if __name__ == "__main__":
     main()

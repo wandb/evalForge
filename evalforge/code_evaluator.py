@@ -1,14 +1,16 @@
+import os
 import re
+import shutil
 import subprocess
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field
+from typing import Any, Dict, List, Optional
+
 import weave
+from pydantic import Field
 
 # Import CodeFormatter from code_runner.py
 from evalforge.code_runner import CodeFormatter
-from evalforge.instructor_models import PythonAssertion, LLMAssertion
-import os
-import shutil
+from evalforge.instructor_models import PythonAssertion
+
 
 class CodeAssertionScorer(weave.Scorer):
     assertions: List[PythonAssertion]
@@ -23,7 +25,9 @@ class CodeAssertionScorer(weave.Scorer):
         **kwargs
     ) -> Dict[str, Any]:
         if model_output is None or "output" not in model_output:
-            return {"error": "No model output provided or 'output' key missing in model output"}
+            return {
+                "error": "No model output provided or 'output' key missing in model output"
+            }
 
         output = model_output["output"]
 
@@ -46,6 +50,7 @@ class CodeAssertionScorer(weave.Scorer):
 
     def run_tests(self, temp_dir: str, output: Any) -> str:
         import json
+
         output_json = json.dumps({"output": output})
 
         # Run the test suite using subprocess and capture the output
@@ -54,13 +59,13 @@ class CodeAssertionScorer(weave.Scorer):
             capture_output=True,
             text=True,
             cwd=temp_dir,
-            env=os.environ
+            env=os.environ,
         )
         return result.stdout + result.stderr
 
     def parse_test_results(self, test_output: str) -> Dict[str, Any]:
         # Extract individual test results using a more flexible regex pattern
-        test_results = re.findall(r'(test_\w+).*? ... (ok|FAIL|ERROR)', test_output)
+        test_results = re.findall(r"(test_\w+).*? ... (ok|FAIL|ERROR)", test_output)
 
         # Initialize counts
         tests_run = len(test_results)
@@ -71,26 +76,28 @@ class CodeAssertionScorer(weave.Scorer):
         # Collect individual test results
         test_result_dict = {}
         for test_name, result in test_results:
-            test_name_without_prefix = test_name  # Assuming test_name is the same as assertion.test_name
+            test_name_without_prefix = (
+                test_name  # Assuming test_name is the same as assertion.test_name
+            )
             if result == "ok":
                 test_result_dict[test_name_without_prefix] = {
                     "score": 1,
                     "result": "PASS",
-                    "type": "code"
+                    "type": "code",
                 }
                 passed += 1
             elif result == "FAIL":
                 test_result_dict[test_name_without_prefix] = {
                     "score": 0,
                     "result": "FAIL",
-                    "type": "code"
+                    "type": "code",
                 }
                 failures += 1
             elif result == "ERROR":
                 test_result_dict[test_name_without_prefix] = {
                     "score": 0,
                     "result": "ERROR",
-                    "type": "code"
+                    "type": "code",
                 }
                 errors += 1
 
@@ -99,8 +106,9 @@ class CodeAssertionScorer(weave.Scorer):
             "passed": passed,
             "failures": failures,
             "errors": errors,
-            "test_results": test_result_dict
+            "test_results": test_result_dict,
         }
+
 
 def main():
     weave.init("code_evaluator_test")
@@ -112,7 +120,7 @@ def main():
     def test_within_word_limit(self):
         total_words = len(self.output['output'].split())
         self.assertLessEqual(total_words, 150, f"Output exceeds word limit with {total_words} words.")
-            """
+            """,
         ),
         PythonAssertion(
             test_name="essential_information_inclusion",
@@ -129,7 +137,7 @@ def main():
         output_text = self.output['output'].lower()
         for key in essential_keys:
             self.assertIn(key, output_text, f"Output is missing essential information: {key}.")
-            """
+            """,
         ),
         PythonAssertion(
             test_name="no_excessive_information",
@@ -139,8 +147,8 @@ def main():
         output_text = self.output['output'].lower()
         for term in disallowed_terms:
             self.assertNotIn(term, output_text, f"Output contains disallowed information: {term}.")
-            """
-        )
+            """,
+        ),
     ]
 
     # Example task description, input data, and model output
@@ -174,10 +182,7 @@ def main():
     }
 
     # Initialize the scorer with the assertions and code_formatter
-    scorer = CodeAssertionScorer(
-        assertions=assertions,
-        code_formatter=CodeFormatter()
-    )
+    scorer = CodeAssertionScorer(assertions=assertions, code_formatter=CodeFormatter())
 
     # Score the model output
     scores = scorer.score(model_output, input_data, task_description)
@@ -185,6 +190,7 @@ def main():
     # Print the results
     print("Code Assertion Evaluation Results:")
     print(scores)
+
 
 if __name__ == "__main__":
     main()
