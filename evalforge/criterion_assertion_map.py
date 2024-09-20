@@ -1,5 +1,5 @@
 from typing import Dict, List, Union
-from instructor_models import Criterion, LLMAssertion, PythonAssertion
+from evalforge.instructor_models import Criterion, LLMAssertion, PythonAssertion
 from pydantic import BaseModel
 import weave
 

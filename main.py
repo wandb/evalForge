@@ -402,12 +402,12 @@ def run_evalgen():
         cls="bg-white"
     )
 @app.route('/run_evalgen', methods=['get'])
-def run_evalgen():
+async def run_evalgen():
     weave.init("evalgen_project")
     all_items = texts_db()
-    data = [item.to_dict() for item in all_items]
+    data = [item.to_dict() for item in all_items][0:10]
     forger = EvalForge()
-    results = forger.predict(data)
+    results = await forger.predict(data)
     forged_judge = results["forged_judges"]["judge"]
     weave.publish(forged_judge, name="final_judge")
     weave.finish()

@@ -3,25 +3,22 @@ from typing import List, Dict, Any, Optional, Union
 from pydantic import BaseModel, Field
 import asyncio
 
-# Import the assertion and scorer classes from previous modules
-from llm_evaluator import LLMAssertionScorer
-from code_evaluator import CodeAssertionScorer, CodeFormatter
-from instructor_models import PythonAssertion, LLMAssertion
+from evalforge.llm_evaluator import LLMAssertionScorer
+from evalforge.code_evaluator import CodeAssertionScorer, CodeFormatter
+from evalforge.instructor_models import PythonAssertion, LLMAssertion
 
 @weave.op()
 def predict_passthrough(model_output: Dict[str, Any], task_description: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
     return model_output
 
-# evalgen/combined_scorer.py
-
 import weave
 from typing import List, Dict, Any, Optional, Union
 from pydantic import Field
-from code_evaluator import CodeFormatter
-from instructor_models import LLMAssertion, PythonAssertion
-from llm_evaluator import LLMAssertionScorer
-from code_evaluator import CodeAssertionScorer
-from criterion_assertion_map import CriterionAssertionMap
+from evalforge.code_evaluator import CodeFormatter
+from evalforge.instructor_models import LLMAssertion, PythonAssertion
+from evalforge.llm_evaluator import LLMAssertionScorer
+from evalforge.code_evaluator import CodeAssertionScorer
+from evalforge.criterion_assertion_map import CriterionAssertionMap
 
 class AssertionScorer(weave.Scorer):
     criterion_assertion_map: CriterionAssertionMap

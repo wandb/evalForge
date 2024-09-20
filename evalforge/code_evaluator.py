@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 import weave
 
 # Import CodeFormatter from code_runner.py
-from code_runner import CodeFormatter
-from instructor_models import PythonAssertion, LLMAssertion
+from evalforge.code_runner import CodeFormatter
+from evalforge.instructor_models import PythonAssertion, LLMAssertion
 import os
 import shutil
 

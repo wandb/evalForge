@@ -8,12 +8,12 @@ from set_env import set_env
 from pydantic import BaseModel, Field
 from typing import List, Literal, Union, Any
 from pprint import pprint
-from instructor_models import TaskDescription, CombinedTaskDescription, Criterion, EvaluationCriteria, PythonAssertion, LLMAssertion, CriterionAssertions
+from evalforge.instructor_models import TaskDescription, CombinedTaskDescription, Criterion, EvaluationCriteria, PythonAssertion, LLMAssertion, CriterionAssertions
 import asyncio
 import nest_asyncio
-from criterion_assertion_map import CriterionAssertionMap
-from combined_scorer import AssertionScorer, predict_passthrough
-from evalforge_alignment import calculate_alignment_metrics, select_best_assertions, filter_assertion_results, select_best_criteria, format_alignment_metrics
+from evalforge.criterion_assertion_map import CriterionAssertionMap
+from evalforge.combined_scorer import AssertionScorer, predict_passthrough
+from evalforge.evalforge_alignment import calculate_alignment_metrics, select_best_assertions, filter_assertion_results, select_best_criteria, format_alignment_metrics
 
 client = instructor.from_openai(openai.AsyncOpenAI())
 DataPoint = Tuple[dict, dict, Literal[0, 1], Optional[str], Optional[str], Optional[str]]  # (input, output, annotation, note, human_description_for_task_or_judge, human_description_for_metric_details)

@@ -4,6 +4,7 @@ import os
 import base64
 import dotenv
 import openai
+import logging
 
 dotenv.load_dotenv()
 
@@ -64,7 +65,16 @@ class WeaveAPIClient:
             "filter": base_filter,
             "query": base_query
         }
-        response = self._make_request("calls/query_stats", payload=payload)
+        try:
+            response = self._make_request("calls/query_stats", payload=payload)
+            return response['count']
+        except requests.exceptions.HTTPError as e:
+            logging.error(f"HTTP error occurred: {e}")
+            logging.error(f"Response content: {e.response.content}")
+            return 0
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+            return 0
         return response['count']
 
     def get_calls(self, project_id, start=0, end=10, additional_filter=None, additional_query=None):

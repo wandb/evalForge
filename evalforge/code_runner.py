@@ -6,8 +6,6 @@ import autopep8
 import isort
 from autoflake import fix_code
 from datetime import datetime
-import sys
-from stdlib_list import stdlib_list
 import weave
 import json
 import textwrap

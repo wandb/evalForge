@@ -2,7 +2,7 @@ import weave
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 import openai
-from instructor_models import LLMAssertion
+from evalforge.instructor_models import LLMAssertion
 import asyncio
 
 class LLMAssertionScorer(weave.Scorer):
