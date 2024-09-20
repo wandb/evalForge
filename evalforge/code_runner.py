@@ -1,7 +1,7 @@
 import os
 import ast
 import importlib
-from typing import Set, List, Dict
+from typing import Set, List, Dict, Optional
 import autopep8
 import isort
 from autoflake import fix_code
@@ -54,9 +54,10 @@ class CodeFormatter(weave.Object):
         return "\n".join(import_statements)
 
     @weave.op()
-    def write_assertions_to_files(self, assertions: Dict[str, str]) -> str:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        base_dir = f"generated_assertions_{timestamp}"
+    def write_assertions_to_files(self, assertions: Dict[str, str], base_dir: Optional[str] = None) -> str:
+        if base_dir is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            base_dir = f"generated_assertions_{timestamp}"
         test_dir = os.path.join(base_dir, "tests")
         os.makedirs(test_dir, exist_ok=True)
 
