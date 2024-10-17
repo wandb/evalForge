@@ -56,9 +56,11 @@ if os.getenv("BASE_PREFIX"):
             href=prefix
         ),
         Script(
-            f"""document.body.addEventListener('htmx:configRequest', (event) => {{
-    event.detail.path = `{prefix}/{{event.detail.path}}`
-}})
+            f"""document.addEventListener('DOMContentLoaded', () => {{
+    document.body.addEventListener('htmx:configRequest', (event) => {{
+        event.detail.path = `{prefix}/${{event.detail.path}}`
+    }})
+}});
 """)
     ) + headers
 
