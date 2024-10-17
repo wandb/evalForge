@@ -49,10 +49,17 @@ headers = (
     sse,
 )
 if os.getenv("BASE_PREFIX"):
+    prefix = os.getenv("BASE_PREFIX")
+    # Apparently htmx doesn't respect base href: https://github.com/bigskysoftware/htmx/issues/2670
     headers = (
         Base(
-            href=f"{os.getenv('BASE_PREFIX')}"
+            href=prefix
         ),
+        Script(
+            f"""document.body.addEventListener('htmx:configRequest', (event) => {{
+    event.detail.path = `{prefix}/{{event.detail.path}}`
+}})
+""")
     ) + headers
 
 # Define a global variable for total items length
