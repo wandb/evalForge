@@ -1,2 +1,8 @@
 python-fasthtml
 uvicorn>=0.29
+openai
+instructor
+# code_runner.py
+autopep8
+isort
+autoflake
