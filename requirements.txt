@@ -1,5 +1,6 @@
 python-fasthtml
 uvicorn>=0.29
+weave
 openai
 instructor
 # code_runner.py

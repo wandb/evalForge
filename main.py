@@ -48,6 +48,12 @@ headers = (
     maincss,
     sse,
 )
+if os.getenv("BASE_PREFIX"):
+    headers.append(
+        Base(
+            href=f"{os.getenv('BASE_PREFIX')}"
+        )
+    )
 
 # Define a global variable for total items length
 total_items_length = 0
@@ -224,7 +230,7 @@ def render(Item):
 app, rt, texts_db, Item = fast_app(
     "texts.db",
     hdrs=headers,
-    live=True,
+    live=True if not os.getenv("PORT") else False,
     render=render,
     bodykw={"data-theme": "light"},
     id=int,
