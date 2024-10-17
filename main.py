@@ -48,6 +48,21 @@ headers = (
     maincss,
     sse,
 )
+if os.getenv("BASE_PREFIX"):
+    prefix = os.getenv("BASE_PREFIX")
+    # Apparently htmx doesn't respect base href: https://github.com/bigskysoftware/htmx/issues/2670
+    headers = (
+        Base(
+            href=prefix
+        ),
+        Script(
+            f"""document.addEventListener('DOMContentLoaded', () => {{
+    document.body.addEventListener('htmx:configRequest', (event) => {{
+        event.detail.path = `{prefix}${{event.detail.path}}`
+    }})
+}});
+""")
+    ) + headers
 
 # Define a global variable for total items length
 total_items_length = 0
@@ -224,7 +239,7 @@ def render(Item):
 app, rt, texts_db, Item = fast_app(
     "texts.db",
     hdrs=headers,
-    live=True,
+    live=True if not os.getenv("PORT") else False,
     render=render,
     bodykw={"data-theme": "light"},
     id=int,
