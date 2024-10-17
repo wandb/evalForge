@@ -58,7 +58,7 @@ if os.getenv("BASE_PREFIX"):
         Script(
             f"""document.addEventListener('DOMContentLoaded', () => {{
     document.body.addEventListener('htmx:configRequest', (event) => {{
-        event.detail.path = `{prefix}/${{event.detail.path}}`
+        event.detail.path = `{prefix}${{event.detail.path}}`
     }})
 }});
 """)
