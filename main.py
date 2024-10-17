@@ -49,11 +49,11 @@ headers = (
     sse,
 )
 if os.getenv("BASE_PREFIX"):
-    headers.append(
+    headers = (
         Base(
             href=f"{os.getenv('BASE_PREFIX')}"
-        )
-    )
+        ),
+    ) + headers
 
 # Define a global variable for total items length
 total_items_length = 0
