@@ -19,3 +19,9 @@ def save_jsonl(data: list[dict], filename: Path | str):
         for example in data:
             json.dump(example, file)
             file.write("\n")
+
+def listify(l: list[str]) -> str:
+    """Creates a markdown list of the items in the list."""
+    if not l:
+        return "- None"
+    return "\n".join([f"- {item}" for item in l])
