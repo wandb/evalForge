@@ -1,4 +1,3 @@
-import asyncio
 import pytest
 from evalforge.llm_evaluator import LLMAssertionScorer
 from evalforge.instructor_models import LLMAssertion

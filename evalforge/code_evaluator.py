@@ -8,7 +8,7 @@ import weave
 from pydantic import Field
 
 # Import CodeFormatter from code_runner.py
-from evalforge.code_runner import CodeFormatter
+from evalforge.code_formatter import CodeFormatter
 from evalforge.instructor_models import PythonAssertion
 
 

@@ -5,19 +5,14 @@ from typing import Any, Dict, List, Optional
 import weave
 import instructor
 from pydantic import Field
-from litellm import acompletion
+
 
 from evalforge.instructor_models import LLMAssertion
-
-
-client = instructor.from_litellm(acompletion)
-
-import openai
-client = instructor.from_openai(openai.AsyncOpenAI())
+from evalforge.llm import llm_aclient, DEFAULT_LARGE_MODEL
 
 class LLMAssertionScorer(weave.Scorer):
     assertions: List[LLMAssertion]
-    model: str = Field(default="gpt-4o")
+    model: str = Field(default=DEFAULT_LARGE_MODEL)
     prompt_template: str = Field(
         default="""
 Task Description:
@@ -60,7 +55,7 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
                 assertion_text=assertion.text,
             )
 
-            result = await client.chat.completions.create(
+            result = await llm_aclient.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": self.system_prompt},

@@ -11,7 +11,7 @@ from litellm import acompletion
 
 from evalforge.combined_scorer import AssertionScorer
 from evalforge.criterion_assertion_map import CriterionAssertionMap
-from evalforge.evalforge_alignment import (calculate_alignment_metrics,
+from evalforge.alignment import (calculate_alignment_metrics,
                                            filter_assertion_results,
                                            format_alignment_metrics,
                                            select_best_assertions,
