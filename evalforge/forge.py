@@ -19,8 +19,8 @@ from evalforge.alignment import (calculate_alignment_metrics,
 from evalforge.instructor_models import (CombinedTaskDescription, Criterion,
                                          CriterionAssertions,
                                          EvaluationCriteria, TaskDescription)
+from evalforge.llm import llm_client, llm_aclient, DEFAULT_LARGE_MODEL
 
-client = instructor.from_litellm(acompletion)
 DataPoint = Tuple[
     dict, dict, Literal[0, 1], Optional[str], Optional[str], Optional[str]
 ]  # (input, output, annotation, note, human_description_for_task_or_judge, human_description_for_metric_details)
@@ -120,7 +120,7 @@ def filter_best_assertions(best_criteria, all_assertions, criteria):
 
 class EvalForge(weave.Model):
 
-    MODEL: str = "gpt-4o-2024-08-06"
+    MODEL: str = DEFAULT_LARGE_MODEL
     task_prompt: str = """
 Current task description: {task_description}
 
@@ -268,7 +268,7 @@ Keep the description concise yet comprehensive."""
     # or sample the dataset and ensure that taking into tokens (maybe something fun with a distribution)
     # distribution = more stuff we can grab and throw into prompt in smart way
     @weave.op()
-    async def get_task_description(self, data: List[DataPoint]) -> str:
+    def get_task_description(self, data: List[DataPoint]) -> str:
         
         batched_data = self.shuffle_and_batch_data(data)
         
@@ -296,7 +296,7 @@ Keep the description concise yet comprehensive."""
                 samples=samples
             )
 
-            response = await client.chat.completions.create(
+            response = llm_client.chat.completions.create(
                 model=self.MODEL,
                 messages=[
                     {"role": "system", "content": self.task_system_prompt},
@@ -327,7 +327,7 @@ Keep the description concise yet comprehensive."""
             llm_description=llm_description, human_context=human_context
         )
 
-        response = await client.chat.completions.create(
+        response = await llm_aclient.chat.completions.create(
             model=self.MODEL,
             messages=[
                 {"role": "system", "content": self.combined_task_system_prompt},
@@ -346,7 +346,8 @@ Keep the description concise yet comprehensive."""
             formatted_data=formatted_data,
             generated_criteria=str([c.model_dump() for c in all_criteria]),
         )
-        response = await client.chat.completions.create(
+        
+        response = await llm_aclient.chat.completions.create(
             model=self.MODEL,
             messages=[
                 {"role": "system", "content": self.criteria_system_prompt},
@@ -377,7 +378,7 @@ Keep the description concise yet comprehensive."""
             formatted_data_string=formatted_data_string,
             criterion=criterion.model_dump(),
         )
-        response = await client.chat.completions.create(
+        response = await llm_aclient.chat.completions.create(
             model=self.MODEL,
             messages=[
                 {"role": "system", "content": self.candidate_assertion_system_prompt},
@@ -419,11 +420,16 @@ Keep the description concise yet comprehensive."""
             )
             return result, example["annotation"]
 
-        # Run all examples concurrently
-        results = await asyncio.gather(
-            *[process_example(example) for example in annotation_examples]
-        )
+        # Run examples one by one
+        results = []
+        for example in annotation_examples:
+            result = await process_example(example)
+            results.append(result)
 
+        # # Run all examples concurrently
+        # results = await asyncio.gather(
+        #     *[process_example(example) for example in annotation_examples]
+        # )
         # Process the results to accumulate scores
         for criterion_results, human_annotation in results:
             # criterion_results is a dict mapping criteria to their assertion results
@@ -442,7 +448,7 @@ Keep the description concise yet comprehensive."""
 
     @weave.op()
     async def predict(self, data: List[DataPoint]) -> List[float]:
-        llm_task_description = await self.get_task_description(data)
+        llm_task_description = self.get_task_description(data)
         finalized_task_description = await self.combine_human_and_llm_descriptions(
             data, llm_task_description
         )

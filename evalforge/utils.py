@@ -55,3 +55,21 @@ def listify(l: list[str]) -> str:
     if not l:
         return "- None"
     return "\n".join([f"- {item}" for item in l])
+
+def sanitize_messages(messages: list[dict[str, str]]) -> list[dict[str, str]]:
+    """
+    Safely process messages for LiteLLM by converting all content to plain strings.
+    This prevents issues with class attributes and non-pickleable objects.
+    
+    Args:
+        messages: List of message dictionaries with 'role' and 'content' keys
+    Returns:
+        List of sanitized message dictionaries
+    """
+    return [
+        {
+            "role": str(msg["role"]),
+            "content": str(msg["content"])
+        }
+        for msg in messages
+    ]
