@@ -10,6 +10,7 @@ import isort
 import weave
 from autoflake import fix_code
 
+from evalforge.instructor_models import PythonAssertion
 
 class CodeFormatter(weave.Object):
     @weave.op()
@@ -57,8 +58,17 @@ class CodeFormatter(weave.Object):
 
     @weave.op()
     def write_assertions_to_files(
-        self, assertions: Dict[str, str], base_dir: Optional[str] = None
+        self, assertions: list[PythonAssertion], base_dir: Optional[str] = None
     ) -> str:
+        """Write assertions to test files in the specified directory.
+        
+        Args:
+            assertions: List of PythonAssertion objects
+            base_dir: Optional directory to write files to. If None, creates a timestamped directory
+            
+        Returns:
+            str: Path to the base directory containing the generated files
+        """
         if base_dir is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             base_dir = f"generated_assertions_{timestamp}"
@@ -139,41 +149,3 @@ if __name__ == '__main__':
     if not unittest.TextTestRunner().run(load_tests(None, None, None)).wasSuccessful():
         sys.exit(1)
 """
-
-
-def main():
-    # Usage example:
-    code_formatter = CodeFormatter()
-
-    assertions = {
-        "within_word_limit": """
-        def test_within_word_limit(self):
-            # Count words in output
-            total_words = sum(len(str(value).split()) for value in self.output['output'].split('\\n'))
-            self.assertLessEqual(total_words, 150, f"Output exceeds word limit with {total_words} words.")
-        """,
-        "essential_information_inclusion": """
-        def test_essential_information_inclusion(self):
-            # Check for the presence of essential keys
-            essential_keys = ['chief complaint', 'history of present illness', 'physical examination', 'symptoms experienced by the patient', 'new medications prescribed or changed', 'follow-up instructions']
-            output_text = self.output['output'].lower()
-            for key in essential_keys:
-                self.assertIn(key, output_text, f"Output is missing essential information: {key}.")
-        """,
-        "no_excessive_information": """
-        def test_no_excessive_information(self):
-            # Check for any mention of PII or excessive details
-            disallowed_terms = ['name', 'age', 'gender', 'ID']
-            output_text = self.output['output'].lower()
-            for term in disallowed_terms:
-                self.assertNotIn(term, output_text, f"Output contains disallowed information: {term}.")
-        """,
-    }
-
-    # Write assertions to files
-    temp_dir = code_formatter.write_assertions_to_files(assertions)
-    print(f"Generated assertions and tests written to: {temp_dir}")
-
-
-if __name__ == "__main__":
-    main()
