@@ -31,6 +31,8 @@ dependencies = [
     "openai>=1.0",
     "tqdm>=4.66.4",
     "simple_parsing>=0.1.5",
+    "litellm>=1.50.0",
+    "instructor>=1.6.0",
 ]
 
 [project.urls]
