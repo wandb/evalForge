@@ -1,10 +1,13 @@
 import asyncio
 import json
+from tqdm import tqdm
 from typing import Any, Dict, List, Literal, Optional, Tuple
+from jinja2 import Template
+import random
 
 import instructor
-import openai
 import weave
+from litellm import acompletion
 
 from evalforge.combined_scorer import AssertionScorer
 from evalforge.criterion_assertion_map import CriterionAssertionMap
@@ -17,7 +20,7 @@ from evalforge.instructor_models import (CombinedTaskDescription, Criterion,
                                          CriterionAssertions,
                                          EvaluationCriteria, TaskDescription)
 
-client = instructor.from_openai(openai.AsyncOpenAI())
+client = instructor.from_litellm(acompletion)
 DataPoint = Tuple[
     dict, dict, Literal[0, 1], Optional[str], Optional[str], Optional[str]
 ]  # (input, output, annotation, note, human_description_for_task_or_judge, human_description_for_metric_details)
@@ -122,10 +125,10 @@ class EvalForge(weave.Model):
 Current task description: {task_description}
 
 New datapoint:
-Input: {input_data}
-Output: {output_data}
-Annotation: {annotation}
-Note: {note}
+{Input: {sample.input_data}
+Output: {sample.output_data}
+Annotation: {sample.annotation}
+Note: {sample.note}
 
 Based on this new datapoint and the current task description, provide an updated, more refined task description. 
 If this is the first datapoint, create an initial task description.
@@ -233,48 +236,78 @@ You are an AI assistant designed to create testable assertions for a given task 
     num_assertions_per_criterion: Optional[int] = None
     alignment_threshold: float = 0.4
     num_criteria: int = 3
+    batch_size: int = 4
+    task_prompt: str = """
+Current task description: {{ task_description }}
+
+New datapoints:
+{% for sample in samples %}
+Input: {{ sample.input_data }}
+Output: {{ sample.output_data }}
+Annotation: {{ 'Correct' if sample.annotation == 1 else 'Incorrect' }}
+Note: {{ sample.note }}
+{% if not loop.last %}
+
+{% endif %}
+{% endfor %}
+
+Based on these new datapoints and the current task description, provide an updated, more refined task description. If this is the first batch, create an initial task description. Focus on:
+1. The nature of the input and output data
+2. The specific information being extracted or transformed
+3. Any formatting or style requirements
+4. Evaluation criteria (based on the annotations and notes)
+
+Keep the description concise yet comprehensive."""
+
+    def shuffle_and_batch_data(self, data: List[DataPoint]) -> List[List[DataPoint]]:
+        "Shuffle and batch the data into smaller lists of datapoints"
+        shuffled_data = random.sample(data, len(data))
+        return [shuffled_data[i:i+self.batch_size] for i in range(0, len(shuffled_data), self.batch_size)]
 
     # TODO: Batch this as opposed to one at a time
     # or sample the dataset and ensure that taking into tokens (maybe something fun with a distribution)
     # distribution = more stuff we can grab and throw into prompt in smart way
     @weave.op()
     async def get_task_description(self, data: List[DataPoint]) -> str:
+        
+        batched_data = self.shuffle_and_batch_data(data)
+        
         task_description = ""
+        
+        def tuplify_batch(batch: List[DataPoint]) -> List[Dict[str, Any]]:
+            return [
+                {
+                    'input_data': d[0],
+                    'output_data': d[1],
+                    'annotation': d[2],
+                    'note': d[3]
+                }
+                for d in batch
+            ]
 
-        for i, datapoint in enumerate(data):
-            input_data, output_data, annotation, note = (
-                datapoint[0],
-                datapoint[1],
-                datapoint[2],
-                datapoint[3],
-            )
-
-            prompt = self.task_prompt.format(
+        for i, batch in tqdm(enumerate(batched_data), desc="Refining task description"):
+            if i > 3:
+                break
+            # Convert DataPoint tuples to named tuples or dictionaries for easier access in the template
+            samples = tuplify_batch(batch)
+            template = Template(self.task_prompt)
+            formatted_prompt = template.render(
                 task_description=task_description,
-                input_data=input_data,
-                output_data=output_data,
-                annotation="Correct" if annotation == 1 else "Incorrect",
-                note=note,
+                samples=samples
             )
 
             response = await client.chat.completions.create(
                 model=self.MODEL,
                 messages=[
                     {"role": "system", "content": self.task_system_prompt},
-                    {"role": "user", "content": prompt},
+                    {"role": "user", "content": formatted_prompt}
                 ],
-                response_model=TaskDescription,
+                response_model=TaskDescription
             )
+            # refine the task description with the new datapoints
+            task_description = response.description
 
-            new_description = response.description
-
-            # TODO: Add guardrails to prevent LLM from saying no update needed
-            if new_description.lower().startswith("no update needed"):
-                continue
-
-            task_description = new_description
-
-        return task_description
+        return response.description
 
     @weave.op()
     async def combine_human_and_llm_descriptions(
@@ -423,9 +456,7 @@ You are an AI assistant designed to create testable assertions for a given task 
             criterion_assertion_map=all_assertions,
             llm_model=self.MODEL,
         )
-        assertion_results = asyncio.run(
-            self.run_assertions(scorer, annotation_examples)
-        )
+        assertion_results = await self.run_assertions(scorer, annotation_examples)
         metrics = calculate_alignment_metrics(assertion_results)
         best_assertions = select_best_assertions(
             metrics,

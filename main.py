@@ -8,7 +8,7 @@ from fasthtml.common import *
 from fasthtml.common import EventStream, sse_message
 
 from api_client import WeaveAPIClient
-from evalforge.evalforge import EvalForge
+from evalforge.forge import EvalForge
 
 dotenv.load_dotenv()
 
