@@ -1,11 +1,9 @@
 import asyncio
-import json
 from tqdm import tqdm
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from jinja2 import Template
 import random
 
-import instructor
 import weave
 from litellm import acompletion
 
@@ -19,284 +17,72 @@ from evalforge.alignment import (calculate_alignment_metrics,
 from evalforge.instructor_models import (CombinedTaskDescription, Criterion,
                                          CriterionAssertions,
                                          EvaluationCriteria, TaskDescription)
-from evalforge.llm import llm_client, llm_aclient, DEFAULT_LARGE_MODEL
-
-DataPoint = Tuple[
-    dict, dict, Literal[0, 1], Optional[str], Optional[str], Optional[str]
-]  # (input, output, annotation, note, human_description_for_task_or_judge, human_description_for_metric_details)
-
-
-def format_single_datapoint(dp: DataPoint, finalized_task_description: str) -> str:
-    input_data, output_data, annotation, note = dp[0], dp[1], dp[2], dp[3]
-    metrics_details = dp[5] if len(dp) > 5 else None
-
-    formatted = [
-        f"Task Description: {finalized_task_description}",
-        "",
-        "Input:",
-        "\n".join(
-            f"  {key.capitalize()}: {value}" for key, value in input_data.items()
-        ),
-        "",
-        "Output:",
-        "\n".join(
-            f"  {key.capitalize()}: {value}" for key, value in output_data.items()
-        ),
-        "",
-        f"Annotation: {'Correct' if annotation == 1 else 'Incorrect'}",
-        f"Note: {note}",
-    ]
-
-    if metrics_details:
-        formatted.append(f"Metrics Details: {metrics_details}")
-
-    return "\n".join(formatted)
-
-
-# TODO: improve this function
-def format_all_datapoints(
-    data: List[DataPoint], finalized_task_description: str
-) -> str:
-    formatted = [f"Task Description: {finalized_task_description}\n"]
-
-    for i, dp in enumerate(data, 1):
-        input_data, output_data, annotation, note = dp[0], dp[1], dp[2], dp[3]
-
-        formatted.extend(
-            [
-                f"Example {i}:",
-                "Input:",
-                json.dumps(input_data, indent=2),
-                "",
-                "Output:",
-                json.dumps(output_data, indent=2),
-                "",
-                f"Annotation: {'Correct' if annotation == 1 else 'Incorrect'}",
-                f"Note: {note}",
-                "\n" + "-" * 50 + "\n",  # Separator between examples
-            ]
-        )
-
-    return "\n".join(formatted)
-
-
-def convert_datapoint_to_example(
-    task_description: str, data: List[DataPoint]
-) -> List[Dict[str, Any]]:
-    examples = []
-    for dp in data:
-        input_data, output_data, annotation, note = dp[0], dp[1], dp[2], dp[3]
-        examples.append(
-            {
-                "task_description": task_description,
-                "input_data": input_data,
-                "model_output": {"output": output_data},
-                "annotation": annotation,
-                "note": note,
-            }
-        )
-    return examples
-
-
-def filter_best_assertions(best_criteria, all_assertions, criteria):
-    filtered_criterion_assertion_map = CriterionAssertionMap()
-    original_criteria = {c.criterion: c for c in criteria}
-
-    for criterion_name, criterion_data in best_criteria.items():
-        if criterion_name in original_criteria:
-            original_criterion = original_criteria[criterion_name]
-            best_assertion_names = set(criterion_data["per_assertion"].keys())
-
-            assertions = all_assertions.get_assertions_by_criterion(criterion_name)
-            if assertions:
-                for assertion in assertions:
-                    if assertion.test_name in best_assertion_names:
-                        filtered_criterion_assertion_map.add_assertion(
-                            original_criterion, assertion
-                        )
-
-    return filtered_criterion_assertion_map
+from evalforge.llm import llm_aclient, DEFAULT_LARGE_MODEL
+from evalforge.prompts import (
+    TASK_PROMPT,
+    TASK_SYSTEM_PROMPT,
+    COMBINED_TASK_PROMPT,
+    COMBINED_TASK_SYSTEM_PROMPT,
+    CRITERIA_PROMPT,
+    CRITERIA_SYSTEM_PROMPT,
+    CANDIDATE_ASSERTION_PROMPT,
+    CANDIDATE_ASSERTION_SYSTEM_PROMPT,
+)
+from evalforge.data_utils import (
+    DataPoint,
+    format_all_datapoints,
+    convert_datapoint_to_example
+)
 
 
 class EvalForge(weave.Model):
 
     MODEL: str = DEFAULT_LARGE_MODEL
-    task_prompt: str = """
-Current task description: {task_description}
-
-New datapoint:
-{Input: {sample.input_data}
-Output: {sample.output_data}
-Annotation: {sample.annotation}
-Note: {sample.note}
-
-Based on this new datapoint and the current task description, provide an updated, more refined task description. 
-If this is the first datapoint, create an initial task description.
-Focus on:
-1. The nature of the input and output data
-2. The specific information being extracted or transformed
-3. Any formatting or style requirements
-4. Evaluation criteria (based on the annotation and note)
-
-Keep the description concise yet comprehensive.
-"""
-
-    task_system_prompt: str = """
-You are an AI assistant designed to help refine task descriptions for a given dataset.
-"""
-    combined_task_prompt: str = """
-LLM-generated task description:
-{llm_description}
-
-Additional human-provided context:
-{human_context}
-
-Your task is to create a comprehensive, coherent task description that combines insights from both the LLM-generated description and the human-provided context. Ensure that:
-1. The final description is clear and concise.
-2. It incorporates key points from both sources.
-3. Any contradictions are resolved logically.
-4. The description maintains a professional tone.
-5. It provides a complete picture of the task requirements and evaluation criteria.
-
-Please provide the combined description in a single, well-structured paragraph.
-"""
-    combined_task_system_prompt: str = """
-You are an AI assistant designed to help refine task descriptions for a given dataset given a LLM-generated task description and additional human-provided context.
-"""
+    task_prompt: str = TASK_PROMPT
+    task_system_prompt: str = TASK_SYSTEM_PROMPT
+    combined_task_prompt: str = COMBINED_TASK_PROMPT
+    combined_task_system_prompt: str = COMBINED_TASK_SYSTEM_PROMPT
     num_criteria_to_generate: int = 3
-    criteria_prompt: str = """
-Analyze the following annotated datapoints:
-
-{formatted_data}
-
-Note we have already generated criteria, so we can use that as context:
-{generated_criteria}
-
-Generate 1 evaluation criteria that can be used to assess the quality of outputs for this task. Consider the following guidelines:
-
-1. If a 'Metrics Details' field is present in the datapoint, prioritize this information as it provides the most important evaluation criteria.
-2. Focus on general aspects of quality that can be used across multiple outputs.
-3. Consider criteria that address potential misalignment between LLM outputs and human preferences.
-4. Include criteria that can be evaluated both by code and by LLM-based evaluators.
-5. Think about criteria that might reveal hallucinations, instruction-following, or other common LLM issues.
-6. Generate criteria that could help in debugging or improving the LLM pipeline.
-
-Provide the criterion as a concise statement, followed by a brief explanation of why it's important and how it might be evaluated (e.g., via code, LLM evaluator, or human judgment).
-
-Return the criteria in this format:
-[Criterion]: [Brief explanation and evaluation method]
-
-Aim for a mix of straightforward, code-evaluable criteria and more nuanced criteria that might require LLM or human evaluation.
-"""
-    criteria_system_prompt: str = """
-You are an AI assistant designed to create evaluation criteria for a given task.
-"""
-    candidate_assertion_prompt: str = """
-Given the following evaluation criterion and annotated data, generate 1-3 specific, testable assertions:
-
-Criterion: {criterion}
-
-Annotated data: {formatted_data_string}
-
-Your task is to create assertions that can be used to evaluate LLM outputs based on this criterion. Follow these guidelines:
-
-1. Make each assertion clear, concise, and directly related to the criterion
-2. For Python assertions:
-- Provide a valid Python method that can be used within a unittest.TestCase class
-- Ensure the method name is in snake case and starts with test_
-- The method should take 'self' as the only input, where 'self.output' is a dictionary containing the LLM output being evaluated
-- The 'self.output' dictionary will have the same keys and shape as the output in the annotated data
-- Use unittest assertion methods (e.g., self.assertTrue, self.assertEqual) to test the output
-- The test should pass if the assertion is met, and fail otherwise
-- Only use the keys and shapes present in the annotated data output for your assertions
-3. For LLM assertions:
-- Provide a clear, detailed prompt for an LLM to evaluate the assertion
-- The prompt should guide the LLM to return "PASS" or "FAIL" based on the evaluation
-4. Include a mix of positive and negative assertions where appropriate
-5. Consider edge cases and potential failure modes for the criterion
-6. Aim for assertions that could be applied across multiple types of outputs
-
-Ensure that your assertions are directly evaluable and avoid vague or subjective language. Focus on creating assertions that align with human preferences and can be used to validate the quality of LLM-generated evaluations.
-
-Format your response as a JSON object with the following structure:
-{{
-"assertions": [
-    {{
-    "test_name": "Name of the test case method in snake case",
-    "text" or "code": "Assertion text or code",
-    "evaluation_type": "python" or "llm"
-    }},
-    ...
-]
-}}
-"""
-    candidate_assertion_system_prompt: str = """
-You are an AI assistant designed to create testable assertions for a given task and criterion.
-"""
+    criteria_prompt: str = CRITERIA_PROMPT
+    criteria_system_prompt: str = CRITERIA_SYSTEM_PROMPT
+    candidate_assertion_prompt: str = CANDIDATE_ASSERTION_PROMPT
+    candidate_assertion_system_prompt: str = CANDIDATE_ASSERTION_SYSTEM_PROMPT
     num_assertions_per_criterion: Optional[int] = None
     alignment_threshold: float = 0.4
     num_criteria: int = 3
     batch_size: int = 4
-    task_prompt: str = """
-Current task description: {{ task_description }}
-
-New datapoints:
-{% for sample in samples %}
-Input: {{ sample.input_data }}
-Output: {{ sample.output_data }}
-Annotation: {{ 'Correct' if sample.annotation == 1 else 'Incorrect' }}
-Note: {{ sample.note }}
-{% if not loop.last %}
-
-{% endif %}
-{% endfor %}
-
-Based on these new datapoints and the current task description, provide an updated, more refined task description. If this is the first batch, create an initial task description. Focus on:
-1. The nature of the input and output data
-2. The specific information being extracted or transformed
-3. Any formatting or style requirements
-4. Evaluation criteria (based on the annotations and notes)
-
-Keep the description concise yet comprehensive."""
 
     def shuffle_and_batch_data(self, data: List[DataPoint]) -> List[List[DataPoint]]:
         "Shuffle and batch the data into smaller lists of datapoints"
         shuffled_data = random.sample(data, len(data))
         return [shuffled_data[i:i+self.batch_size] for i in range(0, len(shuffled_data), self.batch_size)]
 
-    # TODO: Batch this as opposed to one at a time
-    # or sample the dataset and ensure that taking into tokens (maybe something fun with a distribution)
-    # distribution = more stuff we can grab and throw into prompt in smart way
     @weave.op()
-    def get_task_description(self, data: List[DataPoint]) -> str:
-        
+    async def get_task_description(self, data: List[DataPoint]) -> str:
         batched_data = self.shuffle_and_batch_data(data)
-        
         task_description = ""
         
-        def tuplify_batch(batch: List[DataPoint]) -> List[Dict[str, Any]]:
-            return [
-                {
-                    'input_data': d[0],
-                    'output_data': d[1],
-                    'annotation': d[2],
-                    'note': d[3]
-                }
-                for d in batch
-            ]
-
         for i, batch in tqdm(enumerate(batched_data), desc="Refining task description"):
             if i > 3:
                 break
-            # Convert DataPoint tuples to named tuples or dictionaries for easier access in the template
-            samples = tuplify_batch(batch)
+            # Convert DataPoints to dictionaries for the template
+            samples = [
+                {
+                    'input_data': dp.input_data,
+                    'output_data': dp.output_data,
+                    'annotation': dp.annotation,
+                    'note': dp.note
+                }
+                for dp in batch
+            ]
+            
             template = Template(self.task_prompt)
             formatted_prompt = template.render(
                 task_description=task_description,
                 samples=samples
             )
 
-            response = llm_client.chat.completions.create(
+            response = await llm_aclient.chat.completions.create(
                 model=self.MODEL,
                 messages=[
                     {"role": "system", "content": self.task_system_prompt},
@@ -304,7 +90,6 @@ Keep the description concise yet comprehensive."""
                 ],
                 response_model=TaskDescription
             )
-            # refine the task description with the new datapoints
             task_description = response.description
 
         return response.description
@@ -315,8 +100,8 @@ Keep the description concise yet comprehensive."""
     ) -> str:
         human_descriptions = set()
         for dp in data:
-            if len(dp) > 4 and dp[4]:  # Check if human description exists
-                human_descriptions.add(dp[4])
+            if dp.human_description:  # Check if human description exists
+                human_descriptions.add(dp.human_description)
 
         if not human_descriptions:
             return llm_description
@@ -446,6 +231,26 @@ Keep the description concise yet comprehensive."""
 
         return criterion_assertion_results
 
+    def _filter_best_assertions(self, best_criteria, all_assertions, criteria):
+        """Private helper method to filter assertions based on best criteria"""
+        filtered_criterion_assertion_map = CriterionAssertionMap()
+        original_criteria = {c.criterion: c for c in criteria}
+
+        for criterion_name, criterion_data in best_criteria.items():
+            if criterion_name in original_criteria:
+                original_criterion = original_criteria[criterion_name]
+                best_assertion_names = set(criterion_data["per_assertion"].keys())
+
+                assertions = all_assertions.get_assertions_by_criterion(criterion_name)
+                if assertions:
+                    for assertion in assertions:
+                        if assertion.test_name in best_assertion_names:
+                            filtered_criterion_assertion_map.add_assertion(
+                                original_criterion, assertion
+                            )
+
+        return filtered_criterion_assertion_map
+
     @weave.op()
     async def predict(self, data: List[DataPoint]) -> List[float]:
         llm_task_description = self.get_task_description(data)
@@ -476,7 +281,7 @@ Keep the description concise yet comprehensive."""
         best_criteria = select_best_criteria(
             new_metrics, self.alignment_threshold, self.num_criteria
         )
-        filtered_criterion_assertion_map = filter_best_assertions(
+        filtered_criterion_assertion_map = self._filter_best_assertions(
             best_criteria, all_assertions, criteria
         )
 
