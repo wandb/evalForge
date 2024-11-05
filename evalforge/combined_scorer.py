@@ -9,6 +9,7 @@ from evalforge.code_evaluator import CodeAssertionScorer, CodeFormatter
 from evalforge.instructor_models import (Criterion, LLMAssertion,
                                          PythonAssertion)
 from evalforge.llm_evaluator import LLMAssertionScorer
+from evalforge.prompts import LLMASSERTION_PROMPT_TEMPLATE, LLMASSERTION_SYSTEM_PROMPT
 
 
 @weave.op
@@ -30,29 +31,9 @@ class AssertionScorer(weave.Scorer):
         default_factory=CriterionAssertionMap
     )
     llm_model: str = Field(default="gpt-4o-2024-08-06")
-    prompt_template: str = Field(
-        default="""
-Task Description:
-{task_description}
-
-Evaluate the following output based on the given task, input, and assertion:
-
-Input:
-{input_data}
-
-Output:
-{model_output}
-
-Assertion:
-{assertion_text}
-
-Consider the task description and input when evaluating the output against the assertion.
-Respond with either 'PASS' if the output meets the assertion criteria in the context of the task and input, or 'FAIL' if it does not.
-"""
-    )
-    system_prompt: str = Field(
-        default="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions."
-    )
+    task_description: Optional[str] = Field(default=None)
+    prompt_template: str = Field(default=LLMASSERTION_PROMPT_TEMPLATE)
+    system_prompt: str = Field(default=LLMASSERTION_SYSTEM_PROMPT)
     code_formatter: CodeFormatter = Field(default_factory=CodeFormatter)
 
     def get_grouped_assertions_by_type(self):
@@ -71,10 +52,10 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
     @weave.op
     async def score(
         self,
-        model_output: Optional[Dict[str, Any]],
-        task_description: str,
-        input_data: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        *,  # Force kwargs
+        model_output: Any,
+        input_data: Any,
+    ) -> Dict[str, Dict[str, int]]:
         if model_output is None:
             return {"error": "No model output provided"}
 
@@ -91,11 +72,11 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
                 system_prompt=self.system_prompt,
             )
             llm_results = await llm_scorer.score(
-                model_output, task_description, input_data
+                model_output=model_output, 
+                input_data=input_data,
+                task_description=self.task_description,
             )
-            results["llm_assertion_results"] = llm_results.get(
-                "llm_assertion_results", {}
-            )
+            results["llm_assertion_results"] = llm_results.get("llm_assertion_results", {})
 
         # Process Python assertions
         if python_assertions:
@@ -103,27 +84,22 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
                 assertions=python_assertions,
                 code_formatter=self.code_formatter,
             )
-            code_results = code_scorer.score(model_output, input_data, task_description)
-            results["code_assertion_results"] = code_results.get(
-                "code_assertion_results", {}
+            code_results = code_scorer.score(
+                model_output=model_output, 
+                input_data=input_data
             )
+            results["code_assertion_results"] = code_results.get("code_assertion_results", {})
 
         # Map results back to criteria using the mapping class
         criterion_results: Dict[str, Dict[str, Any]] = {}
         for test_name, result in results.get("llm_assertion_results", {}).items():
-            criterion = self.criterion_assertion_map.get_criterion_by_assertion(
-                test_name
-            )
+            criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
             if criterion not in criterion_results:
                 criterion_results[criterion] = {}
             criterion_results[criterion][test_name] = result
 
-        for test_name, result in (
-            results.get("code_assertion_results", {}).get("test_results", {}).items()
-        ):
-            criterion = self.criterion_assertion_map.get_criterion_by_assertion(
-                test_name
-            )
+        for test_name, result in results.get("code_assertion_results", {}).get("test_results", {}).items():
+            criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
             if criterion not in criterion_results:
                 criterion_results[criterion] = {}
             criterion_results[criterion][test_name] = result

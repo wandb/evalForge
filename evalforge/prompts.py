@@ -113,4 +113,26 @@ CANDIDATE_ASSERTION_PROMPT = textwrap.dedent("""
 
 CANDIDATE_ASSERTION_SYSTEM_PROMPT = textwrap.dedent("""
     You are an AI assistant designed to create testable assertions for a given task and criterion.
-    """) 
+    """)
+
+# LLM Assertion Scorer prompts
+LLMASSERTION_PROMPT_TEMPLATE = textwrap.dedent("""
+Task Description:
+{task_description}
+
+Evaluate the following output based on the given task, input, and assertion:
+
+Input:
+{input_data}
+
+Output:
+{model_output}
+
+Assertion:
+{assertion_text}
+
+Consider the task description and input when evaluating the output against the assertion.
+Respond with either 'PASS' if the output meets the assertion criteria in the context of the task and input, or 'FAIL' if it does not.
+""")
+
+LLMASSERTION_SYSTEM_PROMPT = "You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions."

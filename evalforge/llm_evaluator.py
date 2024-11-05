@@ -1,91 +1,64 @@
 import asyncio
-from typing import Any, Dict, List, Optional
-
+from typing import Any, Dict, List, Optional, Tuple
+from pydantic import BaseModel
 
 import weave
-import instructor
 from pydantic import Field
 
-
-from evalforge.instructor_models import LLMAssertion
-from evalforge.llm import llm_aclient, DEFAULT_LARGE_MODEL
+from evalforge.instructor_models import LLMAssertion, AssertionEvaluation
+from evalforge.llm import llm_aclient, DEFAULT_LLM_MODEL
+from evalforge.prompts import LLMASSERTION_PROMPT_TEMPLATE, LLMASSERTION_SYSTEM_PROMPT
 
 class LLMAssertionScorer(weave.Scorer):
-    assertions: List[LLMAssertion]
-    model: str = Field(default=DEFAULT_LARGE_MODEL)
-    prompt_template: str = Field(
-        default="""
-Task Description:
-{task_description}
+    assertions: List[LLMAssertion] = Field(default_factory=list)
+    model: str = Field(default="gpt-4")
+    prompt_template: str = Field(default=LLMASSERTION_PROMPT_TEMPLATE)
+    system_prompt: str = Field(default=LLMASSERTION_SYSTEM_PROMPT)
 
-Evaluate the following output based on the given task, input, and assertion:
+    async def process_assertion(
+        self,
+        assertion: LLMAssertion,
+        *,  # Force kwargs
+        model_output: Any,
+        input_data: Any,
+        task_description: str,
+    ) -> Tuple[str, int]:
+        formatted_prompt = self.prompt_template.format(
+            task_description=task_description,
+            input_data=input_data,
+            model_output=model_output,
+            assertion_text=assertion.text,
+        )
 
-Input:
-{input_data}
+        response = await llm_aclient.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": formatted_prompt},
+            ],
+            response_model=AssertionEvaluation,
+        )
 
-Output:
-{model_output}
-
-Assertion:
-{assertion_text}
-
-Consider the task description and input when evaluating the output against the assertion.
-Respond with either 'PASS' if the output meets the assertion criteria in the context of the task and input, or 'FAIL' if it does not.
-"""
-    )
-    system_prompt: str = Field(
-        default="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions."
-    )
+        score = 1 if response.result == "PASS" else 0
+        return assertion.test_name, score
 
     @weave.op
     async def score(
         self,
-        model_output: Optional[Dict[str, Any]],
+        *,  # Force kwargs
+        model_output: Any,
+        input_data: Any,
         task_description: str,
-        input_data: Dict[str, Any],
-    ) -> Dict[str, Any]:
-        if model_output is None:
-            return {"error": "No model output provided"}
-
-        async def process_assertion(assertion):
-            prompt = self.prompt_template.format(
-                task_description=task_description,
+    ) -> Dict[str, Dict[str, int]]:
+        tasks = [
+            self.process_assertion(
+                assertion,
+                model_output=model_output,
                 input_data=input_data,
-                model_output=model_output["output"],
-                assertion_text=assertion.text,
+                task_description=task_description,
             )
+            for assertion in self.assertions
+        ]
 
-            result = await llm_aclient.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": prompt},
-                ],
-                response_model=str,
-            )
-
-            # Map the LLM response to a score and standardize the result
-            if result == "PASS":
-                score = 1
-            elif result == "FAIL":
-                score = 0
-            else:
-                # Handle unexpected responses
-                score = 0  # Treat unexpected responses as failures
-                result = "FAIL"  # Standardize the result text
-
-            # Return a dictionary similar to code assertions
-            return assertion.test_name, {
-                "score": score,
-                "result": result,
-                "type": "llm",
-            }
-
-        # Create tasks for all assertions
-        tasks = [process_assertion(assertion) for assertion in self.assertions]
-
-        # Run all tasks concurrently and gather results
         assertion_results = await asyncio.gather(*tasks)
-        results = dict(assertion_results)
-
-        return {"llm_assertion_results": results}
+        return {"llm_assertion_results": dict(assertion_results)}

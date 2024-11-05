@@ -82,3 +82,10 @@ class CriterionAssertions(BaseModel):
         max_items=3,
         description="Generate 1-3 specific, testable assertions that can be used to evaluate LLM outputs based on the given criterion",
     )
+
+
+class AssertionEvaluation(BaseModel):
+    result: Literal["PASS", "FAIL"] = Field(
+        ...,
+        description="The evaluation result of an assertion. Must be either 'PASS' or 'FAIL'."
+    )

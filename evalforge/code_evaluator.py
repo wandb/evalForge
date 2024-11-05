@@ -21,7 +21,6 @@ class CodeAssertionScorer(weave.Scorer):
         self,
         model_output: Optional[Dict[str, Any]],
         input_data: Dict[str, Any],
-        task_description: str,
         **kwargs
     ) -> Dict[str, Any]:
         if model_output is None or "output" not in model_output:

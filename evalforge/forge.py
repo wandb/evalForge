@@ -46,6 +46,7 @@ class EvalForge(weave.Model):
     alignment_threshold: float = 0.4
     num_criteria: int = 3
     batch_size: int = 4
+    task_description: Optional[str] = None
 
     def shuffle_and_batch_data(self, data: List[DataPoint]) -> List[List[DataPoint]]:
         "Shuffle and batch the data into smaller lists of datapoints"
@@ -192,41 +193,34 @@ class EvalForge(weave.Model):
 
     @weave.op
     async def run_assertions(
-        self, scorer: AssertionScorer, annotation_examples: List[Dict[str, Any]]
+        self, 
+        scorer: AssertionScorer, 
+        data: List[DataPoint]
     ) -> Dict[str, Dict[str, List[Tuple[int, int]]]]:
-        # The outer dict maps criterion names to assertion results
         criterion_assertion_results = {}
 
-        async def process_example(example):
+        async def process_example(datapoint: DataPoint):
             result = await scorer.score(
-                model_output={"output": example["model_output"]["output"]},
-                task_description=example["task_description"],
-                input_data=example["input_data"],
+                model_output=datapoint.output_data,
+                input_data=datapoint.input_data,
             )
-            return result, example["annotation"]
+            return result, datapoint.annotation
 
-        # Run examples one by one
         results = []
-        with tqdm("Running assertions on examples", len(annotation_examples)) as progress:
-            for example in annotation_examples:
-                result = await process_example(example)
+        with tqdm("Running assertions on examples", len(data)) as progress:
+            for datapoint in data:
+                result = await process_example(datapoint)
                 results.append(result)
                 progress.update(progress.task_id, advance=1)
 
-        # # Run all examples concurrently
-        # results = await asyncio.gather(
-        #     *[process_example(example) for example in annotation_examples]
-        # )
-        # Process the results to accumulate scores
+        # Process results
         for criterion_results, human_annotation in results:
-            # criterion_results is a dict mapping criteria to their assertion results
             for criterion, assertion_results in criterion_results.items():
                 if criterion not in criterion_assertion_results:
                     criterion_assertion_results[criterion] = {}
                 for assertion_name, score in assertion_results.items():
                     if assertion_name not in criterion_assertion_results[criterion]:
                         criterion_assertion_results[criterion][assertion_name] = []
-                    # Append the (score, human_annotation) tuple
                     criterion_assertion_results[criterion][assertion_name].append(
                         (score, human_annotation)
                     )
@@ -325,27 +319,23 @@ class EvalForge(weave.Model):
             llm_task_description = await self.get_task_description(train_data)
         
         with logger.timer("Combining human and LLM descriptions"):
-            finalized_task_description = await self.combine_human_and_llm_descriptions(
+            self.task_description = await self.combine_human_and_llm_descriptions(
                 train_data, llm_task_description
             )
         
         with logger.timer("Generating evaluation criteria"):
-            criteria = await self.generate_criteria(train_data, finalized_task_description)
+            criteria = await self.generate_criteria(train_data, self.task_description)
         
         with logger.timer("Generating assertions"):
             all_assertions = await self.generate_all_assertions(criteria, train_data)
         
         with logger.timer("Running assertions on examples"):
-            annotation_examples = [
-                dp.to_dict(task_description=finalized_task_description)
-                for dp in train_data
-            ]
-            
             initial_scorer = AssertionScorer(
                 criterion_assertion_map=all_assertions,
                 llm_model=self.MODEL,
+                task_description=self.task_description,
             )
-            assertion_results = await self.run_assertions(initial_scorer, annotation_examples)
+            assertion_results = await self.run_assertions(initial_scorer, train_data)
         
         with logger.timer("Processing results"):
             forged_judges, initial_judges = await self.calculate_judge_metrics(
@@ -360,6 +350,5 @@ class EvalForge(weave.Model):
         return {
             "forged_judges": forged_judges,
             "raw_judges": initial_judges,
-            "annotation_examples": annotation_examples,
-            "finalized_task_description": finalized_task_description,
+            "task_description": self.task_description,
         }

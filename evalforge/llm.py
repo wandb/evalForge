@@ -26,6 +26,6 @@ llm_client = instructor.from_litellm(sanitize_completion(completion))
 llm_aclient = instructor.from_litellm(sanitize_completion(acompletion))
 
 # Default model configurations
-DEFAULT_LARGE_MODEL = "gpt-4o"  # For high accuracy tasks
+DEFAULT_LLM_MODEL = "gpt-4o"  # For high accuracy tasks
 DEFAULT_FAST_MODEL = "gpt-4o-mini"  # For faster, lighter tasks
 
