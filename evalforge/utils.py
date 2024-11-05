@@ -3,7 +3,16 @@ from pathlib import Path
 
 import numpy as np
 from pydantic import BaseModel
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
+import time
+import functools
+from typing import Callable, Any
+import asyncio
+from contextlib import contextmanager
 
+# Add global console instance
+console = Console()
 
 def pprint(d, indent=4):
     """Pretty print a dictionary or other object."""
@@ -73,3 +82,87 @@ def sanitize_messages(messages: list[dict[str, str]]) -> list[dict[str, str]]:
         }
         for msg in messages
     ]
+
+def tqdm(description: str, total: int):
+    """Create a Rich progress bar with consistent styling
+    
+    Args:
+        description: Task description to display
+        total: Total number of steps
+        
+    Returns:
+        Progress: The progress bar with task_id attribute
+    """
+    progress = Progress(
+        SpinnerColumn(),
+        *Progress.get_default_columns(),
+        TimeElapsedColumn(),
+        console=console,
+        transient=True  # Removes progress bar when done
+    )
+    progress.task_id = progress.add_task(f"[bold blue]{description}", total=total)
+    return progress
+
+def timer(func: Callable) -> Callable:
+    """Decorator that measures and prints execution time of functions.
+    Works with both async and regular functions.
+    
+    Args:
+        func: The function to be timed
+        
+    Returns:
+        Wrapped function that prints its execution time
+    """
+    @functools.wraps(func)
+    async def async_wrapper(*args, **kwargs) -> Any:
+        start = time.perf_counter()
+        result = await func(*args, **kwargs)
+        elapsed = time.perf_counter() - start
+        console.print(f"[dim](time: {elapsed:.2f}s)[/]")
+        return result
+    
+    @functools.wraps(func)
+    def sync_wrapper(*args, **kwargs) -> Any:
+        start = time.perf_counter()
+        result = func(*args, **kwargs)
+        elapsed = time.perf_counter() - start
+        console.print(f"[dim](time: {elapsed:.2f}s)[/]")
+        return result
+    
+    return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+
+class Logger:
+    def __init__(self):
+        self.console = Console()
+        
+    def info(self, message: str):
+        """Print an info message"""
+        self.console.print(f"[green]► {message}[/]")
+    
+    def warning(self, message: str):
+        """Print a warning message"""
+        self.console.print(f"[yellow]► {message}[/]")
+        
+    def header(self, message: str):
+        """Print a header message"""
+        self.console.print(f"[bold blue]{message}[/]")
+        
+    @contextmanager
+    def timer(self, message: str = None):
+        """Context manager for timing operations
+        
+        Args:
+            message: Optional message to print before timing
+        """
+        if message:
+            self.info(message)
+            
+        start = time.perf_counter()
+        try:
+            yield
+        finally:
+            elapsed = time.perf_counter() - start
+            self.console.print(f"[dim](time: {elapsed:.2f}s)[/]")
+
+# Create global logger instance
+logger = Logger()

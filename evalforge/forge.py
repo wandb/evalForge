@@ -1,9 +1,7 @@
 import asyncio
-from tqdm import tqdm
 from typing import Any, Dict, List, Optional, Tuple
 from jinja2 import Template
 import random
-
 import weave
 from litellm import acompletion
 
@@ -33,6 +31,7 @@ from evalforge.data_utils import (
     format_all_datapoints,
     convert_datapoint_to_example
 )
+from evalforge.utils import tqdm, logger
 
 
 class EvalForge(weave.Model):
@@ -62,35 +61,37 @@ class EvalForge(weave.Model):
         batched_data = self.shuffle_and_batch_data(data)
         task_description = ""
         
-        for i, batch in tqdm(enumerate(batched_data), desc="Refining task description"):
-            if i > 3:
-                break
-            # Convert DataPoints to dictionaries for the template
-            samples = [
-                {
-                    'input_data': dp.input_data,
-                    'output_data': dp.output_data,
-                    'annotation': dp.annotation,
-                    'note': dp.note
-                }
-                for dp in batch
-            ]
-            
-            template = Template(self.task_prompt)
-            formatted_prompt = template.render(
-                task_description=task_description,
-                samples=samples
-            )
+        with tqdm("Refining task description", min(4, len(batched_data))) as progress:
+            for i, batch in enumerate(batched_data):
+                if i > 3:
+                    break
+                # Convert DataPoints to dictionaries for the template
+                samples = [
+                    {
+                        'input_data': dp.input_data,
+                        'output_data': dp.output_data,
+                        'annotation': dp.annotation,
+                        'note': dp.note
+                    }
+                    for dp in batch
+                ]
+                
+                template = Template(self.task_prompt)
+                formatted_prompt = template.render(
+                    task_description=task_description,
+                    samples=samples
+                )
 
-            response = await llm_aclient.chat.completions.create(
-                model=self.MODEL,
-                messages=[
-                    {"role": "system", "content": self.task_system_prompt},
-                    {"role": "user", "content": formatted_prompt}
-                ],
-                response_model=TaskDescription
-            )
-            task_description = response.description
+                response = await llm_aclient.chat.completions.create(
+                    model=self.MODEL,
+                    messages=[
+                        {"role": "system", "content": self.task_system_prompt},
+                        {"role": "user", "content": formatted_prompt}
+                    ],
+                    response_model=TaskDescription
+                )
+                task_description = response.description
+                progress.update(progress.task_id, advance=1)
 
         return response.description
 
@@ -148,10 +149,12 @@ class EvalForge(weave.Model):
     ) -> List[Criterion]:
         all_criteria = []
         formatted_data = format_all_datapoints(data, finalized_task_description)
-
-        for _ in range(self.num_criteria_to_generate):
-            response = await self.process_criteria(formatted_data, all_criteria)
-            all_criteria.extend(response.criteria)
+        
+        with tqdm("Generating criteria", self.num_criteria_to_generate) as progress:
+            for _ in range(self.num_criteria_to_generate):
+                response = await self.process_criteria(formatted_data, all_criteria)
+                all_criteria.extend(response.criteria)
+                progress.update(progress.task_id, advance=1)
 
         return all_criteria
 
@@ -207,9 +210,11 @@ class EvalForge(weave.Model):
 
         # Run examples one by one
         results = []
-        for example in annotation_examples:
-            result = await process_example(example)
-            results.append(result)
+        with tqdm("Running assertions on examples", len(annotation_examples)) as progress:
+            for example in annotation_examples:
+                result = await process_example(example)
+                results.append(result)
+                progress.update(progress.task_id, advance=1)
 
         # # Run all examples concurrently
         # results = await asyncio.gather(
@@ -252,34 +257,40 @@ class EvalForge(weave.Model):
         return filtered_criterion_assertion_map
 
     @weave.op()
-    async def predict(self, data: List[DataPoint]) -> List[float]:
-        llm_task_description = self.get_task_description(data)
-        finalized_task_description = await self.combine_human_and_llm_descriptions(
-            data, llm_task_description
-        )
-        criteria = await self.generate_criteria(data, finalized_task_description)
-        formatted_data = format_all_datapoints(data, finalized_task_description)
-        all_assertions = await self.generate_all_assertions(criteria, formatted_data)
-        annotation_examples = convert_datapoint_to_example(
-            finalized_task_description, data
-        )
-        scorer = AssertionScorer(
-            criterion_assertion_map=all_assertions,
-            llm_model=self.MODEL,
-        )
-        assertion_results = await self.run_assertions(scorer, annotation_examples)
-        metrics = calculate_alignment_metrics(assertion_results)
+    async def calculate_judge_metrics(
+        self, 
+        initial_scorer: AssertionScorer,
+        assertion_results: Dict[str, Dict[str, List[Tuple[int, int]]]], 
+        all_assertions: CriterionAssertionMap,
+        criteria: List[Criterion]
+    ) -> Tuple[Dict, Dict]:
+        # Check if assertion_results is empty or None
+        if not assertion_results:
+            logger.warning("No assertion results found")
+            return {}, {}
+
+        initial_metrics = calculate_alignment_metrics(assertion_results)
+        # Add check after calculating initial metrics
+        if not initial_metrics:
+            logger.warning("No metrics calculated from assertion results")
+            return {}, {}
+
         best_assertions = select_best_assertions(
-            metrics,
+            initial_metrics,
             assertion_results,
-            num_assertions_per_criterion=self.num_assertions_per_criterion,  # Use intelligent selection
+            num_assertions_per_criterion=self.num_assertions_per_criterion,
         )
         filtered_assertion_results = filter_assertion_results(
             assertion_results, best_assertions
         )
-        new_metrics = calculate_alignment_metrics(filtered_assertion_results)
+        filtered_metrics = calculate_alignment_metrics(filtered_assertion_results)
+        # Add check for filtered metrics
+        if not filtered_metrics:
+            logger.warning("No filtered metrics calculated")
+            return {}, {}
+
         best_criteria = select_best_criteria(
-            new_metrics, self.alignment_threshold, self.num_criteria
+            filtered_metrics, self.alignment_threshold, self.num_criteria
         )
         filtered_criterion_assertion_map = self._filter_best_assertions(
             best_criteria, all_assertions, criteria
@@ -291,23 +302,66 @@ class EvalForge(weave.Model):
             llm_model=self.MODEL,
         )
 
-        forged_alignment_metrics_str = format_alignment_metrics(new_metrics)
+        forged_metrics_str = format_alignment_metrics(filtered_metrics)
+        initial_metrics_str = format_alignment_metrics(initial_metrics)
 
-        raw_alignment_metrics_str = format_alignment_metrics(metrics)
+        forged_judges = {
+            "judge": final_judge,
+            "alignment_metrics": filtered_metrics,
+            "assertion_results": filtered_assertion_results,
+            "summary": forged_metrics_str,
+        }
+        initial_judges = {
+            "judge": initial_scorer,
+            "alignment_metrics": initial_metrics,
+            "assertion_results": assertion_results,
+            "summary": initial_metrics_str,
+        }
 
+        return forged_judges, initial_judges
+
+    @weave.op()
+    async def predict(self, data: List[DataPoint]) -> List[float]:
+        logger.header("Starting EvalForge prediction pipeline")
+        
+        with logger.timer("Generating task description"):
+            llm_task_description = await self.get_task_description(data)
+        
+        with logger.timer("Combining human and LLM descriptions"):
+            finalized_task_description = await self.combine_human_and_llm_descriptions(
+                data, llm_task_description
+            )
+        
+        with logger.timer("Generating evaluation criteria"):
+            criteria = await self.generate_criteria(data, finalized_task_description)
+        
+        with logger.timer("Formatting data and generating assertions"):
+            formatted_data = format_all_datapoints(data, finalized_task_description)
+            all_assertions = await self.generate_all_assertions(criteria, formatted_data)
+        
+        with logger.timer("Running assertions on examples"):
+            annotation_examples = convert_datapoint_to_example(
+                finalized_task_description, data
+            )
+            initial_scorer = AssertionScorer(
+                criterion_assertion_map=all_assertions,
+                llm_model=self.MODEL,
+            )
+            assertion_results = await self.run_assertions(initial_scorer, annotation_examples)
+        
+        with logger.timer("Processing results"):
+            forged_judges, initial_judges = await self.calculate_judge_metrics(
+                initial_scorer,
+                assertion_results, 
+                all_assertions, 
+                criteria
+            )
+        
+        logger.header("EvalForge pipeline completed ✨")
+        
         return {
-            "forged_judges": {
-                "judge": final_judge,
-                "alignment_metrics": new_metrics,
-                "assertion_results": filtered_assertion_results,
-                "summary": forged_alignment_metrics_str,
-            },
-            "raw_judges": {
-                "judge": scorer,
-                "alignment_metrics": metrics,
-                "assertion_results": assertion_results,
-                "summary": raw_alignment_metrics_str,
-            },
+            "forged_judges": forged_judges,
+            "raw_judges": initial_judges,
             "annotation_examples": annotation_examples,
             "finalized_task_description": finalized_task_description,
         }
