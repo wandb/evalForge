@@ -15,7 +15,7 @@ from evalforge.alignment import (calculate_alignment_metrics,
 from evalforge.instructor_models import (CombinedTaskDescription, Criterion,
                                          CriterionAssertions,
                                          EvaluationCriteria, TaskDescription)
-from evalforge.llm import llm_aclient, DEFAULT_LARGE_MODEL
+from evalforge.llm import llm_aclient, DEFAULT_LLM_MODEL
 from evalforge.prompts import (
     TASK_PROMPT,
     TASK_SYSTEM_PROMPT,
@@ -32,7 +32,7 @@ from evalforge.utils import tqdm, logger
 
 class EvalForge(weave.Model):
 
-    MODEL: str = DEFAULT_LARGE_MODEL
+    MODEL: str = DEFAULT_LLM_MODEL
     task_prompt: str = TASK_PROMPT
     task_system_prompt: str = TASK_SYSTEM_PROMPT
     combined_task_prompt: str = COMBINED_TASK_PROMPT
