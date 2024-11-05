@@ -16,7 +16,7 @@ class CodeAssertionScorer(weave.Scorer):
     assertions: List[PythonAssertion]
     code_formatter: CodeFormatter = Field(default_factory=CodeFormatter)
 
-    @weave.op()
+    @weave.op
     def score(
         self,
         model_output: Optional[Dict[str, Any]],

@@ -13,7 +13,7 @@ from autoflake import fix_code
 from evalforge.instructor_models import PythonAssertion
 
 class CodeFormatter(weave.Object):
-    @weave.op()
+    @weave.op
     def lint_code(self, code: str) -> str:
         code = code.replace("\\n", "\n")
         tree = ast.parse(code)
@@ -56,7 +56,7 @@ class CodeFormatter(weave.Object):
                 pass
         return "\n".join(import_statements)
 
-    @weave.op()
+    @weave.op
     def write_assertions_to_files(
         self, assertions: list[PythonAssertion], base_dir: Optional[str] = None
     ) -> str:
@@ -93,7 +93,7 @@ class CodeFormatter(weave.Object):
 
         return base_dir
 
-    @weave.op()
+    @weave.op
     def create_test_file_content(self, assertion_name: str, assertion_code: str) -> str:
         # Dedent the assertion code to remove any existing indentation
         dedented_assertion_code = textwrap.dedent(assertion_code).strip()
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     unittest.main()
 """
 
-    @weave.op()
+    @weave.op
     def get_run_tests_content(self) -> str:
         return """
 import unittest

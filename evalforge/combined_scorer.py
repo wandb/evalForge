@@ -11,7 +11,7 @@ from evalforge.instructor_models import (Criterion, LLMAssertion,
 from evalforge.llm_evaluator import LLMAssertionScorer
 
 
-@weave.op()
+@weave.op
 def predict_passthrough(
     model_output: Dict[str, Any], task_description: str, input_data: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -68,7 +68,7 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
         ]
         return llm_assertions, python_assertions
 
-    @weave.op()
+    @weave.op
     async def score(
         self,
         model_output: Optional[Dict[str, Any]],

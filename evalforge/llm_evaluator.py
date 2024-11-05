@@ -37,7 +37,7 @@ Respond with either 'PASS' if the output meets the assertion criteria in the con
         default="You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions."
     )
 
-    @weave.op()
+    @weave.op
     async def score(
         self,
         model_output: Optional[Dict[str, Any]],

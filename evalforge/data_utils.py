@@ -25,6 +25,49 @@ class DataPoint(BaseModel):
         description="Optional field for any additional context or metadata"
     )
 
+    def format(self, index: Optional[int] = None) -> str:
+        """Format a single datapoint as a string"""
+        parts = []
+        if index is not None:
+            parts.append(f"Example {index}:")
+            
+        parts.extend([
+            "Input:",
+            json.dumps(self.input_data, indent=2),
+            "",
+            "Output:",
+            json.dumps(self.output_data, indent=2),
+            "",
+            f"Annotation: {'Correct' if self.annotation == 1 else 'Incorrect'}",
+            f"Note: {self.note or 'N/A'}",
+            "\n" + "-" * 50 + "\n"
+        ])
+        return "\n".join(parts)
+
+    def to_dict(self, task_description: Optional[str] = None) -> Dict[str, Any]:
+        """Convert datapoint to a standardized dictionary format"""
+        result = {
+            "input_data": self.input_data,
+            "model_output": {"output": self.output_data},
+            "annotation": self.annotation,
+            "note": self.note
+        }
+        if task_description:
+            result["task_description"] = task_description
+        return result
+
+    @classmethod
+    def format_batch(cls, 
+                    datapoints: List['DataPoint'], 
+                    task_description: Optional[str] = None) -> str:
+        """Format a batch of datapoints with optional task description"""
+        parts = []
+        if task_description:
+            parts.append(f"Task Description: {task_description}\n")
+        
+        parts.extend(dp.format(i + 1) for i, dp in enumerate(datapoints))
+        return "\n".join(parts)
+
     model_config = {
         "json_schema_extra": {
             "example": {
@@ -37,42 +80,3 @@ class DataPoint(BaseModel):
             }
         }
     }
-
-def format_all_datapoints(
-    data: List[DataPoint], finalized_task_description: str
-) -> str:
-    formatted = [f"Task Description: {finalized_task_description}\n"]
-
-    for i, dp in enumerate(data, 1):
-        formatted.extend(
-            [
-                f"Example {i}:",
-                "Input:",
-                json.dumps(dp.input_data, indent=2),
-                "",
-                "Output:",
-                json.dumps(dp.output_data, indent=2),
-                "",
-                f"Annotation: {'Correct' if dp.annotation == 1 else 'Incorrect'}",
-                f"Note: {dp.note}",
-                "\n" + "-" * 50 + "\n",  # Separator between examples
-            ]
-        )
-
-    return "\n".join(formatted)
-
-def convert_datapoint_to_example(
-    task_description: str, data: List[DataPoint]
-) -> List[Dict[str, Any]]:
-    examples = []
-    for dp in data:
-        examples.append(
-            {
-                "task_description": task_description,
-                "input_data": dp.input_data,
-                "model_output": {"output": dp.output_data},
-                "annotation": dp.annotation,
-                "note": dp.note,
-            }
-        )
-    return examples 

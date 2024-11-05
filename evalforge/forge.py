@@ -26,11 +26,7 @@ from evalforge.prompts import (
     CANDIDATE_ASSERTION_PROMPT,
     CANDIDATE_ASSERTION_SYSTEM_PROMPT,
 )
-from evalforge.data_utils import (
-    DataPoint,
-    format_all_datapoints,
-    convert_datapoint_to_example
-)
+from evalforge.data_utils import DataPoint
 from evalforge.utils import tqdm, logger
 
 
@@ -56,7 +52,7 @@ class EvalForge(weave.Model):
         shuffled_data = random.sample(data, len(data))
         return [shuffled_data[i:i+self.batch_size] for i in range(0, len(shuffled_data), self.batch_size)]
 
-    @weave.op()
+    @weave.op
     async def get_task_description(self, data: List[DataPoint]) -> str:
         batched_data = self.shuffle_and_batch_data(data)
         task_description = ""
@@ -95,7 +91,7 @@ class EvalForge(weave.Model):
 
         return response.description
 
-    @weave.op()
+    @weave.op
     async def combine_human_and_llm_descriptions(
         self, data: List[DataPoint], llm_description: str
     ) -> str:
@@ -124,10 +120,12 @@ class EvalForge(weave.Model):
 
         return response.description
 
-    @weave.op()
+    @weave.op
     async def process_criteria(
-        self, formatted_data: str, all_criteria: str
+        self, data: List[DataPoint], all_criteria: str
     ) -> EvaluationCriteria:
+        formatted_data = DataPoint.format_batch(data)
+        
         prompt = self.criteria_prompt.format(
             formatted_data=formatted_data,
             generated_criteria=str([c.model_dump() for c in all_criteria]),
@@ -143,27 +141,27 @@ class EvalForge(weave.Model):
         )
         return response
 
-    @weave.op()
+    @weave.op
     async def generate_criteria(
         self, data: List[DataPoint], finalized_task_description: str
     ) -> List[Criterion]:
         all_criteria = []
-        formatted_data = format_all_datapoints(data, finalized_task_description)
         
         with tqdm("Generating criteria", self.num_criteria_to_generate) as progress:
             for _ in range(self.num_criteria_to_generate):
-                response = await self.process_criteria(formatted_data, all_criteria)
+                response = await self.process_criteria(data, all_criteria)
                 all_criteria.extend(response.criteria)
                 progress.update(progress.task_id, advance=1)
 
         return all_criteria
 
-    @weave.op()
+    @weave.op
     async def create_candidate_assertions(
-        self, formatted_data_string: str, criterion: Criterion
+        self, data: List[DataPoint], criterion: Criterion
     ) -> CriterionAssertions:
+        formatted_data = DataPoint.format_batch(data)
         prompt = self.candidate_assertion_prompt.format(
-            formatted_data_string=formatted_data_string,
+            formatted_data_string=formatted_data,
             criterion=criterion.model_dump(),
         )
         response = await llm_aclient.chat.completions.create(
@@ -176,11 +174,11 @@ class EvalForge(weave.Model):
         )
         return response
 
-    @weave.op()
-    async def generate_all_assertions(self, criteria, formatted_data):
+    @weave.op
+    async def generate_all_assertions(self, criteria, data: List[DataPoint]):
         async def process_criterion(criterion):
             candidate_assertions = await self.create_candidate_assertions(
-                formatted_data, criterion
+                data, criterion
             )
             assertions = candidate_assertions.assertions
             return criterion, assertions
@@ -188,12 +186,11 @@ class EvalForge(weave.Model):
         tasks = [process_criterion(criterion) for criterion in criteria]
         results = await asyncio.gather(*tasks)
 
-        # Use the alternative constructor
         criterion_assertion_map = CriterionAssertionMap.from_assertions(results)
 
         return criterion_assertion_map
 
-    @weave.op()
+    @weave.op
     async def run_assertions(
         self, scorer: AssertionScorer, annotation_examples: List[Dict[str, Any]]
     ) -> Dict[str, Dict[str, List[Tuple[int, int]]]]:
@@ -256,7 +253,7 @@ class EvalForge(weave.Model):
 
         return filtered_criterion_assertion_map
 
-    @weave.op()
+    @weave.op
     async def calculate_judge_metrics(
         self, 
         initial_scorer: AssertionScorer,
@@ -320,29 +317,30 @@ class EvalForge(weave.Model):
 
         return forged_judges, initial_judges
 
-    @weave.op()
-    async def predict(self, data: List[DataPoint]) -> List[float]:
-        logger.header("Starting EvalForge prediction pipeline")
+    @weave.op
+    async def fit(self, train_data: List[DataPoint]) -> Dict[str, Any]:
+        logger.header("Starting EvalForge creation pipeline")
         
         with logger.timer("Generating task description"):
-            llm_task_description = await self.get_task_description(data)
+            llm_task_description = await self.get_task_description(train_data)
         
         with logger.timer("Combining human and LLM descriptions"):
             finalized_task_description = await self.combine_human_and_llm_descriptions(
-                data, llm_task_description
+                train_data, llm_task_description
             )
         
         with logger.timer("Generating evaluation criteria"):
-            criteria = await self.generate_criteria(data, finalized_task_description)
+            criteria = await self.generate_criteria(train_data, finalized_task_description)
         
-        with logger.timer("Formatting data and generating assertions"):
-            formatted_data = format_all_datapoints(data, finalized_task_description)
-            all_assertions = await self.generate_all_assertions(criteria, formatted_data)
+        with logger.timer("Generating assertions"):
+            all_assertions = await self.generate_all_assertions(criteria, train_data)
         
         with logger.timer("Running assertions on examples"):
-            annotation_examples = convert_datapoint_to_example(
-                finalized_task_description, data
-            )
+            annotation_examples = [
+                dp.to_dict(task_description=finalized_task_description)
+                for dp in train_data
+            ]
+            
             initial_scorer = AssertionScorer(
                 criterion_assertion_map=all_assertions,
                 llm_model=self.MODEL,
