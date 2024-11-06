@@ -95,13 +95,18 @@ class CodeFormatter(weave.Object):
 
     @weave.op
     def create_test_file_content(self, assertion_name: str, assertion_code: str) -> str:
+        # Add imports that might be needed by assertions
+        imports = """
+import unittest
+import json
+from run_tests import OutputTestCase
+"""
         # Dedent the assertion code to remove any existing indentation
         dedented_assertion_code = textwrap.dedent(assertion_code).strip()
         # Re-indent the assertion code to match the class indentation (4 spaces)
         indented_assertion_code = textwrap.indent(dedented_assertion_code, "    ")
-        return f"""
-import unittest
-from run_tests import OutputTestCase
+        
+        return f"""{imports}
 
 class Test_{assertion_name}(OutputTestCase):
 {indented_assertion_code}
@@ -121,14 +126,22 @@ import json
 class OutputTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        if hasattr(cls, 'output'):
+        if hasattr(cls, 'test_context'):
             return
         if len(sys.argv) < 2:
-            raise ValueError("No output provided")
+            raise ValueError("No test context provided")
         try:
-            cls.output = json.loads(sys.argv[1])
+            cls.test_context = json.loads(sys.argv[1])
+            cls.output = cls.test_context.get("output")
+            cls.input = cls.test_context.get("input", {})
         except json.JSONDecodeError:
             raise ValueError("Invalid JSON string provided")
+
+    def get_output(self):
+        return self.output
+
+    def get_input(self):
+        return self.input
 
 def load_tests(loader, standard_tests, pattern):
     suite = unittest.TestSuite()

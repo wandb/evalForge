@@ -8,7 +8,9 @@ from pydantic import Field
 from evalforge.code_evaluator import CodeAssertionScorer, CodeFormatter
 from evalforge.instructor_models import (Criterion, LLMAssertion,
                                          PythonAssertion)
+from evalforge.llm import DEFAULT_LLM_MODEL
 from evalforge.llm_evaluator import LLMAssertionScorer
+from evalforge.criterion_assertion_map import CriterionAssertionMap
 from evalforge.prompts import LLMASSERTION_PROMPT_TEMPLATE, LLMASSERTION_SYSTEM_PROMPT
 
 
@@ -23,14 +25,13 @@ from typing import Any, Dict
 
 import weave
 
-from evalforge.criterion_assertion_map import CriterionAssertionMap
 
 
 class AssertionScorer(weave.Scorer):
     criterion_assertion_map: CriterionAssertionMap = Field(
         default_factory=CriterionAssertionMap
     )
-    llm_model: str = Field(default="gpt-4o-2024-08-06")
+    llm_model: str = Field(default=DEFAULT_LLM_MODEL)
     task_description: Optional[str] = Field(default=None)
     prompt_template: str = Field(default=LLMASSERTION_PROMPT_TEMPLATE)
     system_prompt: str = Field(default=LLMASSERTION_SYSTEM_PROMPT)
@@ -88,7 +89,7 @@ class AssertionScorer(weave.Scorer):
                 model_output=model_output, 
                 input_data=input_data
             )
-            results["code_assertion_results"] = code_results.get("code_assertion_results", {})
+            results["code_assertion_results"] = code_results.get("code_assertion_results", {}).get("test_results", {})
 
         # Map results back to criteria using the mapping class
         criterion_results: Dict[str, Dict[str, Any]] = {}
@@ -96,13 +97,19 @@ class AssertionScorer(weave.Scorer):
             criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
             if criterion not in criterion_results:
                 criterion_results[criterion] = {}
-            criterion_results[criterion][test_name] = result
+            criterion_results[criterion][test_name] = {
+                "score": result,
+                "type": "llm"
+            }
 
-        for test_name, result in results.get("code_assertion_results", {}).get("test_results", {}).items():
+        for test_name, result in results.get("code_assertion_results", {}).items():
             criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
             if criterion not in criterion_results:
                 criterion_results[criterion] = {}
-            criterion_results[criterion][test_name] = result
+            criterion_results[criterion][test_name] = {
+                "score": result["score"],
+                "type": "python"
+            }
 
         return criterion_results
 

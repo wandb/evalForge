@@ -123,9 +123,9 @@ class EvalForge(weave.Model):
 
     @weave.op
     async def process_criteria(
-        self, data: List[DataPoint], all_criteria: str
+        self, data: List[DataPoint], all_criteria: str, finalized_task_description: str
     ) -> EvaluationCriteria:
-        formatted_data = DataPoint.format_batch(data)
+        formatted_data = DataPoint.format_batch(data, finalized_task_description)
         
         prompt = self.criteria_prompt.format(
             formatted_data=formatted_data,
@@ -150,7 +150,7 @@ class EvalForge(weave.Model):
         
         with tqdm("Generating criteria", self.num_criteria_to_generate) as progress:
             for _ in range(self.num_criteria_to_generate):
-                response = await self.process_criteria(data, all_criteria)
+                response = await self.process_criteria(data, all_criteria, finalized_task_description)
                 all_criteria.extend(response.criteria)
                 progress.update(progress.task_id, advance=1)
 
@@ -158,9 +158,9 @@ class EvalForge(weave.Model):
 
     @weave.op
     async def create_candidate_assertions(
-        self, data: List[DataPoint], criterion: Criterion
+        self, data: List[DataPoint], criterion: Criterion, finalized_task_description: str
     ) -> CriterionAssertions:
-        formatted_data = DataPoint.format_batch(data)
+        formatted_data = DataPoint.format_batch(data, finalized_task_description)
         prompt = self.candidate_assertion_prompt.format(
             formatted_data_string=formatted_data,
             criterion=criterion.model_dump(),
@@ -176,10 +176,10 @@ class EvalForge(weave.Model):
         return response
 
     @weave.op
-    async def generate_all_assertions(self, criteria, data: List[DataPoint]):
+    async def generate_all_assertions(self, criteria, data: List[DataPoint], finalized_task_description: str):
         async def process_criterion(criterion):
             candidate_assertions = await self.create_candidate_assertions(
-                data, criterion
+                data, criterion, finalized_task_description
             )
             assertions = candidate_assertions.assertions
             return criterion, assertions
@@ -248,38 +248,42 @@ class EvalForge(weave.Model):
         return filtered_criterion_assertion_map
 
     @weave.op
-    async def calculate_judge_metrics(
-        self, 
-        initial_scorer: AssertionScorer,
-        assertion_results: Dict[str, Dict[str, List[Tuple[int, int]]]], 
+    async def create_and_evaluate_scorers(
+        self,
         all_assertions: CriterionAssertionMap,
+        train_data: List[DataPoint],
         criteria: List[Criterion]
     ) -> Tuple[Dict, Dict]:
-        # Check if assertion_results is empty or None
-        if not assertion_results:
-            logger.warning("No assertion results found")
-            return {}, {}
+        """Creates and evaluates both initial and final scorers in one cohesive flow"""
+        # Create initial scorer
+        initial_scorer = AssertionScorer(
+            criterion_assertion_map=all_assertions,
+            llm_model=self.MODEL,
+            task_description=self.task_description,
+        )
 
+        # Run assertions and calculate initial metrics
+        assertion_results = await self.run_assertions(initial_scorer, train_data)
         initial_metrics = calculate_alignment_metrics(assertion_results)
-        # Add check after calculating initial metrics
+        
         if not initial_metrics:
             logger.warning("No metrics calculated from assertion results")
             return {}, {}
 
+        # Select and filter best assertions
         best_assertions = select_best_assertions(
             initial_metrics,
             assertion_results,
             num_assertions_per_criterion=self.num_assertions_per_criterion,
         )
-        filtered_assertion_results = filter_assertion_results(
-            assertion_results, best_assertions
-        )
+        filtered_assertion_results = filter_assertion_results(assertion_results, best_assertions)
         filtered_metrics = calculate_alignment_metrics(filtered_assertion_results)
-        # Add check for filtered metrics
+
         if not filtered_metrics:
             logger.warning("No filtered metrics calculated")
             return {}, {}
 
+        # Create final scorer with best criteria and assertions
         best_criteria = select_best_criteria(
             filtered_metrics, self.alignment_threshold, self.num_criteria
         )
@@ -287,29 +291,30 @@ class EvalForge(weave.Model):
             best_criteria, all_assertions, criteria
         )
 
-        final_judge = AssertionScorer(
+        final_scorer = AssertionScorer(
             name="final_judge",
             criterion_assertion_map=filtered_criterion_assertion_map,
             llm_model=self.MODEL,
         )
 
+        # Format metrics summaries
         forged_metrics_str = format_alignment_metrics(filtered_metrics)
         initial_metrics_str = format_alignment_metrics(initial_metrics)
 
-        forged_judges = {
-            "judge": final_judge,
-            "alignment_metrics": filtered_metrics,
-            "assertion_results": filtered_assertion_results,
-            "summary": forged_metrics_str,
-        }
-        initial_judges = {
-            "judge": initial_scorer,
-            "alignment_metrics": initial_metrics,
-            "assertion_results": assertion_results,
-            "summary": initial_metrics_str,
-        }
-
-        return forged_judges, initial_judges
+        return (
+            {
+                "judge": final_scorer,
+                "alignment_metrics": filtered_metrics,
+                "assertion_results": filtered_assertion_results,
+                "summary": forged_metrics_str,
+            },
+            {
+                "judge": initial_scorer,
+                "alignment_metrics": initial_metrics,
+                "assertion_results": assertion_results,
+                "summary": initial_metrics_str,
+            }
+        )
 
     @weave.op
     async def fit(self, train_data: List[DataPoint]) -> Dict[str, Any]:
@@ -319,30 +324,19 @@ class EvalForge(weave.Model):
             llm_task_description = await self.get_task_description(train_data)
         
         with logger.timer("Combining human and LLM descriptions"):
-            self.task_description = await self.combine_human_and_llm_descriptions(
+            finalized_task_description = await self.combine_human_and_llm_descriptions(
                 train_data, llm_task_description
             )
         
         with logger.timer("Generating evaluation criteria"):
-            criteria = await self.generate_criteria(train_data, self.task_description)
+            criteria = await self.generate_criteria(train_data, finalized_task_description)
         
         with logger.timer("Generating assertions"):
-            all_assertions = await self.generate_all_assertions(criteria, train_data)
+            all_assertions = await self.generate_all_assertions(criteria, train_data, finalized_task_description)
         
-        with logger.timer("Running assertions on examples"):
-            initial_scorer = AssertionScorer(
-                criterion_assertion_map=all_assertions,
-                llm_model=self.MODEL,
-                task_description=self.task_description,
-            )
-            assertion_results = await self.run_assertions(initial_scorer, train_data)
-        
-        with logger.timer("Processing results"):
-            forged_judges, initial_judges = await self.calculate_judge_metrics(
-                initial_scorer,
-                assertion_results, 
-                all_assertions, 
-                criteria
+        with logger.timer("Creating and evaluating scorers"):
+            forged_judges, initial_judges = await self.create_and_evaluate_scorers(
+                all_assertions, train_data, criteria
             )
         
         logger.header("EvalForge pipeline completed ✨")
@@ -350,5 +344,5 @@ class EvalForge(weave.Model):
         return {
             "forged_judges": forged_judges,
             "raw_judges": initial_judges,
-            "task_description": self.task_description,
+            "finalized_task_description": finalized_task_description,
         }

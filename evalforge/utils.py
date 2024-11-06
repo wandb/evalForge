@@ -9,17 +9,23 @@ import time
 import functools
 from typing import Callable, Any
 import asyncio
+import pprint as pp
 from contextlib import contextmanager
 
 # Add global console instance
 console = Console()
 
-def pprint(d, indent=4):
-    """Pretty print a dictionary or other object."""
-    if isinstance(d, dict):
-        print(json.dumps(d, indent=indent))
-    else:
-        print(d)
+def pprint(d, indent=4, width=100):
+    """Pretty print a dictionary or other object with line width control.
+    
+    Args:
+        d: Dictionary or object to print
+        indent: Number of spaces for indentation
+        width: Maximum line width before wrapping
+    """
+    # For all objects, use the built-in pprint with width control
+    printer = pp.PrettyPrinter(indent=indent, width=width)
+    printer.pprint(d)
 
 def load_jsonl(filename: Path | str) -> list[dict]:
     """Load a JSONL file into a list of dictionaries."""
@@ -142,6 +148,10 @@ class Logger:
     def warning(self, message: str):
         """Print a warning message"""
         self.console.print(f"[yellow]► {message}[/]")
+
+    def error(self, message: str):
+        """Print an error message"""
+        self.console.print(f"[red]► {message}[/]")
         
     def header(self, message: str):
         """Print a header message"""

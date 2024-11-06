@@ -59,11 +59,11 @@ class DataPoint(BaseModel):
     @classmethod
     def format_batch(cls, 
                     datapoints: List['DataPoint'], 
-                    task_description: Optional[str] = None) -> str:
+                    finalized_task_description: str) -> str:
         """Format a batch of datapoints with optional task description"""
         parts = []
-        if task_description:
-            parts.append(f"Task Description: {task_description}\n")
+        if finalized_task_description:
+            parts.append(f"Task Description: {finalized_task_description}\n")
         
         parts.extend(dp.format(i + 1) for i, dp in enumerate(datapoints))
         return "\n".join(parts)
