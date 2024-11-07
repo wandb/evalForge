@@ -1,5 +1,7 @@
 from itertools import combinations
 from typing import Any, Dict, List, Optional, Tuple
+from rich.table import Table
+from evalforge.utils import logger
 
 
 def calculate_alignment_metrics(
@@ -287,18 +289,32 @@ def select_best_criteria(
     return best_criteria
 
 
-def format_alignment_metrics(metrics):
-    output = ""
-    output += "| Criterion                               | Assertion                               | Type      | Alignment |\n"
-    output += "|-----------------------------------------|-----------------------------------------|-----------|-----------|\n"
+def format_alignment_metrics(metrics, title: str = "Alignment Metrics"):
+    table = Table(title=title)
+
+    # Define columns
+    table.add_column("Criterion", justify="left", style="cyan", no_wrap=True)
+    table.add_column("Assertion", justify="left", style="magenta")
+    table.add_column("Type", justify="center", style="green")
+    table.add_column("Alignment", justify="right", style="yellow")
+
+    # Add rows to the table
     for criterion, criterion_data in metrics.items():
-        output += "| {} | **OVERALL**                             |           | {:.2f}     |\n".format(
-            criterion[:40].ljust(40), criterion_data["criterion_metrics"]["alignment"]
+        # Add overall row for the criterion
+        table.add_row(
+            criterion[:40].ljust(40),
+            "",
+            "",
+            f"{criterion_data['criterion_metrics']['alignment']:.2f}"
         )
+        # Add rows for each assertion
         for assertion, assertion_data in criterion_data["per_assertion"].items():
-            output += "|                                         | {} | {} | {:.2f}     |\n".format(
+            table.add_row(
+                "",
                 assertion[:40].ljust(40),
                 assertion_data["type"].ljust(9),
-                assertion_data["alignment"],
+                f"{assertion_data['alignment']:.2f}"
             )
-    return output
+
+    # Print the table using the logger's console
+    logger.console.print(table)
