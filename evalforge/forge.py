@@ -28,9 +28,10 @@ from evalforge.prompts import (
 )
 from evalforge.data_utils import DataPoint
 from evalforge.utils import tqdm, logger, tqdm_gather
+from simple_parsing import Serializable
 
 
-class EvalForge(weave.Model):
+class EvalForge(weave.Model, Serializable):
 
     llm_model: str = DEFAULT_LLM_MODEL
     task_prompt: str = TASK_PROMPT
@@ -52,23 +53,25 @@ class EvalForge(weave.Model):
         shuffled_data = random.sample(data, len(data))
         return [shuffled_data[i:i+self.batch_size] for i in range(0, len(shuffled_data), self.batch_size)]
 
+    def format_samples(self, batch: List[DataPoint]) -> List[Dict[str, Any]]:
+        # Helper method to format samples
+        return [
+            {
+                'input_data': dp.input_data,
+                'output_data': dp.output_data,
+                'annotation': dp.annotation,
+                'note': dp.note
+            }
+            for dp in batch
+        ]
+
     @weave.op
     async def get_task_description(self, data: List[DataPoint]) -> str:
         batched_data = self.shuffle_and_batch_data(data)
         task_description = ""
         
         for batch in tqdm(batched_data, desc="Refining task description"):
-            # Convert DataPoints to dictionaries for the template
-            samples = [
-                {
-                    'input_data': dp.input_data,
-                    'output_data': dp.output_data,
-                    'annotation': dp.annotation,
-                    'note': dp.note
-                }
-                for dp in batch
-            ]
-            
+            samples = self.format_samples(batch)
             template = Template(self.task_prompt)
             formatted_prompt = template.render(
                 task_description=task_description,

@@ -1,4 +1,5 @@
 import json
+import csv
 from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
@@ -68,6 +69,30 @@ class DataPoint(BaseModel):
         parts.extend(dp.format(i + 1) for i, dp in enumerate(datapoints))
         return "\n".join(parts)
 
+    @classmethod
+    def from_example(cls, example: Dict[str, Any]) -> 'DataPoint':
+        """
+        Create a DataPoint object from a raw example dictionary.
+        Adjust this method to handle different data formats.
+        """
+        input_data = example.get('input') or example.get('input_data') or example.get('question') or {}
+        output_data = example.get('output') or example.get('output_data') or example.get('answer') or {}
+        annotation = int(example.get('annotation', 0))
+        note = example.get('note', '')
+
+        # If input_data and output_data are strings, wrap them in dictionaries
+        if isinstance(input_data, str):
+            input_data = {'text': input_data}
+        if isinstance(output_data, str):
+            output_data = {'text': output_data}
+
+        return cls(
+            input_data=input_data,
+            output_data=output_data,
+            annotation=annotation,
+            note=note,
+        )
+
     model_config = {
         "json_schema_extra": {
             "example": {
@@ -80,3 +105,24 @@ class DataPoint(BaseModel):
             }
         }
     }
+
+def load_data(file_path: str) -> List[DataPoint]:
+    """
+    Load data from a JSON or CSV file and convert it into a list of DataPoint objects.
+    """
+    data_points = []
+    if file_path.endswith('.json'):
+        with open(file_path, 'r') as f:
+            data_list = json.load(f)
+            for example in data_list:
+                data_point = DataPoint.from_example(example)
+                data_points.append(data_point)
+    elif file_path.endswith('.csv'):
+        with open(file_path, newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                data_point = DataPoint.from_example(row)
+                data_points.append(data_point)
+    else:
+        raise ValueError(f"Unsupported file format: {file_path}")
+    return data_points
