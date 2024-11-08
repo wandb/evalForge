@@ -19,14 +19,14 @@ class LLMAssertionScorer(weave.Scorer):
         self,
         assertion: LLMAssertion,
         *,  # Force kwargs
-        model_output: Any,
+        output: Any,
         input_data: Any,
         task_description: str,
     ) -> Tuple[str, int]:
         formatted_prompt = self.prompt_template.format(
             task_description=task_description,
             input_data=input_data,
-            model_output=model_output,
+            output=output,
             assertion_text=assertion.text,
         )
 
@@ -46,14 +46,14 @@ class LLMAssertionScorer(weave.Scorer):
     async def score(
         self,
         *,  # Force kwargs
-        model_output: Any,
+        output: Any,
         input_data: Any,
         task_description: str,
     ) -> Dict[str, Dict[str, int]]:
         tasks = [
             self.process_assertion(
                 assertion,
-                model_output=model_output,
+                output=output,
                 input_data=input_data,
                 task_description=task_description,
             )

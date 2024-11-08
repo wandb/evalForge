@@ -143,7 +143,7 @@ Input:
 {input_data}
 
 Output:
-{model_output}
+{output}
 
 Assertion:
 {assertion_text}

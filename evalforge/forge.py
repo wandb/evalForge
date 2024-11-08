@@ -210,7 +210,7 @@ class EvalForge(weave.Model, Serializable):
 
         async def process_example(datapoint: DataPoint):
             result = await scorer.score(
-                model_output=datapoint.output_data,
+                output=datapoint.output_data,
                 input_data=datapoint.input_data,
             )
             return result, datapoint.annotation

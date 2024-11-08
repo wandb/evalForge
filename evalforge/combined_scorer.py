@@ -14,9 +14,9 @@ from evalforge.prompts import LLMASSERTION_PROMPT_TEMPLATE, LLMASSERTION_SYSTEM_
 
 @weave.op
 def predict_passthrough(
-    model_output: Dict[str, Any], task_description: str, input_data: Dict[str, Any]
+    output: Dict[str, Any], task_description: str, input_data: Dict[str, Any]
 ) -> Dict[str, Any]:
-    return model_output
+    return output
 
 
 class AssertionScorer(weave.Scorer):
@@ -46,10 +46,10 @@ class AssertionScorer(weave.Scorer):
     async def score(
         self,
         *,  # Force kwargs
-        model_output: Any,
+        output: Any,
         input_data: Any,
     ) -> Dict[str, Dict[str, int]]:
-        if model_output is None:
+        if output is None:
             return {"error": "No model output provided"}
 
         results = {}
@@ -65,7 +65,7 @@ class AssertionScorer(weave.Scorer):
                 system_prompt=self.system_prompt,
             )
             llm_results = await llm_scorer.score(
-                model_output=model_output,
+                output=output,
                 input_data=input_data,
                 task_description=self.task_description,
             )
@@ -79,9 +79,7 @@ class AssertionScorer(weave.Scorer):
                 assertions=python_assertions,
                 code_formatter=self.code_formatter,
             )
-            code_results = code_scorer.score(
-                model_output=model_output, input_data=input_data
-            )
+            code_results = code_scorer.score(output=output, input_data=input_data)
             results["code_assertion_results"] = code_results.get(
                 "code_assertion_results", {}
             ).get("test_results", {})

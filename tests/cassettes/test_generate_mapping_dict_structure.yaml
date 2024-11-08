@@ -1,0 +1,248 @@
+interactions:
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are a helpful assistant
+      that creates mappings between dataset fields and DataPoint fields."}, {"role":
+      "user", "content": "\nGiven the following data sample:\n```json\n{\n  \"question\":
+      \"What is the capital of France?\",\n  \"response\": \"Paris is the capital
+      of France.\",\n  \"score\": 1,\n  \"feedback\": \"Good answer, accurate and
+      concise.\"\n}\n```\n\nCreate a mapping between DataPoint fields and the sample
+      data keys. You must:\n1. Map \"input_data\" to the key containing the input/question/prompt\n2.
+      Map \"output_data\" to the key containing the response/answer/output\n3. Map
+      \"annotation\" to the key containing binary values (0/1 or True/False)\n4. Map
+      \"note\" to the key containing feedback or evaluation notes\n"}], "model": "gpt-4",
+      "tool_choice": {"type": "function", "function": {"name": "DatasetMapping"}},
+      "tools": [{"type": "function", "function": {"name": "DatasetMapping", "description":
+      "Correctly extracted `DatasetMapping` with all the required parameters with
+      correct types", "parameters": {"properties": {"input_data": {"description":
+      "The key in the sample data that corresponds to the input_data field in the
+      DataPoint object", "title": "Input Data", "type": "string"}, "output_data":
+      {"description": "The key in the sample data that corresponds to the output_data
+      field in the DataPoint object", "title": "Output Data", "type": "string"}, "annotation":
+      {"description": "The key in the sample data that corresponds to the annotation
+      field in the DataPoint object", "title": "Annotation", "type": "string"}, "note":
+      {"description": "The key in the sample data that corresponds to the note field
+      in the DataPoint object", "title": "Note", "type": "string"}}, "required": ["annotation",
+      "input_data", "note", "output_data"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1827'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=vrtLCnyMifv0rNNX6xtAoVtNocq4AmGFXDeSb_Awse0-1731090057-1.0.1.1-dbqxoApO8wflv0x3jCTlk6s75mf8S1Rhk7Qbh51uKtUuyH2sIUEKbXTuYFxhjSeBLtUFMHLpG38oNaIvkyzPkA;
+        _cfuvid=Jm9SVA8N2zAt.EznwzX5WR29tnklveBUFlOleaJFzXQ-1731090057909-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xTwYrbMBC9+yvEnJNiN8lu17fQQA9LAy2kBOpiFHnsaCNLWmlMs4T8e5GdtZ00
+        hfpgxLw3b96MRqeIMZAFpAzEnpOorZouv6/pefXgN8vffrWNk221flEb/qjK1fwJJiHD7F5Q0HvW
+        B2Fqq5Ck0R0sHHLCoJo8zpL4KY4Xn1qgNgWqkFZZms6n8UMyu2TsjRToIWU/I8YYO7X/4E0XeISU
+        xZP3SI3e8woh7UmMgTMqRIB7Lz1xTTAZQGE0oQ52daPUCCBjVC64UkPh7juNzsOAuFI5mWOy3K5f
+        v1WLwv9YPesvyefDRhxH9TrpN9saKhst+sGM8D6e3hRjDDSv29wVJ+6RvnJrpa5uFBgD7qqmRk3B
+        PWT6lGnGMpDaNpQXnHgGKcvgtUEfKmUw6QimoWuGQ2+N9tgzuNaGeJcUCF4YN6DaEHbxErHYcXHI
+        INNnuLJ3ju6df42G77BsPFeXW7nEz/01K1NZZ3b+5taglFr6fe6Q+3Z64MnYrnao01aA5mpDwDpT
+        W8rJHFAHwVnysdODYXNH6OwCkiGuRvH5YnJHLy+QuGxXqN9awcUeiyF12F7eFNKMgGjU9d9u7ml3
+        nUtd/Y/8AAiBlrDIrcNCiuuOB5rD8LD/Reun3BoG/+YJ67yUukJnneyfWHSO/gAAAP//AwCgbcaG
+        WQQAAA==
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7947eda2fe22d-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:21:00 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '2597'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '1000'
+      x-ratelimit-limit-tokens:
+      - '600000'
+      x-ratelimit-remaining-requests:
+      - '999'
+      x-ratelimit-remaining-tokens:
+      - '599815'
+      x-ratelimit-reset-requests:
+      - 60ms
+      x-ratelimit-reset-tokens:
+      - 18ms
+      x-request-id:
+      - req_a3941a43ee58f8987073b1b3d7da348c
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are a helpful assistant
+      that creates mappings between dataset fields and DataPoint fields."}, {"role":
+      "user", "content": "\nGiven the following data sample:\n```json\n{\n  \"question\":
+      \"What is the capital of France?\",\n  \"response\": \"Paris is the capital
+      of France.\",\n  \"score\": 1,\n  \"feedback\": \"Good answer, accurate and
+      concise.\"\n}\n```\n\nCreate a mapping between DataPoint fields and the sample
+      data keys. You must:\n1. Map \"input_data\" to the key containing the input/question/prompt\n2.
+      Map \"output_data\" to the key containing the response/answer/output\n3. Map
+      \"annotation\" to the key containing binary values (0/1 or True/False)\n4. Map
+      \"note\" to the key containing feedback or evaluation notes\n"}], "model": "gpt-4",
+      "tool_choice": {"type": "function", "function": {"name": "DatasetMapping"}},
+      "tools": [{"type": "function", "function": {"name": "DatasetMapping", "description":
+      "Correctly extracted `DatasetMapping` with all the required parameters with
+      correct types", "parameters": {"properties": {"input_data": {"description":
+      "The key in the sample data that corresponds to the input_data field in the
+      DataPoint object", "title": "Input Data", "type": "string"}, "output_data":
+      {"description": "The key in the sample data that corresponds to the output_data
+      field in the DataPoint object", "title": "Output Data", "type": "string"}, "annotation":
+      {"description": "The key in the sample data that corresponds to the annotation
+      field in the DataPoint object", "title": "Annotation", "type": "string"}, "note":
+      {"description": "The key in the sample data that corresponds to the note field
+      in the DataPoint object", "title": "Note", "type": "string"}}, "required": ["annotation",
+      "input_data", "note", "output_data"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1827'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=ioqBUjc1WiSU6tAYBWLCSQTowS3_8NiUH_ByBD2s95E-1731090070-1.0.1.1-fz84RzELEgxJCfLEhRFh5t0U9XiRPmLejNNnabYtE2tIC4GjIihXF7Bvsky5i6PhYyJXQKuYdbeV.0aXfdkbTA;
+        _cfuvid=cVLhXOiIE0D8goMG90Uk0Uf0CGyXiFOyPVVMtxTBxeI-1731090070344-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xTwW7bMAy9+ysEnpMhaZoG861F0XVAGgzd1nWbB0ORGUeLLGoSXSwI8u+D7dR2
+        sgyYD4bA9/j4SFG7SAjQGcQC1FqyKpwZXj8u+Pnr9bR4/Lydb9T00823L+/v9Px+/vCBYFBl0PIn
+        Kn7NeqOocAZZk21g5VEyVqrj2WQ8ejsazcY1UFCGpkrLHQ8vh6Or8eSQsSatMEAsvkdCCLGr/5U3
+        m+FviMVo8BopMASZI8QtSQjwZKoIyBB0YGkZBh2oyDLayq4tjekBTGRSJY3pCjffrnfuBiSNSd3m
+        5e72o7q/2c6e3z1d0GK20C94cdWr10hvXW1oVVrVDqaHt/H4pJgQYGVR595KlgH5QTqnbX6iIARI
+        n5cFWq7cQ2J3iRUiAW1dyWkmWSYQiwR+lRiqSgkMGgKVfMzwGBzZgC1DWkssm6SKEBT5DrXE2MRX
+        iNlSqk0Cid3Dkb19dO78ozd8j6sySHO4lUN8316zodx5WoaTW4OVtjqsU48y1NODwOSa2lWdugKU
+        RxsCzlPhOGXaoK0EJ+OLRg+6ze2hkwPIxNL04pfTwRm9NEOWul6hdmuVVGvMutRue2WZaeoBUa/r
+        v92c02461zb/H/kOUAodY5Y6j5lWxx13NI/Vw/4XrZ1ybRjCNjAW6UrbHL3zun1i0T76AwAA//8D
+        AHPCKT5ZBAAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df794cc1acce27c-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:21:13 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '2560'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '1000'
+      x-ratelimit-limit-tokens:
+      - '600000'
+      x-ratelimit-remaining-requests:
+      - '999'
+      x-ratelimit-remaining-tokens:
+      - '599815'
+      x-ratelimit-reset-requests:
+      - 60ms
+      x-ratelimit-reset-tokens:
+      - 18ms
+      x-request-id:
+      - req_9f9f62ee31461d4328264f9427a09907
+    status:
+      code: 200
+      message: OK
+version: 1

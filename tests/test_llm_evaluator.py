@@ -56,7 +56,7 @@ def input_data():
 
 
 @pytest.fixture
-def model_output():
+def output():
     return {
         "output": (
             "• Chief complaint: Severe headaches for the past week\n"
@@ -72,11 +72,11 @@ def model_output():
 
 @pytest.mark.asyncio
 async def test_llm_assertion_scorer(
-    assertions, task_description, input_data, model_output
+    assertions, task_description, input_data, output
 ):
     scorer = LLMAssertionScorer(assertions=assertions)
     results = await scorer.score(
-        model_output=model_output,
+        output=output,
         input_data=input_data,
         task_description=task_description,
     )

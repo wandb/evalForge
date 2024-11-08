@@ -59,7 +59,7 @@ class DataPoint(BaseModel):
         """Convert datapoint to a standardized dictionary format"""
         result = {
             "input_data": self.input_data,
-            "model_output": {"output": self.output_data},
+            "output": {"output": self.output_data},
             "annotation": self.annotation,
             "note": self.note,
         }

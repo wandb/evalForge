@@ -20,11 +20,11 @@ class CodeAssertionScorer(weave.Scorer):
     @weave.op
     def score(
         self,
-        model_output: Optional[Dict[str, Any]],
+        output: Optional[Dict[str, Any]],
         input_data: Dict[str, Any],
         **kwargs,
     ) -> Dict[str, Any]:
-        if model_output is None:
+        if output is None:
             logger.error("No model output provided")
             return {
                 "code_assertion_results": {
@@ -41,7 +41,7 @@ class CodeAssertionScorer(weave.Scorer):
             temp_dir = self.code_formatter.write_assertions_to_files(self.assertions)
 
             # Run the tests and capture the output
-            test_output = self.run_tests(temp_dir, model_output)
+            test_output = self.run_tests(temp_dir, output)
 
             # Parse the test results to extract scores
             scores = self.parse_test_results(test_output)

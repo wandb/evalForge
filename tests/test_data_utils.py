@@ -32,7 +32,7 @@ def nested_dict_sample():
     return {
         "data": {
             "input_text": "What is the capital of France?",
-            "model_output": "Paris is the capital of France.",
+            "output": "Paris is the capital of France.",
             "evaluation": {
                 "is_correct": 1,
                 "reviewer_notes": "Good answer, accurate and concise.",
@@ -40,7 +40,10 @@ def nested_dict_sample():
         }
     }
 
-
+@pytest.mark.vcr(
+    filter_headers=["authorization", "x-api-key"],
+    allowed_hosts=["api.openai.com", "localhost"],
+)
 def test_generate_mapping_list_structure(list_sample):
     mapping = generate_mapping(list_sample)
     assert isinstance(mapping, dict)
@@ -56,7 +59,10 @@ def test_generate_mapping_list_structure(list_sample):
     assert data_point is not None
     assert data_point.annotation in [0, 1]
 
-
+@pytest.mark.vcr(
+    filter_headers=["authorization", "x-api-key"],
+    allowed_hosts=["api.openai.com", "localhost"],
+)
 def test_generate_mapping_dict_structure(dict_sample):
     mapping = generate_mapping(dict_sample)
     assert isinstance(mapping, dict)
@@ -71,7 +77,10 @@ def test_generate_mapping_dict_structure(dict_sample):
     assert data_point is not None
     assert data_point.annotation in [0, 1]
 
-
+@pytest.mark.vcr(
+    filter_headers=["authorization", "x-api-key"],
+    allowed_hosts=["api.openai.com", "localhost"],
+)
 def test_generate_mapping_nested_structure(nested_dict_sample):
     mapping = generate_mapping(nested_dict_sample)
     assert isinstance(mapping, dict)
@@ -86,7 +95,10 @@ def test_generate_mapping_nested_structure(nested_dict_sample):
     assert data_point is not None
     assert data_point.annotation in [0, 1]
 
-
+@pytest.mark.vcr(
+    filter_headers=["authorization", "x-api-key"],
+    allowed_hosts=["api.openai.com", "localhost"],
+)
 def test_generate_mapping_invalid_input():
     with pytest.raises(Exception):
         generate_mapping(None)
@@ -95,7 +107,10 @@ def test_generate_mapping_invalid_input():
     with pytest.raises(Exception):
         generate_mapping({})
 
-
+@pytest.mark.vcr(
+    filter_headers=["authorization", "x-api-key"],
+    allowed_hosts=["api.openai.com", "localhost"],
+)
 def test_mapping_model_validation():
     # Test that the mapping follows DatasetMapping model
     sample_mapping = {

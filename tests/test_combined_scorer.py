@@ -102,7 +102,7 @@ examples = [
                 "Doctor: I see. Let's do a quick examination."
             )
         },
-        "model_output": {
+        "output": {
             "output": (
                 "• Chief complaint: Severe headaches for the past week\n"
                 "• History of present illness: The patient reports daily headaches, particularly in the afternoon, accompanied "
@@ -133,7 +133,7 @@ examples = [
                 "Doctor: Let's check your vitals."
             )
         },
-        "model_output": {
+        "output": {
             "output": (
                 "• Chief complaint: Persistent cough and fever for three days\n"
                 "• History of present illness: The patient reports fatigue and occasional shortness of breath.\n"
@@ -163,7 +163,7 @@ examples = [
                 "Doctor: I'll examine it and see what's going on."
             )
         },
-        "model_output": {
+        "output": {
             "output": (
                 "• Chief complaint: Knee pain after twisting injury\n"
                 "• History of present illness: Patient reports pain level of 6 out of 10, exacerbated by movement.\n"
@@ -199,7 +199,7 @@ async def test_combined_scorer():
     {input_data}
 
     Output:
-    {model_output}
+    {output}
 
     Assertion:
     {assertion_text}
