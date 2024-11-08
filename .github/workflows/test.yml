@@ -30,3 +30,4 @@ jobs:
         pytest . -v
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
