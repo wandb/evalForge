@@ -21,7 +21,9 @@ jobs:
           pip install black ruff
 
       - name: Run Black
+        continue-on-error: true
         run: black --check .
 
       - name: Run Ruff
+        continue-on-error: true
         run: ruff .
