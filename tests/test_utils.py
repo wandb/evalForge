@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 import pytest
 import numpy as np
 from pydantic import BaseModel
@@ -9,7 +8,6 @@ from evalforge.utils import (
     load_jsonl,
     save_jsonl,
     listify,
-    SuperEncoder,
 )
 
 
@@ -61,24 +59,6 @@ def test_listify():
     items = ["apple", "banana", "orange"]
     expected = "- apple\n- banana\n- orange"
     assert listify(items) == expected
-
-
-def test_super_encoder():
-    encoder = SuperEncoder()
-
-    # Test numpy types
-    assert pytest.approx(encoder.default(np.int64(42))) == 42
-    assert pytest.approx(encoder.default(np.float32(3.14))) == 3.14
-    assert encoder.default(np.bool_(True)) == True
-    assert pytest.approx(encoder.default(np.array([1, 2, 3]))) == [1, 2, 3]
-
-    # Test pydantic model
-    model = TestModel(name="test", value=1)
-    assert encoder.default(model) == {"name": "test", "value": 1}
-
-    # Test unsupported type
-    with pytest.raises(TypeError):
-        encoder.default(set())
 
 
 def test_pprint(capsys):

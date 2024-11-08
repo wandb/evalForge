@@ -30,7 +30,8 @@ class CriterionAssertionMap(weave.Object):
     @classmethod
     def from_assertions(cls, criterion_assertion_pairs):
         instance = cls()
-        for assertion in criterion_assertion_pairs:
-            criterion = Criterion(criterion=assertion.test_name)
-            instance.add_assertion(criterion, assertion)
+        for criterion, assertions in criterion_assertion_pairs:
+            for assertion in assertions:
+                instance.add_assertion(criterion, assertion)
+
         return instance

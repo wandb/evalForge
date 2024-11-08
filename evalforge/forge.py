@@ -281,8 +281,8 @@ class EvalForge(weave.Model, Serializable):
 
         # Select and filter best assertions
         best_assertions = select_best_assertions(
-            initial_metrics,
-            assertion_results,
+            metrics=initial_metrics,
+            assertion_results=assertion_results,
             num_assertions_per_criterion=self.num_assertions_per_criterion,
         )
         filtered_assertion_results = filter_assertion_results(

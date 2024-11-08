@@ -35,52 +35,21 @@ def load_jsonl(filename: Path | str) -> list[dict]:
         return [json.loads(line) for line in file]
 
 
-class BaseModelEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, BaseModel):
-            return obj.model_dump()
-        return super().default(obj)
-
-
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(
-            obj,
-            (
-                np.int_,
-                np.intc,
-                np.intp,
-                np.int8,
-                np.int16,
-                np.int32,
-                np.int64,
-                np.uint8,
-                np.uint16,
-                np.uint32,
-                np.uint64,
-            ),
-        ):
-            return int(obj)
-        elif isinstance(obj, (np.float16, np.float32, np.float64)):
-            return float(obj)
-        elif isinstance(obj, np.bool_):
-            return bool(obj)
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, BaseModel):
-            return obj.model_dump()
-        return super().default(obj)
-
-
-class SuperEncoder(BaseModelEncoder, NumpyEncoder):
-    pass
-
-
 def save_jsonl(data: list[dict], filename: Path | str):
     """Save a list of dictionaries to a JSONL file."""
+
+    def convert_numpy(obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, (np.integer, np.floating, np.bool_)):
+            return obj.item()
+        if isinstance(obj, BaseModel):
+            return obj.model_dump()
+        return obj
+
     with open(filename, "w") as file:
         for example in data:
-            json.dump(example, file, cls=SuperEncoder)
+            json.dump(example, file, default=convert_numpy)
             file.write("\n")
 
 
