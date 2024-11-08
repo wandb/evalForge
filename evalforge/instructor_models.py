@@ -1,4 +1,4 @@
-from typing import List, Literal, Union
+from typing import List, Literal, Union, Dict
 
 from pydantic import BaseModel, Field
 
@@ -89,3 +89,10 @@ class AssertionEvaluation(BaseModel):
         ...,
         description="The evaluation result of an assertion. Must be either 'PASS' or 'FAIL'."
     )
+
+
+class DatasetMapping(BaseModel):
+    input_data: str = Field(..., description="The key in the sample data that corresponds to the input_data field in the DataPoint object")
+    output_data: str = Field(..., description="The key in the sample data that corresponds to the output_data field in the DataPoint object")
+    annotation: str = Field(..., description="The key in the sample data that corresponds to the annotation field in the DataPoint object")
+    note: str = Field(..., description="The key in the sample data that corresponds to the note field in the DataPoint object")

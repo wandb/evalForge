@@ -181,7 +181,7 @@ class Logger:
         self.console = Console()
 
     def rule(self, name: str, color: str = "green") -> None:
-        self.console.rule(f"[bold {color}]Begin {name} step")
+        self.console.rule(f"[bold {color}]Begin {name}")
         
     def info(self, message: str):
         """Print an info message"""

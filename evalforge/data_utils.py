@@ -1,7 +1,14 @@
 import json
 import csv
-from typing import Any, Dict, List, Literal, Optional
-from pydantic import BaseModel, Field
+from typing import Any, Dict, List, Literal, Optional, Union, Iterable
+from pydantic import BaseModel, Field, ValidationError
+
+import weave
+
+# Import llm_client for synchronous LLM calls
+from evalforge.utils import logger
+from evalforge.llm import llm_client
+from evalforge.instructor_models import DatasetMapping
 
 class DataPoint(BaseModel):
     input_data: Dict[str, Any] = Field(
@@ -70,28 +77,59 @@ class DataPoint(BaseModel):
         return "\n".join(parts)
 
     @classmethod
-    def from_example(cls, example: Dict[str, Any]) -> 'DataPoint':
+    def from_example(cls, example: Union[Dict[str, Any], List[Any]], mapping: Optional[Dict[str, str]] = None) -> Optional['DataPoint']:
         """
-        Create a DataPoint object from a raw example dictionary.
-        Adjust this method to handle different data formats.
+        Create a DataPoint object from a raw example dictionary or list.
         """
-        input_data = example.get('input') or example.get('input_data') or example.get('question') or {}
-        output_data = example.get('output') or example.get('output_data') or example.get('answer') or {}
-        annotation = int(example.get('annotation', 0))
-        note = example.get('note', '')
+        if isinstance(example, list):
+            # Handle list-structured data
+            if len(example) >= 4:
+                return cls(
+                    input_data={"text": example[0]["input"]} if isinstance(example[0], dict) else {"text": example[0]},
+                    output_data={"text": example[1]["output"]} if isinstance(example[1], dict) else {"text": example[1]},
+                    annotation=int(example[2]),
+                    note=example[3]
+                )
+            return None
+        
+        if mapping is None:
+            try:
+                # Attempt to directly parse the example
+                data_point = cls.model_validate(example)
+                return data_point
+            except ValidationError:
+                # If validation fails, return None
+                return None
+        else:
+            # Use the mapping to create the DataPoint
+            input_data_key = mapping.get('input_data', None)
+            output_data_key = mapping.get('output_data', None)
+            annotation_key = mapping.get('annotation', None)
+            note_key = mapping.get('note', None)
+            human_description_key = mapping.get('human_description', None)
+            additional_context_key = mapping.get('additional_context', None)
 
-        # If input_data and output_data are strings, wrap them in dictionaries
-        if isinstance(input_data, str):
-            input_data = {'text': input_data}
-        if isinstance(output_data, str):
-            output_data = {'text': output_data}
+            input_data = example.get(input_data_key, {}) if input_data_key else {}
+            output_data = example.get(output_data_key, {}) if output_data_key else {}
+            annotation = int(example.get(annotation_key, 0)) if annotation_key else 0
+            note = example.get(note_key, None) if note_key else None
+            human_description = example.get(human_description_key, None) if human_description_key else None
+            additional_context = example.get(additional_context_key, None) if additional_context_key else None
 
-        return cls(
-            input_data=input_data,
-            output_data=output_data,
-            annotation=annotation,
-            note=note,
-        )
+            # If input_data and output_data are strings, wrap them in dictionaries
+            if isinstance(input_data, str):
+                input_data = {'text': input_data}
+            if isinstance(output_data, str):
+                output_data = {'text': output_data}
+
+            return cls(
+                input_data=input_data,
+                output_data=output_data,
+                annotation=annotation,
+                note=note,
+                human_description=human_description,
+                additional_context=additional_context,
+            )
 
     model_config = {
         "json_schema_extra": {
@@ -106,23 +144,85 @@ class DataPoint(BaseModel):
         }
     }
 
-def load_data(file_path: str) -> List[DataPoint]:
+@weave.op
+def generate_mapping(sample: Union[Dict[str, Any], List[Any]], llm_model: str = "gpt-4") -> Dict[str, str]:
+    """Generate a mapping from dataset columns to DataPoint fields using an LLM."""
+    logger.info(f"► Using {llm_model} to generate mapping to DataPoint fields")
+    
+    # Input validation
+    if sample is None or (isinstance(sample, (list, dict)) and len(sample) == 0):
+        raise ValueError("Sample cannot be None or empty")
+    
+    prompt = f"""
+Given the following data sample:
+```json
+{json.dumps(sample, indent=2)}
+```
+
+Create a mapping between DataPoint fields and the sample data keys. You must:
+1. Map "input_data" to the key containing the input/question/prompt
+2. Map "output_data" to the key containing the response/answer/output
+3. Map "annotation" to the key containing binary values (0/1 or True/False)
+4. Map "note" to the key containing feedback or evaluation notes
+"""
+    try:
+        mapping_instruction = llm_client.chat.completions.create(
+            model=llm_model,
+            response_model=DatasetMapping,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that creates mappings between dataset fields and DataPoint fields."},
+                {"role": "user", "content": prompt}
+            ],
+        )
+        mapping = mapping_instruction.model_dump()
+        logger.info(f"Generated mapping: {mapping}")
+        return mapping
+    except Exception as e:
+        logger.error(f"Error generating mapping: {str(e)}")
+        raise ValueError(f"Failed to generate mapping: {str(e)}")
+
+def load_data(data_source: Union[str, Iterable[Dict[str, Any]]], llm_model: str = "gpt-4o") -> List[DataPoint]:
     """
-    Load data from a JSON or CSV file and convert it into a list of DataPoint objects.
+    Load data from a file path or an iterable of dictionaries and convert it into a list of DataPoint objects.
+    Automatically map dataset columns to DataPoint fields using an LLM if necessary.
     """
     data_points = []
-    if file_path.endswith('.json'):
-        with open(file_path, 'r') as f:
-            data_list = json.load(f)
-            for example in data_list:
-                data_point = DataPoint.from_example(example)
-                data_points.append(data_point)
-    elif file_path.endswith('.csv'):
-        with open(file_path, newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                data_point = DataPoint.from_example(row)
+    samples = []
+    data_source_name = data_source if isinstance(data_source, str) else type(data_source).__name__
+    logger.rule(f"Loading data from {data_source_name}", color="blue")
+    if isinstance(data_source, str):
+        # Existing logic for loading data from a file path
+        if data_source.endswith('.json') or data_source.endswith('.jsonl'):
+            with open(data_source, 'r') as f:
+                samples = [json.loads(line) for line in f] if data_source.endswith('.jsonl') else json.load(f)
+        elif data_source.endswith('.csv'):
+            with open(data_source, newline='', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                samples = [row for row in reader]
+        else:
+            raise ValueError(f"Unsupported file format: {data_source}")
+    else:
+        # New logic for handling an iterable of data
+        samples = list(data_source)
+    
+    if not samples:
+        raise ValueError("The dataset is empty.")
+    
+    # Try to model_validate the first sample directly
+    first_sample = samples[0]
+    data_point = DataPoint.from_example(first_sample)
+    if data_point is not None:
+        # If validation succeeds, parse all samples directly
+        for example in samples:
+            data_point = DataPoint.from_example(example)
+            if data_point:
                 data_points.append(data_point)
     else:
-        raise ValueError(f"Unsupported file format: {file_path}")
+        # If validation fails, generate mapping using LLM
+        mapping = generate_mapping(first_sample, llm_model)
+        for example in samples:
+            data_point = DataPoint.from_example(example, mapping)
+            if data_point:
+                data_points.append(data_point)
+    logger.info(f"Loaded {len(data_points)} datapoints")
     return data_points
