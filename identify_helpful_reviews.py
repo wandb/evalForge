@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 HELPFUL_VOTE_THRESHOLD = 5
-os.environ["OPENAI_API_KEY"] = "REMOVED"
+os.environ["OPENAI_API_KEY"] = KEY
 
 weave.init("capecape/amazon_fashion")
 

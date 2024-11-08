@@ -89,25 +89,64 @@ def sanitize_messages(messages: list[dict[str, str]]) -> list[dict[str, str]]:
         for msg in messages
     ]
 
-def tqdm(description: str, total: int):
-    """Create a Rich progress bar with consistent styling
+async def tqdm_gather(coros, desc: str = None, total: int = None):
+    """Create a Rich progress bar for gathering multiple coroutines
     
     Args:
-        description: Task description to display
-        total: Total number of steps
-        
+        coros: List of coroutines to execute concurrently
+        desc: Description for the progress bar
+        total: Total number of steps (defaults to len(coros) if not provided)
+    
     Returns:
-        Progress: The progress bar with task_id attribute
+        List of results from the gathered coroutines
     """
     progress = Progress(
         SpinnerColumn(),
         *Progress.get_default_columns(),
         TimeElapsedColumn(),
         console=console,
-        transient=True  # Removes progress bar when done
+        transient=True
     )
-    progress.task_id = progress.add_task(f"[bold blue]{description}", total=total)
-    return progress
+    
+    if total is None:
+        total = len(coros)
+        
+    task_id = progress.add_task(f"[bold blue]{desc}", total=total)
+    
+    async def wrapped_coro(coro):
+        result = await coro
+        progress.update(task_id, advance=1)
+        return result
+    
+    progress.start()
+    try:
+        results = await asyncio.gather(*[wrapped_coro(coro) for coro in coros])
+        return results
+    finally:
+        progress.stop()
+
+# Keep the original tqdm for synchronous operations
+def tqdm(iterable=None, desc: str = None, total: int = None):
+    """Create a Rich progress bar for synchronous operations"""
+    progress = Progress(
+        SpinnerColumn(),
+        *Progress.get_default_columns(),
+        TimeElapsedColumn(),
+        console=console,
+        transient=True
+    )
+    # Use provided total or calculate from coroutines
+    if total is None:
+        total = len(iterable)
+        
+    task_id = progress.add_task(f"[bold blue]{desc}", total=total)
+    progress.start()
+    try:
+        for item in iterable:
+            yield item
+            progress.update(task_id, advance=1)
+    finally:
+        progress.stop()
 
 def timer(func: Callable) -> Callable:
     """Decorator that measures and prints execution time of functions.
@@ -140,6 +179,9 @@ def timer(func: Callable) -> Callable:
 class Logger:
     def __init__(self):
         self.console = Console()
+
+    def rule(self, name: str, color: str = "green") -> None:
+        self.console.rule(f"[bold {color}]Begin {name}")
         
     def info(self, message: str):
         """Print an info message"""
