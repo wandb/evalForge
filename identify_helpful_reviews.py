@@ -1,9 +1,8 @@
 import instructor
-
 # from litellm import acompletion
 
 import openai
-import os
+import os 
 
 from datetime import datetime
 import aiofiles
@@ -20,11 +19,17 @@ import logging
 import asyncio
 from tqdm.asyncio import tqdm
 
+from simple_parsing import ArgumentParser
+from dataclasses import dataclass
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 HELPFUL_VOTE_THRESHOLD = 5
-os.environ["OPENAI_API_KEY"] = "YOUR KEY"
 
 weave.init("capecape/amazon_fashion")
 
@@ -33,7 +38,7 @@ oai_client = openai.AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 instructor_client = instructor.from_openai(oai_client)
 
 # MODEL_NAME = "o1-mini"
-MODEL_NAME = "gpt-4o-mini"
+MODEL_NAME= "gpt-4o-mini"
 
 existing_keys = set()
 # lock = asyncio.Lock()
@@ -123,16 +128,10 @@ Then score if this review `is_useful`.
 
 
 class ReviewEvaluation(BaseModel):
-    requires_product_interaction: bool = Field(
-        description="Does the review require the reviewer to interact with the product to make a judgement about the quality of the product description?"
-    )
-    thinking: str = Field(
-        description="Reason(s) for why the review is useful or not useful in assessing the quality of the product description.\
-if product interaction is required to make an assessment then the review is not useful."
-    )
-    is_useful: bool = Field(
-        description="Is the review useful in identifying good or bad descriptions?"
-    )
+    requires_product_interaction: bool = Field(description="Does the review require the reviewer to interact with the product to make a judgement about the quality of the product description?")
+    thinking: str = Field(description="Reason(s) for why the review is useful or not useful in assessing the quality of the product description.\
+if product interaction is required to make an assessment then the review is not useful.")
+    is_useful: bool = Field(description="Is the review useful in identifying good or bad descriptions?")
 
 
 def format_example(review: dict):
@@ -142,57 +141,43 @@ def format_example(review: dict):
     )
 
 
-# async def async_map(func, items, max_concurrent=5, desc="Processing"):
-#     semaphore = asyncio.Semaphore(max_concurrent)
-
-#     async def wrapped_func(**item):
-#         async with semaphore:
-#             return await func(**item)
-
-#     tasks = [wrapped_func(**item) for item in items]
-#     return await tqdm.gather(*tasks, desc=desc)
-
-
 async def async_map(func, items, max_concurrent=5, desc="Processing"):
     semaphore = asyncio.Semaphore(max_concurrent)
-
+    
     async def wrapped_func(item):
         async with semaphore:
             return await func(**item)  # Unpack the dictionary into keyword arguments
-
+    
     tasks = [wrapped_func(item) for item in items]
     return await tqdm.gather(*tasks, desc=desc)
-
 
 @weave.op
 async def extract_review_evaluation(review_evaluation: str) -> ReviewEvaluation:
     """Extract the review evaluation from the LLM response"""
     review_evaluation = await instructor_client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "user", "content": review_evaluation}],
+        messages=[
+            {"role": "user", "content": review_evaluation}
+        ],
         response_model=ReviewEvaluation,
     )
     return review_evaluation.model_dump()
 
-
 @weave.op
 async def call_openai(prompt: str, max_completion_tokens: int = 8000) -> dict:
     if "o1" in MODEL_NAME:
-        o1_prompt = (
-            system_prompt.format(examples=examples) + prompt
-        )  # no system prompt for o1
+        o1_prompt = system_prompt.format(examples=examples) + prompt # no system prompt for o1
         out = await oai_client.chat.completions.create(
             model=MODEL_NAME,
             messages=[{"role": "user", "content": o1_prompt}],
             max_completion_tokens=max_completion_tokens,
         )
-    else:
+    else:        
         out = await oai_client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
                 {"role": "system", "content": system_prompt.format(examples=examples)},
-                {"role": "user", "content": prompt},
-            ],
+                {"role": "user", "content": prompt}],
             max_completion_tokens=max_completion_tokens,
         )
     review_evaluation = await extract_review_evaluation(out.choices[0].message.content)
@@ -220,7 +205,6 @@ async def load_existing_keys(output_file_path: str):
                         logger.error(f"Malformed line in {output_file_path}: {line}")
                         continue  # Skip malformed lines
 
-
 @weave.op
 async def evaluate_review(review: dict) -> dict:
     key = get_key(review)
@@ -233,10 +217,10 @@ async def evaluate_review(review: dict) -> dict:
             "review_evaluation": {
                 "requires_product_interaction": False,
                 "thinking": "Review already processed.",
-                "is_useful": False,
+                "is_useful": False
             },
             "skipped": True,
-            "review_key": key,
+            "review_key": key
         }
     else:
         # Mark the key as processed to prevent duplicates in concurrent executions
@@ -249,70 +233,49 @@ async def evaluate_review(review: dict) -> dict:
         res = {
             "review_evaluation": out["review_evaluation"],
             "skipped": False,
-            "review_key": key,
+            "review_key": key
         }
 
         async with aiofiles.open(output_file_path, mode="a") as f:
-            await f.write(
-                f'{{"review_key": "{key}", "review": {json.dumps(review)}, "review_evaluation": {json.dumps(out["review_evaluation"])}}}\n'
-            )
+            await f.write(f'{{"review_key": "{key}", "review": {json.dumps(review)}, "review_evaluation": {json.dumps(out["review_evaluation"])}}}\n')
 
     return res
 
-
 @weave.op
 async def evaluate_reviews(reviews: list[dict], max_concurrent: int = 25) -> list[dict]:
-    # timestamps_ls = [datetime.now().strftime("%Y-%m-%d_%H-%M")] * len(reviews)
-    # n_reviews_ls = [len(reviews)] * len(reviews)
-
-    # Combine the arguments into a list of dictionaries
-    # combined_args = [
-    #     {'review': review, 'timestamp': timestamp, 'n_reviews': n}
-    #     for review, timestamp, n in zip(reviews, timestamps_ls, n_reviews_ls)
-    # ]
-    combined_args = [{"review": review} for review in reviews]
-
-    # with weave.attributes({"helpful_threshold": HELPFUL_VOTE_THRESHOLD,
-    #                        "n_reviews": len(reviews),
-    #                        "run_tstamp": combined_args[0]["timestamp"]}):
+    combined_args = [{'review': review} for review in reviews]
+    
     return await async_map(
         evaluate_review,
         combined_args,
         max_concurrent=max_concurrent,
-        desc="Processing reviews",
+        desc="Processing reviews"
     )
 
 
-async def main(reviews: list[dict], n_reviews: int, max_concurrent: int):
+async def main(reviews: list[dict], max_concurrent: int):
     await load_existing_keys(output_file_path)
     tstamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    reviews = reviews[:n_reviews]
-    with weave.attributes(
-        {
-            "helpful_threshold": HELPFUL_VOTE_THRESHOLD,
-            "n_reviews": len(reviews),
-            "run_tstamp": tstamp,
-        }
-    ):
+    with weave.attributes({"helpful_threshold": HELPFUL_VOTE_THRESHOLD,
+                        "n_reviews": len(reviews),
+                        "run_tstamp": tstamp}):
         annotations = await evaluate_reviews(reviews, max_concurrent=max_concurrent)
         print(f"DONE! Number of annotations: {len(annotations)}")
 
+@dataclass
+class Args:
+    start_index: int = 0
+    end_index: int = 10
+    max_concurrent: int = 25
 
 if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_arguments(Args, dest="args")
+    args = parser.parse_args().args
 
-    # dataset_path = Path("data/clothes_review_filtered.jsonl")
     dataset_path = Path("notebooks/amazon_clothing_and_jewelry_helpful.jsonl")
     reviews = load_jsonl(dataset_path)
 
-    print(f"Number of examples: {len(reviews)}")
-    # print(f"Number of reviews: {sum(len(example['reviews']) for example in data)}")
-    print("-" * 100)
-    # pprint(reviews[0])
+    reviews = reviews[args.start_index:args.end_index]
 
-    print(format_example(reviews[0]))
-
-    for review in reviews:
-        if "images" in review:
-            del review["images"]
-
-    asyncio.run(main(reviews, n_reviews=50000, max_concurrent=200))
+    asyncio.run(main(reviews, max_concurrent=args.max_concurrent))
