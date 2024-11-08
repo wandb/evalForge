@@ -1,7 +1,8 @@
 import textwrap
 
 # Task-related prompts
-TASK_PROMPT = textwrap.dedent("""
+TASK_PROMPT = textwrap.dedent(
+    """
     Current task description: {{ task_description }}
 
     New datapoints:
@@ -26,13 +27,17 @@ TASK_PROMPT = textwrap.dedent("""
     3. Any formatting or style requirements
     4. Evaluation criteria (based on the annotations and notes)
 
-    Keep the description concise yet comprehensive.""")
+    Keep the description concise yet comprehensive."""
+)
 
-TASK_SYSTEM_PROMPT = textwrap.dedent("""
+TASK_SYSTEM_PROMPT = textwrap.dedent(
+    """
     You are an AI assistant designed to help refine task descriptions for a given dataset.
-    """)
+    """
+)
 
-COMBINED_TASK_PROMPT = textwrap.dedent("""
+COMBINED_TASK_PROMPT = textwrap.dedent(
+    """
     LLM-generated task description:
     {llm_description}
 
@@ -46,14 +51,18 @@ COMBINED_TASK_PROMPT = textwrap.dedent("""
     4. The description maintains a professional tone.
     5. It provides a complete picture of the task requirements and evaluation criteria.
 
-    Please provide the combined description in a single, well-structured paragraph.""")
+    Please provide the combined description in a single, well-structured paragraph."""
+)
 
-COMBINED_TASK_SYSTEM_PROMPT = textwrap.dedent("""
+COMBINED_TASK_SYSTEM_PROMPT = textwrap.dedent(
+    """
     You are an AI assistant designed to help refine task descriptions for a given dataset given a LLM-generated task description and additional human-provided context.
-    """)
+    """
+)
 
 # Criteria-related prompts
-CRITERIA_PROMPT = textwrap.dedent("""
+CRITERIA_PROMPT = textwrap.dedent(
+    """
     Analyze the following annotated datapoints:
 
     {formatted_data}
@@ -76,14 +85,18 @@ CRITERIA_PROMPT = textwrap.dedent("""
     [Criterion]: [Brief explanation and evaluation method]
 
     Aim for a mix of straightforward, code-evaluable criteria and more nuanced criteria that might require LLM or human evaluation.
-    """)
+    """
+)
 
-CRITERIA_SYSTEM_PROMPT = textwrap.dedent("""
+CRITERIA_SYSTEM_PROMPT = textwrap.dedent(
+    """
     You are an AI assistant designed to create evaluation criteria for a given task.
-    """)
+    """
+)
 
 # Assertion-related prompts
-CANDIDATE_ASSERTION_PROMPT = textwrap.dedent("""
+CANDIDATE_ASSERTION_PROMPT = textwrap.dedent(
+    """
     Given the following evaluation criterion and annotated data, generate 1-3 specific, testable assertions:
 
     Criterion: {criterion}
@@ -109,14 +122,18 @@ CANDIDATE_ASSERTION_PROMPT = textwrap.dedent("""
     6. Aim for assertions that could be applied across multiple types of outputs
 
     Ensure that your assertions are directly evaluable and avoid vague or subjective language. Focus on creating assertions that align with human preferences and can be used to validate the quality of LLM-generated evaluations.
-    """)
+    """
+)
 
-CANDIDATE_ASSERTION_SYSTEM_PROMPT = textwrap.dedent("""
+CANDIDATE_ASSERTION_SYSTEM_PROMPT = textwrap.dedent(
+    """
     You are an AI assistant designed to create testable assertions for a given task and criterion.
-    """)
+    """
+)
 
 # LLM Assertion Scorer prompts
-LLMASSERTION_PROMPT_TEMPLATE = textwrap.dedent("""
+LLMASSERTION_PROMPT_TEMPLATE = textwrap.dedent(
+    """
 Task Description:
 {task_description}
 
@@ -133,6 +150,7 @@ Assertion:
 
 Consider the task description and input when evaluating the output against the assertion.
 Respond with either 'PASS' if the output meets the assertion criteria in the context of the task and input, or 'FAIL' if it does not.
-""")
+"""
+)
 
 LLMASSERTION_SYSTEM_PROMPT = "You are an AI assistant evaluating the quality of text outputs based on given tasks, inputs, and assertions."

@@ -1,4 +1,4 @@
-from typing import List, Literal, Union, Dict
+from typing import List, Literal, Union
 
 from pydantic import BaseModel, Field
 
@@ -46,8 +46,8 @@ class Criterion(BaseModel):
 class EvaluationCriteria(BaseModel):
     criteria: List[Criterion] = Field(
         ...,
-        min_items=1,
-        max_items=2,
+        min_length=1,
+        max_length=2,
         description="A list of 1-2 distinct evaluation criteria, each focusing on a different aspect of output quality",
     )
 
@@ -78,8 +78,8 @@ class LLMAssertion(BaseModel):
 class CriterionAssertions(BaseModel):
     assertions: List[Union[PythonAssertion, LLMAssertion]] = Field(
         ...,
-        min_items=1,
-        max_items=3,
+        min_length=1,
+        max_length=3,
         description="Generate 1-3 specific, testable assertions that can be used to evaluate LLM outputs based on the given criterion",
     )
 
@@ -87,12 +87,24 @@ class CriterionAssertions(BaseModel):
 class AssertionEvaluation(BaseModel):
     result: Literal["PASS", "FAIL"] = Field(
         ...,
-        description="The evaluation result of an assertion. Must be either 'PASS' or 'FAIL'."
+        description="The evaluation result of an assertion. Must be either 'PASS' or 'FAIL'.",
     )
 
 
 class DatasetMapping(BaseModel):
-    input_data: str = Field(..., description="The key in the sample data that corresponds to the input_data field in the DataPoint object")
-    output_data: str = Field(..., description="The key in the sample data that corresponds to the output_data field in the DataPoint object")
-    annotation: str = Field(..., description="The key in the sample data that corresponds to the annotation field in the DataPoint object")
-    note: str = Field(..., description="The key in the sample data that corresponds to the note field in the DataPoint object")
+    input_data: str = Field(
+        ...,
+        description="The key in the sample data that corresponds to the input_data field in the DataPoint object",
+    )
+    output_data: str = Field(
+        ...,
+        description="The key in the sample data that corresponds to the output_data field in the DataPoint object",
+    )
+    annotation: str = Field(
+        ...,
+        description="The key in the sample data that corresponds to the annotation field in the DataPoint object",
+    )
+    note: str = Field(
+        ...,
+        description="The key in the sample data that corresponds to the note field in the DataPoint object",
+    )

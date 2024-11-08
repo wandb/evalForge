@@ -10,6 +10,7 @@ from evalforge.utils import logger
 from evalforge.llm import llm_client
 from evalforge.instructor_models import DatasetMapping
 
+
 class DataPoint(BaseModel):
     input_data: Dict[str, Any] = Field(
         description="The input data provided to the model for evaluation"
@@ -22,15 +23,15 @@ class DataPoint(BaseModel):
     )
     note: Optional[str] = Field(
         default=None,
-        description="Optional note providing additional context about the annotation"
+        description="Optional note providing additional context about the annotation",
     )
     human_description: Optional[str] = Field(
         default=None,
-        description="Optional human-provided description of the task or evaluation criteria"
+        description="Optional human-provided description of the task or evaluation criteria",
     )
     additional_context: Optional[str] = Field(
         default=None,
-        description="Optional field for any additional context or metadata"
+        description="Optional field for any additional context or metadata",
     )
 
     def format(self, index: Optional[int] = None) -> str:
@@ -38,18 +39,20 @@ class DataPoint(BaseModel):
         parts = []
         if index is not None:
             parts.append(f"Example {index}:")
-            
-        parts.extend([
-            "Input:",
-            json.dumps(self.input_data, indent=2),
-            "",
-            "Output:",
-            json.dumps(self.output_data, indent=2),
-            "",
-            f"Annotation: {'Correct' if self.annotation == 1 else 'Incorrect'}",
-            f"Note: {self.note or 'N/A'}",
-            "\n" + "-" * 50 + "\n"
-        ])
+
+        parts.extend(
+            [
+                "Input:",
+                json.dumps(self.input_data, indent=2),
+                "",
+                "Output:",
+                json.dumps(self.output_data, indent=2),
+                "",
+                f"Annotation: {'Correct' if self.annotation == 1 else 'Incorrect'}",
+                f"Note: {self.note or 'N/A'}",
+                "\n" + "-" * 50 + "\n",
+            ]
+        )
         return "\n".join(parts)
 
     def to_dict(self, task_description: Optional[str] = None) -> Dict[str, Any]:
@@ -58,26 +61,30 @@ class DataPoint(BaseModel):
             "input_data": self.input_data,
             "model_output": {"output": self.output_data},
             "annotation": self.annotation,
-            "note": self.note
+            "note": self.note,
         }
         if task_description:
             result["task_description"] = task_description
         return result
 
     @classmethod
-    def format_batch(cls, 
-                    datapoints: List['DataPoint'], 
-                    finalized_task_description: str) -> str:
+    def format_batch(
+        cls, datapoints: List["DataPoint"], finalized_task_description: str
+    ) -> str:
         """Format a batch of datapoints with optional task description"""
         parts = []
         if finalized_task_description:
             parts.append(f"Task Description: {finalized_task_description}\n")
-        
+
         parts.extend(dp.format(i + 1) for i, dp in enumerate(datapoints))
         return "\n".join(parts)
 
     @classmethod
-    def from_example(cls, example: Union[Dict[str, Any], List[Any]], mapping: Optional[Dict[str, str]] = None) -> Optional['DataPoint']:
+    def from_example(
+        cls,
+        example: Union[Dict[str, Any], List[Any]],
+        mapping: Optional[Dict[str, str]] = None,
+    ) -> Optional["DataPoint"]:
         """
         Create a DataPoint object from a raw example dictionary or list.
         """
@@ -85,13 +92,21 @@ class DataPoint(BaseModel):
             # Handle list-structured data
             if len(example) >= 4:
                 return cls(
-                    input_data={"text": example[0]["input"]} if isinstance(example[0], dict) else {"text": example[0]},
-                    output_data={"text": example[1]["output"]} if isinstance(example[1], dict) else {"text": example[1]},
+                    input_data=(
+                        {"text": example[0]["input"]}
+                        if isinstance(example[0], dict)
+                        else {"text": example[0]}
+                    ),
+                    output_data=(
+                        {"text": example[1]["output"]}
+                        if isinstance(example[1], dict)
+                        else {"text": example[1]}
+                    ),
                     annotation=int(example[2]),
-                    note=example[3]
+                    note=example[3],
                 )
             return None
-        
+
         if mapping is None:
             try:
                 # Attempt to directly parse the example
@@ -102,25 +117,33 @@ class DataPoint(BaseModel):
                 return None
         else:
             # Use the mapping to create the DataPoint
-            input_data_key = mapping.get('input_data', None)
-            output_data_key = mapping.get('output_data', None)
-            annotation_key = mapping.get('annotation', None)
-            note_key = mapping.get('note', None)
-            human_description_key = mapping.get('human_description', None)
-            additional_context_key = mapping.get('additional_context', None)
+            input_data_key = mapping.get("input_data", None)
+            output_data_key = mapping.get("output_data", None)
+            annotation_key = mapping.get("annotation", None)
+            note_key = mapping.get("note", None)
+            human_description_key = mapping.get("human_description", None)
+            additional_context_key = mapping.get("additional_context", None)
 
             input_data = example.get(input_data_key, {}) if input_data_key else {}
             output_data = example.get(output_data_key, {}) if output_data_key else {}
             annotation = int(example.get(annotation_key, 0)) if annotation_key else 0
             note = example.get(note_key, None) if note_key else None
-            human_description = example.get(human_description_key, None) if human_description_key else None
-            additional_context = example.get(additional_context_key, None) if additional_context_key else None
+            human_description = (
+                example.get(human_description_key, None)
+                if human_description_key
+                else None
+            )
+            additional_context = (
+                example.get(additional_context_key, None)
+                if additional_context_key
+                else None
+            )
 
             # If input_data and output_data are strings, wrap them in dictionaries
             if isinstance(input_data, str):
-                input_data = {'text': input_data}
+                input_data = {"text": input_data}
             if isinstance(output_data, str):
-                output_data = {'text': output_data}
+                output_data = {"text": output_data}
 
             return cls(
                 input_data=input_data,
@@ -139,20 +162,23 @@ class DataPoint(BaseModel):
                 "annotation": 1,
                 "note": "This is a good response",
                 "human_description": "Task involves evaluating text responses",
-                "additional_context": "From validation set"
+                "additional_context": "From validation set",
             }
         }
     }
 
+
 @weave.op
-def generate_mapping(sample: Union[Dict[str, Any], List[Any]], llm_model: str = "gpt-4") -> Dict[str, str]:
+def generate_mapping(
+    sample: Union[Dict[str, Any], List[Any]], llm_model: str = "gpt-4"
+) -> Dict[str, str]:
     """Generate a mapping from dataset columns to DataPoint fields using an LLM."""
     logger.info(f"► Using {llm_model} to generate mapping to DataPoint fields")
-    
+
     # Input validation
     if sample is None or (isinstance(sample, (list, dict)) and len(sample) == 0):
         raise ValueError("Sample cannot be None or empty")
-    
+
     prompt = f"""
 Given the following data sample:
 ```json
@@ -170,8 +196,11 @@ Create a mapping between DataPoint fields and the sample data keys. You must:
             model=llm_model,
             response_model=DatasetMapping,
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that creates mappings between dataset fields and DataPoint fields."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant that creates mappings between dataset fields and DataPoint fields.",
+                },
+                {"role": "user", "content": prompt},
             ],
         )
         mapping = mapping_instruction.model_dump()
@@ -181,22 +210,31 @@ Create a mapping between DataPoint fields and the sample data keys. You must:
         logger.error(f"Error generating mapping: {str(e)}")
         raise ValueError(f"Failed to generate mapping: {str(e)}")
 
-def load_data(data_source: Union[str, Iterable[Dict[str, Any]]], llm_model: str = "gpt-4o") -> List[DataPoint]:
+
+def load_data(
+    data_source: Union[str, Iterable[Dict[str, Any]]], llm_model: str = "gpt-4o"
+) -> List[DataPoint]:
     """
     Load data from a file path or an iterable of dictionaries and convert it into a list of DataPoint objects.
     Automatically map dataset columns to DataPoint fields using an LLM if necessary.
     """
     data_points = []
     samples = []
-    data_source_name = data_source if isinstance(data_source, str) else type(data_source).__name__
+    data_source_name = (
+        data_source if isinstance(data_source, str) else type(data_source).__name__
+    )
     logger.rule(f"Loading data from {data_source_name}", color="blue")
     if isinstance(data_source, str):
         # Existing logic for loading data from a file path
-        if data_source.endswith('.json') or data_source.endswith('.jsonl'):
-            with open(data_source, 'r') as f:
-                samples = [json.loads(line) for line in f] if data_source.endswith('.jsonl') else json.load(f)
-        elif data_source.endswith('.csv'):
-            with open(data_source, newline='', encoding='utf-8') as csvfile:
+        if data_source.endswith(".json") or data_source.endswith(".jsonl"):
+            with open(data_source, "r") as f:
+                samples = (
+                    [json.loads(line) for line in f]
+                    if data_source.endswith(".jsonl")
+                    else json.load(f)
+                )
+        elif data_source.endswith(".csv"):
+            with open(data_source, newline="", encoding="utf-8") as csvfile:
                 reader = csv.DictReader(csvfile)
                 samples = [row for row in reader]
         else:
@@ -204,10 +242,10 @@ def load_data(data_source: Union[str, Iterable[Dict[str, Any]]], llm_model: str 
     else:
         # New logic for handling an iterable of data
         samples = list(data_source)
-    
+
     if not samples:
         raise ValueError("The dataset is empty.")
-    
+
     # Try to model_validate the first sample directly
     first_sample = samples[0]
     data_point = DataPoint.from_example(first_sample)

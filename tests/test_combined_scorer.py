@@ -3,7 +3,7 @@ import pytest
 import weave
 from evalforge.combined_scorer import AssertionScorer, predict_passthrough
 from evalforge.criterion_assertion_map import CriterionAssertionMap
-from evalforge.instructor_models import LLMAssertion, PythonAssertion
+from evalforge.instructor_models import LLMAssertion, PythonAssertion, Criterion
 
 weave.init("combined_scorer_test")
 
@@ -27,6 +27,7 @@ assertions = [
             "bullet points starting with the key. Based on this assessment, respond with 'PASS' if all criteria "
             "are met, otherwise 'FAIL'."
         ),
+        evaluation_type="llm",
     ),
     LLMAssertion(
         test_name="conciseness_and_privacy_compliance",
@@ -35,6 +36,7 @@ assertions = [
             "key information effectively within 150 words while ensuring no personal identifiable information (PII) "
             "like name, age, gender, or ID is present? Provide your assessment as PASS for compliance or FAIL otherwise."
         ),
+        evaluation_type="llm",
     ),
     # Python Assertions
     PythonAssertion(
@@ -53,6 +55,7 @@ def test_essential_information_inclusion(self):
     for key in essential_keys:
         self.assertIn(key, output_text, f"Output is missing essential information: {key}.")
         """,
+        evaluation_type="python",
     ),
     PythonAssertion(
         test_name="no_excessive_information",
@@ -63,8 +66,22 @@ def test_no_excessive_information(self):
     for term in disallowed_terms:
         self.assertNotIn(term, output_text, f"Output contains disallowed information: {term}.")
         """,
+        evaluation_type="python",
     ),
 ]
+
+# Create criteria and map assertions to them
+criterion_assertion_map = CriterionAssertionMap()
+criteria = [
+    Criterion(criterion="Completeness and Accuracy", evaluation_method="llm"),
+    Criterion(criterion="Privacy and Formatting", evaluation_method="llm"),
+]
+
+# Map assertions to criteria
+criterion_assertion_map.add_assertion(criteria[0], assertions[0])
+criterion_assertion_map.add_assertion(criteria[0], assertions[2])
+criterion_assertion_map.add_assertion(criteria[1], assertions[1])
+criterion_assertion_map.add_assertion(criteria[1], assertions[3])
 
 # Examples
 examples = [
@@ -164,12 +181,14 @@ examples = [
     },
 ]
 
+
 @pytest.mark.asyncio
 async def test_combined_scorer():
-        # Initialize the AssertionScorer with the assertions
+    # Initialize the AssertionScorer with the mapped assertions
     scorer = AssertionScorer(
-        assertions=CriterionAssertionMap.from_assertions(assertions),
+        criterion_assertion_map=criterion_assertion_map,
         llm_model="gpt-4o",
+        task_description="Transform a dialogue between a doctor and a patient into a structured medical note summary.",
         prompt_template="""
     Task Description:
     {task_description}
@@ -198,3 +217,24 @@ async def test_combined_scorer():
 
     results = await evaluation.evaluate(predict_passthrough)
 
+    # Verify the structure of results
+    assert results is not None
+    assert "AssertionScorer" in results
+    scorer_results = results["AssertionScorer"]
+
+    # Check for criteria presence
+    assert "Completeness and Accuracy" in scorer_results
+    assert "Privacy and Formatting" in scorer_results
+
+    # Check the structure of each criterion's results
+    for criterion in ["Completeness and Accuracy", "Privacy and Formatting"]:
+        criterion_results = scorer_results[criterion]
+        assert len(criterion_results) > 0
+
+        for assertion_name, result in criterion_results.items():
+            assert "score" in result
+            assert isinstance(result["score"], dict)
+            assert "mean" in result["score"]
+
+    # Optionally verify that model latency is present
+    assert "model_latency" in results

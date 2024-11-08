@@ -1,13 +1,11 @@
-import asyncio
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import weave
 from pydantic import Field
 
 from evalforge.code_evaluator import CodeAssertionScorer, CodeFormatter
-from evalforge.instructor_models import (Criterion, LLMAssertion,
-                                         PythonAssertion)
+from evalforge.instructor_models import Criterion, LLMAssertion, PythonAssertion
 from evalforge.llm import DEFAULT_LLM_MODEL
 from evalforge.llm_evaluator import LLMAssertionScorer
 from evalforge.criterion_assertion_map import CriterionAssertionMap
@@ -19,12 +17,6 @@ def predict_passthrough(
     model_output: Dict[str, Any], task_description: str, input_data: Dict[str, Any]
 ) -> Dict[str, Any]:
     return model_output
-
-
-from typing import Any, Dict
-
-import weave
-
 
 
 class AssertionScorer(weave.Scorer):
@@ -73,11 +65,13 @@ class AssertionScorer(weave.Scorer):
                 system_prompt=self.system_prompt,
             )
             llm_results = await llm_scorer.score(
-                model_output=model_output, 
+                model_output=model_output,
                 input_data=input_data,
                 task_description=self.task_description,
             )
-            results["llm_assertion_results"] = llm_results.get("llm_assertion_results", {})
+            results["llm_assertion_results"] = llm_results.get(
+                "llm_assertion_results", {}
+            )
 
         # Process Python assertions
         if python_assertions:
@@ -86,34 +80,36 @@ class AssertionScorer(weave.Scorer):
                 code_formatter=self.code_formatter,
             )
             code_results = code_scorer.score(
-                model_output=model_output, 
-                input_data=input_data
+                model_output=model_output, input_data=input_data
             )
-            results["code_assertion_results"] = code_results.get("code_assertion_results", {}).get("test_results", {})
+            results["code_assertion_results"] = code_results.get(
+                "code_assertion_results", {}
+            ).get("test_results", {})
 
         # Map results back to criteria using the mapping class
         criterion_results: Dict[str, Dict[str, Any]] = {}
         for test_name, result in results.get("llm_assertion_results", {}).items():
-            criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
+            criterion = self.criterion_assertion_map.get_criterion_by_assertion(
+                test_name
+            )
             if criterion not in criterion_results:
                 criterion_results[criterion] = {}
-            criterion_results[criterion][test_name] = {
-                "score": result,
-                "type": "llm"
-            }
+            criterion_results[criterion][test_name] = {"score": result, "type": "llm"}
 
         for test_name, result in results.get("code_assertion_results", {}).items():
-            criterion = self.criterion_assertion_map.get_criterion_by_assertion(test_name)
+            criterion = self.criterion_assertion_map.get_criterion_by_assertion(
+                test_name
+            )
             if criterion not in criterion_results:
                 criterion_results[criterion] = {}
             criterion_results[criterion][test_name] = {
                 "score": result["score"],
-                "type": "python"
+                "type": "python",
             }
 
         return criterion_results
 
-    def export(self, base_dir: str = "forged_judge"):
+    def export(self, base_dir: Union[str, Path] = "forged_judge") -> None:
         base_dir = Path(base_dir)
         llm_dir = base_dir / "llm_assertions"
         python_dir = base_dir / "python_assertions"
@@ -172,7 +168,12 @@ class AssertionScorer(weave.Scorer):
             criterion = item["criterion"]
             assertion = item["assertion"]
             self.criterion_assertion_map.add_assertion(
-                Criterion(criterion=criterion), assertion
+                Criterion(
+                    criterion=criterion,
+                    explanation="Imported criterion",
+                    evaluation_method="mixed",
+                ),
+                assertion,
             )
 
     def load_assertions_by_criteria(self, base_dir: Path, assertion_cls):

@@ -2,8 +2,7 @@ from typing import Dict, List, Union
 
 import weave
 
-from evalforge.instructor_models import (Criterion, LLMAssertion,
-                                         PythonAssertion)
+from evalforge.instructor_models import Criterion, LLMAssertion, PythonAssertion
 
 
 class CriterionAssertionMap(weave.Object):
@@ -24,13 +23,14 @@ class CriterionAssertionMap(weave.Object):
     ) -> List[Union[LLMAssertion, PythonAssertion]]:
         return self.criterion_to_assertions.get(criterion_name, [])
 
-    def get_criterion_by_assertion(self, assertion_name: str) -> str:
+    def get_criterion_by_assertion(self, assertion_name: str) -> str | None:
+        """Get the criterion associated with a given assertion name."""
         return self.assertion_to_criterion.get(assertion_name)
 
     @classmethod
     def from_assertions(cls, criterion_assertion_pairs):
         instance = cls()
-        for criterion, assertions in criterion_assertion_pairs:
-            for assertion in assertions:
-                instance.add_assertion(criterion, assertion)
+        for assertion in criterion_assertion_pairs:
+            criterion = Criterion(criterion=assertion.test_name)
+            instance.add_assertion(criterion, assertion)
         return instance

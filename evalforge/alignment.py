@@ -168,15 +168,13 @@ def calculate_alignment_metrics(
 
 
 def select_best_assertions(
-    metrics: Dict[str, Any],
-    assertion_results: Dict[str, Dict[str, List[Tuple[Dict[str, Any], int]]]],
-    num_assertions_per_criterion: int = None,
-) -> Dict[str, Dict[str, str]]:
+    criterion_assertion_results: Dict[str, Dict[str, Dict[str, Any]]],
+    num_assertions_per_criterion: Optional[int] = None,
+) -> List[str]:
+    best_subset: List[str] = []
 
-    best_assertions = {}
-
-    for criterion in assertion_results.keys():
-        all_assertions = list(assertion_results[criterion].keys())
+    for criterion in criterion_assertion_results.keys():
+        all_assertions = list(criterion_assertion_results[criterion].keys())
 
         if not num_assertions_per_criterion:
             # Intelligently select the subset of assertions that maximize the criterion's alignment score
@@ -192,7 +190,7 @@ def select_best_assertions(
                     # Create subset of assertion_results
                     subset_assertion_results = {
                         criterion: {
-                            assertion: assertion_results[criterion][assertion]
+                            assertion: criterion_assertion_results[criterion][assertion]
                             for assertion in subset
                         }
                     }
@@ -305,7 +303,7 @@ def format_alignment_metrics(metrics, title: str = "Alignment Metrics"):
             criterion[:40].ljust(40),
             "",
             "",
-            f"{criterion_data['criterion_metrics']['alignment']:.2f}"
+            f"{criterion_data['criterion_metrics']['alignment']:.2f}",
         )
         # Add rows for each assertion
         for assertion, assertion_data in criterion_data["per_assertion"].items():
@@ -313,7 +311,7 @@ def format_alignment_metrics(metrics, title: str = "Alignment Metrics"):
                 "",
                 assertion[:40].ljust(40),
                 assertion_data["type"].ljust(9),
-                f"{assertion_data['alignment']:.2f}"
+                f"{assertion_data['alignment']:.2f}",
             )
 
     # Print the table using the logger's console

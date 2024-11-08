@@ -1,13 +1,13 @@
 import asyncio
-from typing import Any, Dict, List, Optional, Tuple
-from pydantic import BaseModel
+from typing import Any, Dict, List, Tuple
 
 import weave
 from pydantic import Field
 
 from evalforge.instructor_models import LLMAssertion, AssertionEvaluation
-from evalforge.llm import llm_aclient, DEFAULT_LLM_MODEL
+from evalforge.llm import llm_aclient
 from evalforge.prompts import LLMASSERTION_PROMPT_TEMPLATE, LLMASSERTION_SYSTEM_PROMPT
+
 
 class LLMAssertionScorer(weave.Scorer):
     assertions: List[LLMAssertion] = Field(default_factory=list)
