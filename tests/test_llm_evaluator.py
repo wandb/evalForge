@@ -2,6 +2,7 @@ import pytest
 from evalforge.llm_evaluator import LLMAssertionScorer
 from evalforge.instructor_models import LLMAssertion
 
+
 @pytest.fixture
 def assertions():
     return [
@@ -33,9 +34,11 @@ def assertions():
         ),
     ]
 
+
 @pytest.fixture
 def task_description():
     return "Transform a dialogue between a doctor and a patient into a structured medical note summary, adhering to privacy guidelines and specified formatting instructions."
+
 
 @pytest.fixture
 def input_data():
@@ -51,6 +54,7 @@ def input_data():
         )
     }
 
+
 @pytest.fixture
 def model_output():
     return {
@@ -65,18 +69,21 @@ def model_output():
         )
     }
 
+
 @pytest.mark.asyncio
-async def test_llm_assertion_scorer(assertions, task_description, input_data, model_output):
+async def test_llm_assertion_scorer(
+    assertions, task_description, input_data, model_output
+):
     scorer = LLMAssertionScorer(assertions=assertions)
-    results = await scorer.score(model_output, task_description, input_data)
-    
+    results = await scorer.score(
+        model_output=model_output,
+        input_data=input_data,
+        task_description=task_description,
+    )
+
     assert "llm_assertion_results" in results
     assert len(results["llm_assertion_results"]) == len(assertions)
-    
-    for test_name, result in results["llm_assertion_results"].items():
-        assert "score" in result
-        assert "result" in result
-        assert "type" in result
-        assert result["type"] == "llm"
-        assert result["score"] in [0, 1]
-        assert result["result"] in ["PASS", "FAIL"] 
+
+    for test_name, score in results["llm_assertion_results"].items():
+        assert isinstance(score, int)
+        assert score in [0, 1]

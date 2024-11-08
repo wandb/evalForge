@@ -22,17 +22,19 @@ class CodeAssertionScorer(weave.Scorer):
         self,
         model_output: Optional[Dict[str, Any]],
         input_data: Dict[str, Any],
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         if model_output is None:
             logger.error("No model output provided")
-            return {"code_assertion_results": {
-                "tests_run": 0,
-                "passed": 0,
-                "failures": 0,
-                "errors": 0,
-                "test_results": {}
-            }}
+            return {
+                "code_assertion_results": {
+                    "tests_run": 0,
+                    "passed": 0,
+                    "failures": 0,
+                    "errors": 0,
+                    "test_results": {},
+                }
+            }
 
         try:
             # Use the code_formatter to write assertions to files
@@ -55,10 +57,14 @@ class CodeAssertionScorer(weave.Scorer):
         import json
 
         # Create a test context with both the model output and input data
-        test_context = json.dumps({
-            "output": output,
-            "input": output.get("input_data", {}) if isinstance(output, dict) else {}
-        })
+        test_context = json.dumps(
+            {
+                "output": output,
+                "input": (
+                    output.get("input_data", {}) if isinstance(output, dict) else {}
+                ),
+            }
+        )
 
         # Run the test suite using subprocess and capture the output
         result = subprocess.run(

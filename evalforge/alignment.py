@@ -305,7 +305,7 @@ def format_alignment_metrics(metrics, title: str = "Alignment Metrics"):
             criterion[:40].ljust(40),
             "",
             "",
-            f"{criterion_data['criterion_metrics']['alignment']:.2f}"
+            f"{criterion_data['criterion_metrics']['alignment']:.2f}",
         )
         # Add rows for each assertion
         for assertion, assertion_data in criterion_data["per_assertion"].items():
@@ -313,7 +313,7 @@ def format_alignment_metrics(metrics, title: str = "Alignment Metrics"):
                 "",
                 assertion[:40].ljust(40),
                 assertion_data["type"].ljust(9),
-                f"{assertion_data['alignment']:.2f}"
+                f"{assertion_data['alignment']:.2f}",
             )
 
     # Print the table using the logger's console

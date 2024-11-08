@@ -1,20 +1,24 @@
-import asyncio
 from typing import Any, Dict, List, Optional, Tuple
 from jinja2 import Template
 import random
 import weave
-from litellm import acompletion
 
 from evalforge.combined_scorer import AssertionScorer
 from evalforge.criterion_assertion_map import CriterionAssertionMap
-from evalforge.alignment import (calculate_alignment_metrics,
-                                           filter_assertion_results,
-                                           format_alignment_metrics,
-                                           select_best_assertions,
-                                           select_best_criteria)
-from evalforge.instructor_models import (CombinedTaskDescription, Criterion,
-                                         CriterionAssertions,
-                                         EvaluationCriteria, TaskDescription)
+from evalforge.alignment import (
+    calculate_alignment_metrics,
+    filter_assertion_results,
+    format_alignment_metrics,
+    select_best_assertions,
+    select_best_criteria,
+)
+from evalforge.instructor_models import (
+    CombinedTaskDescription,
+    Criterion,
+    CriterionAssertions,
+    EvaluationCriteria,
+    TaskDescription,
+)
 from evalforge.llm import llm_aclient, DEFAULT_LLM_MODEL
 from evalforge.prompts import (
     TASK_PROMPT,
@@ -51,16 +55,19 @@ class EvalForge(weave.Model, Serializable):
     def shuffle_and_batch_data(self, data: List[DataPoint]) -> List[List[DataPoint]]:
         "Shuffle and batch the data into smaller lists of datapoints"
         shuffled_data = random.sample(data, len(data))
-        return [shuffled_data[i:i+self.batch_size] for i in range(0, len(shuffled_data), self.batch_size)]
+        return [
+            shuffled_data[i : i + self.batch_size]
+            for i in range(0, len(shuffled_data), self.batch_size)
+        ]
 
     def format_samples(self, batch: List[DataPoint]) -> List[Dict[str, Any]]:
         # Helper method to format samples
         return [
             {
-                'input_data': dp.input_data,
-                'output_data': dp.output_data,
-                'annotation': dp.annotation,
-                'note': dp.note
+                "input_data": dp.input_data,
+                "output_data": dp.output_data,
+                "annotation": dp.annotation,
+                "note": dp.note,
             }
             for dp in batch
         ]
@@ -69,22 +76,21 @@ class EvalForge(weave.Model, Serializable):
     async def get_task_description(self, data: List[DataPoint]) -> str:
         batched_data = self.shuffle_and_batch_data(data)
         task_description = ""
-        
+
         for batch in tqdm(batched_data, desc="Refining task description"):
             samples = self.format_samples(batch)
             template = Template(self.task_prompt)
             formatted_prompt = template.render(
-                task_description=task_description,
-                samples=samples
+                task_description=task_description, samples=samples
             )
 
             response = await llm_aclient.chat.completions.create(
                 model=self.llm_model,
                 messages=[
                     {"role": "system", "content": self.task_system_prompt},
-                    {"role": "user", "content": formatted_prompt}
+                    {"role": "user", "content": formatted_prompt},
                 ],
-                response_model=TaskDescription
+                response_model=TaskDescription,
             )
             task_description = response.description
 
@@ -124,12 +130,12 @@ class EvalForge(weave.Model, Serializable):
         self, data: List[DataPoint], all_criteria: str, finalized_task_description: str
     ) -> EvaluationCriteria:
         formatted_data = DataPoint.format_batch(data, finalized_task_description)
-        
+
         prompt = self.criteria_prompt.format(
             formatted_data=formatted_data,
             generated_criteria=str([c.model_dump() for c in all_criteria]),
         )
-        
+
         response = await llm_aclient.chat.completions.create(
             model=self.llm_model,
             messages=[
@@ -145,16 +151,21 @@ class EvalForge(weave.Model, Serializable):
         self, data: List[DataPoint], finalized_task_description: str
     ) -> List[Criterion]:
         all_criteria = []
-        
+
         for _ in tqdm(range(self.num_criteria_to_generate), desc="Generating criteria"):
-            response = await self.process_criteria(data, all_criteria, finalized_task_description)
+            response = await self.process_criteria(
+                data, all_criteria, finalized_task_description
+            )
             all_criteria.extend(response.criteria)
 
         return all_criteria
 
     @weave.op
     async def create_candidate_assertions(
-        self, data: List[DataPoint], criterion: Criterion, finalized_task_description: str
+        self,
+        data: List[DataPoint],
+        criterion: Criterion,
+        finalized_task_description: str,
     ) -> CriterionAssertions:
         formatted_data = DataPoint.format_batch(data, finalized_task_description)
         prompt = self.candidate_assertion_prompt.format(
@@ -172,7 +183,9 @@ class EvalForge(weave.Model, Serializable):
         return response
 
     @weave.op
-    async def generate_all_assertions(self, criteria, data: List[DataPoint], finalized_task_description: str):
+    async def generate_all_assertions(
+        self, criteria, data: List[DataPoint], finalized_task_description: str
+    ):
         async def process_criterion(criterion):
             candidate_assertions = await self.create_candidate_assertions(
                 data, criterion, finalized_task_description
@@ -182,7 +195,7 @@ class EvalForge(weave.Model, Serializable):
 
         # Create list of coroutines
         coros = [process_criterion(criterion) for criterion in criteria]
-        
+
         # Use tqdm_gather to run coroutines concurrently with progress bar
         results = await tqdm_gather(coros, desc="Generating assertions")
 
@@ -191,9 +204,7 @@ class EvalForge(weave.Model, Serializable):
 
     @weave.op
     async def run_assertions(
-        self, 
-        scorer: AssertionScorer, 
-        data: List[DataPoint]
+        self, scorer: AssertionScorer, data: List[DataPoint]
     ) -> Dict[str, Dict[str, List[Tuple[int, int]]]]:
         criterion_assertion_results = {}
 
@@ -249,7 +260,7 @@ class EvalForge(weave.Model, Serializable):
         all_assertions: CriterionAssertionMap,
         train_data: List[DataPoint],
         criteria: List[Criterion],
-        finalized_task_description: str
+        finalized_task_description: str,
     ) -> Tuple[Dict, Dict]:
         """Creates and evaluates both initial and final scorers in one cohesive flow"""
         # Create initial scorer
@@ -262,18 +273,21 @@ class EvalForge(weave.Model, Serializable):
         # Run assertions and calculate initial metrics
         assertion_results = await self.run_assertions(initial_scorer, train_data)
         initial_metrics = calculate_alignment_metrics(assertion_results)
-        
+        format_alignment_metrics(initial_metrics, title="Initial alignment metrics")
+
         if not initial_metrics:
             logger.warning("No metrics calculated from assertion results")
             return {}, {}
 
         # Select and filter best assertions
         best_assertions = select_best_assertions(
-            initial_metrics,
-            assertion_results,
+            metrics=initial_metrics,
+            assertion_results=assertion_results,
             num_assertions_per_criterion=self.num_assertions_per_criterion,
         )
-        filtered_assertion_results = filter_assertion_results(assertion_results, best_assertions)
+        filtered_assertion_results = filter_assertion_results(
+            assertion_results, best_assertions
+        )
         filtered_metrics = calculate_alignment_metrics(filtered_assertion_results)
 
         if not filtered_metrics:
@@ -296,7 +310,6 @@ class EvalForge(weave.Model, Serializable):
 
         # Format metrics summaries
         format_alignment_metrics(filtered_metrics, title="Final alignment metrics")
-        format_alignment_metrics(initial_metrics, title="Initial alignment metrics")
 
         return (
             {
@@ -308,32 +321,36 @@ class EvalForge(weave.Model, Serializable):
                 "judge": initial_scorer,
                 "alignment_metrics": initial_metrics,
                 "assertion_results": assertion_results,
-            }
+            },
         )
 
     @weave.op
     async def fit(self, train_data: List[DataPoint]) -> Dict[str, Any]:
         logger.rule("Forging judge", color="blue")
-        
+
         with logger.timer("Generating task description"):
             llm_task_description = await self.get_task_description(train_data)
-        
+
         with logger.timer("Combining human and LLM descriptions"):
             finalized_task_description = await self.combine_human_and_llm_descriptions(
                 train_data, llm_task_description
             )
-        
+
         with logger.timer("Generating evaluation criteria"):
-            criteria = await self.generate_criteria(train_data, finalized_task_description)
-        
+            criteria = await self.generate_criteria(
+                train_data, finalized_task_description
+            )
+
         with logger.timer("Generating assertions"):
-            all_assertions = await self.generate_all_assertions(criteria, train_data, finalized_task_description)
-        
+            all_assertions = await self.generate_all_assertions(
+                criteria, train_data, finalized_task_description
+            )
+
         with logger.timer("Creating and evaluating scorers"):
             forged_judges, initial_judges = await self.create_and_evaluate_scorers(
                 all_assertions, train_data, criteria, finalized_task_description
             )
-        
+
         logger.header("EvalForge pipeline completed ✨")
         logger.rule("Finalized task description", color="blue")
         logger.info(finalized_task_description)

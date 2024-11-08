@@ -3,7 +3,7 @@ import importlib
 import os
 import textwrap
 from datetime import datetime
-from typing import Dict, Optional, Set
+from typing import Optional, Set
 
 import autopep8
 import isort
@@ -11,6 +11,7 @@ import weave
 from autoflake import fix_code
 
 from evalforge.instructor_models import PythonAssertion
+
 
 class CodeFormatter(weave.Object):
     @weave.op
@@ -27,8 +28,8 @@ class CodeFormatter(weave.Object):
         code = autopep8.fix_code(code, options={"aggressive": 2})
         return code
 
-    def get_required_imports(self, tree: ast.AST) -> Set[tuple]:
-        required_imports = set()
+    def get_required_imports(self, tree: ast.AST) -> Set[tuple[Optional[str], str]]:
+        required_imports: Set[tuple[Optional[str], str]] = set()
         for node in ast.walk(tree):
             if isinstance(node, ast.Name):
                 if not self.is_builtin(node.id):
@@ -61,11 +62,11 @@ class CodeFormatter(weave.Object):
         self, assertions: list[PythonAssertion], base_dir: Optional[str] = None
     ) -> str:
         """Write assertions to test files in the specified directory.
-        
+
         Args:
             assertions: List of PythonAssertion objects
             base_dir: Optional directory to write files to. If None, creates a timestamped directory
-            
+
         Returns:
             str: Path to the base directory containing the generated files
         """
@@ -105,7 +106,7 @@ from run_tests import OutputTestCase
         dedented_assertion_code = textwrap.dedent(assertion_code).strip()
         # Re-indent the assertion code to match the class indentation (4 spaces)
         indented_assertion_code = textwrap.indent(dedented_assertion_code, "    ")
-        
+
         return f"""{imports}
 
 class Test_{assertion_name}(OutputTestCase):
