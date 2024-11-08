@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 HELPFUL_VOTE_THRESHOLD = 5
-os.environ["OPENAI_API_KEY"] = KEY
+os.environ["OPENAI_API_KEY"] = "YOUR KEY"
 
 weave.init("capecape/amazon_fashion")
 
@@ -296,4 +296,4 @@ if __name__ == "__main__":
         if 'images' in review:
             del review['images']
 
-    asyncio.run(main(reviews, n_reviews=500000, max_concurrent=200))
+    asyncio.run(main(reviews, n_reviews=50000, max_concurrent=200))
