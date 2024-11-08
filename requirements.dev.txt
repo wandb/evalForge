@@ -2,3 +2,5 @@ black
 isort
 ruff
 mypy
+pytest-asyncio
+pytest
