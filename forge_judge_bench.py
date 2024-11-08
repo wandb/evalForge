@@ -10,6 +10,7 @@ from evalforge.data_utils import DataPoint
 from evalforge.alignment import calculate_alignment_metrics, format_alignment_metrics
 
 import weave
+
 weave.init("evalforge_test_judgebench")
 
 # Define number of samples to use
@@ -34,27 +35,31 @@ data = load_dataset("ScalerLab/JudgeBench", split="gpt")
 
 splitted_ds = data.train_test_split(seed=42, test_size=0.2)
 train_ds = splitted_ds["train"].select(range(NUM_SAMPLES))  # limit to NUM_SAMPLES
-test_ds = splitted_ds["test"].select(range(NUM_SAMPLES))    # limit to NUM_SAMPLES
+test_ds = splitted_ds["test"].select(range(NUM_SAMPLES))  # limit to NUM_SAMPLES
 
 print("One example from train dataset:")
 pprint(train_ds[0])
 print("=" * 80)
 
+
 def generate_annotations(example: dict) -> DataPoint:
     label = 1 if example["label"] == "A>B" else 0
     return DataPoint(
-        input_data={"text": example["question"]}, 
-        output_data={"text": example["response_A"]}, 
-        annotation=label, 
+        input_data={"text": example["question"]},
+        output_data={"text": example["response_A"]},
+        annotation=label,
         note="",
     )
+
 
 train_ds_formatted = [generate_annotations(example) for example in train_ds]
 test_ds_formatted = [generate_annotations(example) for example in test_ds]
 
 print("=" * 80)
 print("Forging judge...")
-forger = EvalForge(batch_size=1, num_criteria_to_generate=1)  # Add parameters like in mini
+forger = EvalForge(
+    batch_size=1, num_criteria_to_generate=1
+)  # Add parameters like in mini
 results = asyncio.run(forger.fit(train_ds_formatted))
 
 
@@ -80,15 +85,19 @@ print("Raw judges summary:")
 print(raw_judges_summary)
 print("=" * 80)
 
+
 @weave.op
 async def run_assertions_and_calculate_metrics(forger, judge, data):
     all_data_forged_judge_assertion_results = await forger.run_assertions(judge, data)
-    all_data_metrics = calculate_alignment_metrics(all_data_forged_judge_assertion_results)
+    all_data_metrics = calculate_alignment_metrics(
+        all_data_forged_judge_assertion_results
+    )
     all_data_metrics_str = format_alignment_metrics(all_data_metrics)
     return all_data_metrics_str
 
 
 print("Running assertions and calculating metrics...")
-assertions_and_metrics = asyncio.run(run_assertions_and_calculate_metrics(
-    forger, forged_judge, test_ds_formatted))  # use formatted test data
+assertions_and_metrics = asyncio.run(
+    run_assertions_and_calculate_metrics(forger, forged_judge, test_ds_formatted)
+)  # use formatted test data
 print(assertions_and_metrics)
