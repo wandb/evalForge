@@ -20,7 +20,7 @@ import asyncio
 from tqdm.asyncio import tqdm
 
 from simple_parsing import ArgumentParser
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from dotenv import load_dotenv
 
@@ -37,13 +37,20 @@ weave.init("capecape/amazon_fashion")
 oai_client = openai.AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 instructor_client = instructor.from_openai(oai_client)
 
-# MODEL_NAME = "o1-mini"
-MODEL_NAME= "gpt-4o-mini"
+MODEL_NAME = "o1-mini"
+# MODEL_NAME= "gpt-4o-mini"
 
 existing_keys = set()
 # lock = asyncio.Lock()
 
-output_file_path = "data/find_helpful_reviews_data.jsonl"
+@dataclass
+class Args:
+    start_index: int = 0
+    end_index: int = 10
+    max_concurrent: int = 25
+    skip_existing: bool = field(default=False, metadata={"action": "store_true"})
+    output_file_path: str = "output.jsonl"
+
 
 system_prompt = """# Constructing a LLM Judge Benchmark
 
@@ -206,12 +213,13 @@ async def load_existing_keys(output_file_path: str):
                         continue  # Skip malformed lines
 
 @weave.op
-async def evaluate_review(review: dict) -> dict:
+async def evaluate_review(review: dict, skip_existing: bool = False, output_file_path: str = "data/find_helpful_reviews_data_useful_o1_mini.jsonl") -> dict:
     key = get_key(review)
 
     # async with lock:
-    if key in existing_keys:
-        logger.debug(f"Skipping review {key} as it already exists")
+    if key in existing_keys and skip_existing:
+
+        logger.info(f"Skipping review {key} as it already exists")
         res = {
             # "review": review,
             "review_evaluation": {
@@ -229,7 +237,7 @@ async def evaluate_review(review: dict) -> dict:
         """Evaluate a single review using the LLM"""
         o1_prompt = format_example(review)
         out = await call_openai(o1_prompt)
-        # res = {"review": review, **out, "skipped": False}
+
         res = {
             "review_evaluation": out["review_evaluation"],
             "skipped": False,
@@ -242,8 +250,12 @@ async def evaluate_review(review: dict) -> dict:
     return res
 
 @weave.op
-async def evaluate_reviews(reviews: list[dict], max_concurrent: int = 25) -> list[dict]:
-    combined_args = [{'review': review} for review in reviews]
+async def evaluate_reviews(reviews: list[dict], 
+                           max_concurrent: int = 25, 
+                           skip_existing: bool = False,
+                           output_file_path: str = "output.jsonl"
+                           ) -> list[dict]:
+    combined_args = [{'review': review, 'skip_existing': skip_existing, 'output_file_path': output_file_path} for review in reviews]
     
     return await async_map(
         evaluate_review,
@@ -253,29 +265,38 @@ async def evaluate_reviews(reviews: list[dict], max_concurrent: int = 25) -> lis
     )
 
 
-async def main(reviews: list[dict], max_concurrent: int):
+async def main(reviews: list[dict], output_file_path: str, max_concurrent: int, skip_existing: bool = False):
     await load_existing_keys(output_file_path)
     tstamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
     with weave.attributes({"helpful_threshold": HELPFUL_VOTE_THRESHOLD,
                         "n_reviews": len(reviews),
                         "run_tstamp": tstamp}):
-        annotations = await evaluate_reviews(reviews, max_concurrent=max_concurrent)
+        annotations = await evaluate_reviews(
+            reviews=reviews, 
+            output_file_path=output_file_path,
+            max_concurrent=max_concurrent, 
+            skip_existing=skip_existing
+        )
         print(f"DONE! Number of annotations: {len(annotations)}")
 
-@dataclass
-class Args:
-    start_index: int = 0
-    end_index: int = 10
-    max_concurrent: int = 25
+    print(f"Saved to {output_file_path}")
+
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_arguments(Args, dest="args")
     args = parser.parse_args().args
 
-    dataset_path = Path("notebooks/amazon_clothing_and_jewelry_helpful.jsonl")
+    # dataset_path = Path("notebooks/amazon_clothing_and_jewelry_helpful.jsonl")
+    dataset_path = Path("data/find_helpful_reviews_data_useful.jsonl")
     reviews = load_jsonl(dataset_path)
 
     reviews = reviews[args.start_index:args.end_index]
 
-    asyncio.run(main(reviews, max_concurrent=args.max_concurrent))
+    asyncio.run(main(
+        reviews, 
+        output_file_path=args.output_file_path,
+        max_concurrent=args.max_concurrent, 
+        skip_existing=args.skip_existing
+    ))
