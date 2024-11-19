@@ -8,7 +8,7 @@ from fasthtml.common import *
 from fasthtml.common import EventStream, sse_message
 
 from api_client import WeaveAPIClient
-from evalforge.evalforge import EvalForge
+from evalforge.forge import EvalForge
 
 dotenv.load_dotenv()
 
@@ -559,7 +559,7 @@ async def run_evalgen():
     all_items = texts_db()
     data = [item.to_dict() for item in all_items][0:10]
     forger = EvalForge()
-    results = await forger.predict(data)
+    results = await forger.fit(data)
     forged_judge = results["forged_judges"]["judge"]
     weave.publish(forged_judge, name="final_judge")
     weave.finish()

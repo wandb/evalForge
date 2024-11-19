@@ -1,0 +1,4041 @@
+interactions:
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are a helpful assistant
+      that creates mappings between dataset fields and DataPoint fields."}, {"role":
+      "user", "content": "\nGiven the following data sample:\n```json\n{\n  \"input\":
+      \"1+1=\",\n  \"output\": \"2\",\n  \"annotation\": 1,\n  \"note\": \"Correct
+      summation\"\n}\n```\n\nCreate a mapping between DataPoint fields and the sample
+      data keys. You must:\n1. Map \"input_data\" to the key containing the input/question/prompt\n2.
+      Map \"output_data\" to the key containing the response/answer/output\n3. Map
+      \"annotation\" to the key containing binary values (0/1 or True/False)\n4. Map
+      \"note\" to the key containing feedback or evaluation notes\n"}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "DatasetMapping"}},
+      "tools": [{"type": "function", "function": {"name": "DatasetMapping", "description":
+      "Correctly extracted `DatasetMapping` with all the required parameters with
+      correct types", "parameters": {"properties": {"input_data": {"description":
+      "The key in the sample data that corresponds to the input_data field in the
+      DataPoint object", "title": "Input Data", "type": "string"}, "output_data":
+      {"description": "The key in the sample data that corresponds to the output_data
+      field in the DataPoint object", "title": "Output Data", "type": "string"}, "annotation":
+      {"description": "The key in the sample data that corresponds to the annotation
+      field in the DataPoint object", "title": "Annotation", "type": "string"}, "note":
+      {"description": "The key in the sample data that corresponds to the note field
+      in the DataPoint object", "title": "Note", "type": "string"}}, "required": ["annotation",
+      "input_data", "note", "output_data"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1751'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=i_hB2n1cBKXaV93gyKcfYjqVocUFoodZEZiPzm2RrSI-1731090233-1.0.1.1-2yJtpFrFyX41fVXZMf6EBiQ.dq0tZIDq6yFqkLNy0AgRoe9zPBYxj8oEwphRX9h53li25TcYHQZfWGBldP1KJg;
+        _cfuvid=p_sUhKJwyH25gDpdLJscaoj21GwFXpdWE5EjkauMPts-1731090233599-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xTwW7bMAy95ysEnpPBjtOm9q1FgV62bmuBYcEyGKzMOGplSbNorF2Qfy8sp7aT
+        dcB8MEQ+vccnitpNhABVQCZAbpFl5fTs8u72d/p4H5llM7+/ebq6WCW335apu1z9wmuYtgz78EiS
+        31gfpK2cJlbWdLCsCZla1XiZxFEazZMkAJUtSLe00vFsYWfzaL6YRRez6PxA3FolyUMmfkyEEGIX
+        /q1FU9AzZCKavmUq8h5LgqzfJATUVrcZQO+VZzQM0wGU1jCZ1rVptB4BbK3OJWo9FO6+3Wg99Am1
+        zuO774sb/fHZf/nqU/+5WDXn1dWfs2hUr5N+ccHQpjGy788I7/PZSTEhwGAVuNfI6Ik/oXPKlCcK
+        QgDWZVOR4dY97NagjGs4L5BxDdkhXMN0DbbhI6SLA4TGWMbWSUDG4XQNxjKFfLfYw5GF/eS99c9R
+        g2vaNB71ofOH/L6/Sm1LV9sHf3IzsFFG+W1eE/rQIfBsXVe7rRMqQHM0BeBqWznO2T6RaQWTeNHp
+        wTCkAxqnB5Atox6xunk91csLYlRhTPrJlCi3VAzUYUKxKZQdAZPRqf928552d3Jlyv+RHwApyTEV
+        uaupUPL4xMO2mto3/K9tfZeDYfAvnqnKN8qUVLtahWcEG5fHZ2lxkSxiKWGyn7wCAAD//wMA86BQ
+        U08EAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df798c86acae246-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:23:54 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '817'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999834'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_d4b1faceccd2103c2f77ab1f317d7fa5
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: \n\nNew datapoints:\n\nSample
+      1:\n\nInput text: 1+1=\n\n\nOutput text: 3 \n\nAnnotation: Incorrect\nNote:
+      Incorrect summation\n\n\n\nBased on these new datapoints and the current task
+      description, provide an updated, more refined task description. If this is the
+      first batch, create an initial task description. Focus on:\n1. The nature of
+      the input and output data\n2. The specific information being extracted or transformed\n3.
+      Any formatting or style requirements\n4. Evaluation criteria (based on the annotations
+      and notes)\n\nKeep the description concise yet comprehensive."}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "TaskDescription"}},
+      "tools": [{"type": "function", "function": {"name": "TaskDescription", "description":
+      "Correctly extracted `TaskDescription` with all the required parameters with
+      correct types", "parameters": {"properties": {"description": {"description":
+      "A concise yet comprehensive task description", "title": "Description", "type":
+      "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1258'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVUW/bNhB+96848MUb5gR24iydgT1sy9Bm3TqgSwcMy2BcqJN0NUUqvFMcL8h/
+        H0jZlt2mwPxgUPx43333HXV6GgEYLswCjK1RbdO6kx/ev1v/GP78cBnRenv1U/zlw5trvXn7+mb6
+        8Z2ZpIhw95Gs7qJObWhaR8rB97CNhEqJdXZ5Ppt+Nz07v8hAEwpyKaxq9WQeTs6mZ/OT6auT6bfb
+        wDqwJTEL+HsEAPCU/5NEX9CjWcB0sttpSAQrMov9IQATg0s7BkVYFL2ayQDa4JV8Uu075w4ADcEt
+        LTo3JO5/TwfrwSd0bln+6za/hd/fX/81//VK4ut7eVP9ccGrg3w99abNgsrO270/B/h+f/FJMgDj
+        scmxNyirKxIbuX2BAsBgrLqGvCb55unWFMPhW7O4NTc1gaKsgP1DcA8kQA/oOlT2FWhNYEOMZNWT
+        CIQShFM7ASNr3ZCyBXpsI4lw8AJpRV6pAPaAoPSoHTooQ2xQTyElY992Cjb41IVMiXCHwvaI8z4p
+        CB6+otPqdALj2Tez78dfw7qmSFlWr1lAAzxQ5HKTd0OnbacTWNds6wSjB/ZKFUWItFW3rwyd7Vy6
+        jBBJOqdJTAJ22XvBPWeuJTHSY+vYsroNVPxAfgJ3CT2WhCLJL1YBtLaLaDc92c7c4NPJO/YYN4ud
+        xxAisN8+TLbFjvc74xTiQ3a3PCgXikAZgAbV1r2W2B016bjAvgeHZbJApPuOI8m+H50vKKY3pUiO
+        pUYNfKGlmIMFpLM1oAAWBQ+u9S3PXrOAaESuai1DXGMsJrBmrQGhDLYTCB7ISxf7xqB+oTu5OpKM
+        imakN+AUfh5stZGVIuPuQoOtya52Pe8DxkltctdbSu367P7FziUjfJFsTbEFi43UordMMknlCpHP
+        t9z7oFsrHK8IxtdDw3KZ6cagRw1xk9s3WDYcBemapu/G+NY8m6PX+Hn00vqfgykVqewE3XZ8bfef
+        9/PQhaqN4U4+GW+mZM9SLyOh5DFjREPb5055cgbTHY1S08bQtLrUsCKfCM9m857PDJN+QGeX26ls
+        NCi6ATh/tQs7IlwWpMh52O7nu0VbUzGEDnMeu4LDATA6KPtzOS9x96Wzr/4P/QBYS61SsWwjFWyP
+        Sx6ORUpfwi8d29ucBRvZiFKzLNlXFNvI+WNkynY5v7DlxbwgJDN6Hv0HAAD//wMA3FotRZUHAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df798cfbcd4e279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:23:57 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        path=/; expires=Fri, 08-Nov-24 18:53:57 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '2361'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999813'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_bbe26a45b373e4ac6b10a0d630a4393a
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task involves evaluating
+      the correctness of simple arithmetic expressions presented in a textual format.
+      The input consists of a basic arithmetic equation (e.g., ''1+1='') where the
+      task is to verify the output, which is an integer representing the calculated
+      result of the equation. The output text is explicitly given, but the task is
+      to assess its accuracy. The evaluation is binary: correct or incorrect, where
+      ''incorrect'' is noted if the output does not match the true arithmetic result
+      of the input equation. This requires a basic understanding of arithmetic operations
+      such as addition. The formatting is straightforward, with a focus on ensuring
+      that the calculated result matches the stated output. Evaluation criteria involve
+      checking the output''s adherence to basic arithmetic rules and noting discrepancies,
+      as seen in annotations like ''Incorrect'' with explanatory notes such as ''Incorrect
+      summation.''\n\nNew datapoints:\n\nSample 1:\n\nInput text: 1+1=\n\n\nOutput
+      text: 2 \n\nAnnotation: Correct\nNote: Correct summation\n\n\n\nBased on these
+      new datapoints and the current task description, provide an updated, more refined
+      task description. If this is the first batch, create an initial task description.
+      Focus on:\n1. The nature of the input and output data\n2. The specific information
+      being extracted or transformed\n3. Any formatting or style requirements\n4.
+      Evaluation criteria (based on the annotations and notes)\n\nKeep the description
+      concise yet comprehensive."}], "model": "gpt-4o", "tool_choice": {"type": "function",
+      "function": {"name": "TaskDescription"}}, "tools": [{"type": "function", "function":
+      {"name": "TaskDescription", "description": "Correctly extracted `TaskDescription`
+      with all the required parameters with correct types", "parameters": {"properties":
+      {"description": {"description": "A concise yet comprehensive task description",
+      "title": "Description", "type": "string"}}, "required": ["description"], "type":
+      "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2169'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVTW8bNxC961cMeNGhsiH5I7YF9JA6BlK3cdA6h6Z1IYy4s9qJuSQz5MpeGP7v
+        BbmSduXoUB0EgcN5782b0fBlBKC4UHNQusKoa2+O3v959/Th5kRWn2x5f3t9Wz07d//x8uaP5fnd
+        VzVJGW75jXTcZh1rV3tDkZ3twloIIyXU2cXpbHo1PTm9yIHaFWRS2srHozN3dDI9OTuaXh5N320S
+        K8eagprDPyMAgJf8nSTagp7VHKaT7UlNIeCK1Hx3CUCJM+lEYQgcItqoJn1QOxvJJtW2MWYQiM6Z
+        hUZjeuLu8zL43fuExiyu+e4vd39yevb78rH++Inl8/ffbr/+/cuAr4NufRZUNlbv/BnEd+fzN2QA
+        ymKdc79gePxAQQv7AxAACmXV1GRjkq9eHlTRX35Q8wf1pSKIGB5B6HvDQgFojabByHYFsSJArRtB
+        3YIrIXDqJaBwrGqKrIGevVAI7GwAtoAQ6Tk2aKB0UmM8hhvUFbD1TQQOgLDEwHoP4Xsic3YCodEV
+        YIDx7KfZz+NJwiaddaAFtpFWJCmeVLkmJshYYQShpCHVmEMajW5MmjEQCo2JSXkKbJmOIRW9LdNZ
+        KJ1uAgVwFgqKJDXbxPpUUaxIcq4Xt+aCii1x50ok04JQaUhvyKM09IZ2UKvzJB1liFkg23wl+9PJ
+        2uJb62J3lQMs2aK0EyDOgsbXToR0HAOXQzdqjLqiTkhn3sADgfGvVm8TUaf/JVqmApZtMpievUGL
+        0UkL1kXaYAuNU9sKDlrIo9Vt36iUJeIklRGaut6524RJ50YaLLZrZ9YUYI2Gi8FgFQndatoate2p
+        +3FIvLDV7A2FNFiARcHZG7QFuOxJ4JoNSm9x6Pzs5jCTcoAQBXlVxdLJE0oxgSeOFSAET5rLNI21
+        rzBwngWyoZGt2gMWD/RtTC44eIPtm8YOBu+9bQdWcipHXH2wYSgENcojFXuN6wR7L84LY6Tcq9B1
+        rxvbDJbaMoGKjE9HuRICbZLkNonbkKxJUtmdugf1qvbWx+vo0O9/B9tRqGwCms3a3Jy/7vawcSsv
+        bhnerFVVsuVQLYQw5PWmQnS+4048mUE1eytceXG1j4voHskmwNOLqw5P9S9MH51dzjbR6CKaPnD+
+        bvNM7AMuCorIecnv3hWNuqKiT+3fF2wKdoPAaFD2j3IOYXels139H/g+oDX5SMXCCxWs90vurwl9
+        y6N0+NrO5ixYhTZEqhcl2xVJ+p/lp7v0i9n5VXF5ejbTWo1eR/8BAAD//wMAP+5Cxw0IAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df798e02e10e279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:02 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '5158'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999585'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_770913d3c5d1b91fd0bc6f184c6c7753
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task requires evaluating
+      the accuracy of simple arithmetic expressions in a textual format. Each input
+      is a basic arithmetic equation, such as ''1+1='', expecting an integer as the
+      output that represents the calculated result of the equation. The evaluation
+      focuses on determining whether the provided output accurately reflects the true
+      result of the arithmetic operation stated in the input. The output annotation
+      is binary, either ''Correct'' if the output matches the expected result or ''Incorrect''
+      accompanied by an explanatory note if there''s a discrepancy, such as an error
+      in summation. Thus, the task involves validating the adherence of the output
+      to basic arithmetic principles for addition and other similar operations. The
+      formatting is straightforward, with a specific emphasis on ensuring the output
+      matches the arithmetic result displayed in the input equation. Any discrepancies
+      from the expected result are marked ''Incorrect'' with appropriate notes explaining
+      the error, helping ensure clarity in result verification.\n\nNew datapoints:\n\nSample
+      1:\n\nInput text: (4+2)*3=\n\n\nOutput text: 18 \n\nAnnotation: Correct\nNote:
+      Correct summation\n\n\n\nBased on these new datapoints and the current task
+      description, provide an updated, more refined task description. If this is the
+      first batch, create an initial task description. Focus on:\n1. The nature of
+      the input and output data\n2. The specific information being extracted or transformed\n3.
+      Any formatting or style requirements\n4. Evaluation criteria (based on the annotations
+      and notes)\n\nKeep the description concise yet comprehensive."}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "TaskDescription"}},
+      "tools": [{"type": "function", "function": {"name": "TaskDescription", "description":
+      "Correctly extracted `TaskDescription` with all the required parameters with
+      correct types", "parameters": {"properties": {"description": {"description":
+      "A concise yet comprehensive task description", "title": "Description", "type":
+      "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2294'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xWTW8bNxC9+1cMeFHbyIYkO24iIIekCfIBt2mLHJpWhTAiR9qJuSRDzspeGP7v
+        xexKWjl1geogrHY48x7fmyF1dwJg2Jk5GFuh2Dr505e//3LzYXY+rT++/nz1x3Rbrm8+lj9vL9+x
+        XHgz1oy4+kJW9llnNtbJk3AMfdhmQiGtOv3xfDp5PpldnHeBOjrymrZJcnoRT2eT2cXp5Nnp5HKX
+        WEW2VMwc/joBALjrvpVicHRr5jAZ79/UVApuyMwPiwBMjl7fGCyFi2AQMx6CNgahoKxD4/1RQGL0
+        S4veD8D95+7oedAJvV+6p6/evS2/vaK03V7xy5+v7Nu3v352V0d4fek2dYTWTbAHfY7ih/fzb8AA
+        TMC6y/2E5fo1FZs5PVICwGDeNDUFUfrmbmHcsHhh5gvzqSIQLNfAYRv9lgps0bND4bCBwuodYGap
+        ahK2QLcpUykcQ4ENbykABxC6lQY9rGOuUWDVgpqOWUtIRZBy3LIjB7GR1AjgBjkU6WI25kxWoEap
+        qEZhix4ylcbLGbxBWwEHzeECCEUy8qaSdcw3mN0DYl8b1E2NoTS2Aiwwmj6ZvhhBzDD67uLJ7Psf
+        zl+MxoDBQaavDWcqgEpfaENZE5TOjqFUKJBJ96ra7ZjWqRFyB3YqXWpyioWUnkTYUuZ1261Ga5uM
+        toW4Pi68asGRUK45qDq8Bpa9Br5VFWxFPR7dJrIDHqywqIQBtHndN9uPiXK3/wKerwnQOd7LsZKM
+        tv9RN144ebY7rVQNx1tWQ88Wi7BYhPcqdwHMtPNTKSSPHHw7hnW0TVHmMSghtv9BIkUdJ0bvW+Bg
+        Y04x9z2VMFOQigoVBYCYHWVVacjupe0V65nsXCq9MXVTBFImy4V8C5nWXltIRSvRbzt6neqFHjQs
+        Whuz67oyHvNOmYPl5KnsNHizRd+3kxq74oC5ncPop96nkdp25Omjph2V7/0bd/B1wsDktA9wP14h
+        SpeoGnPYjDtZdEAwWBofYKE0dd2RGp3B+45BppGORc2l4zAGllEBjyvy5GD0Ptg94xuWStu9gwko
+        Mbc9riNB9qrJjUp7PFE5qz3ax5ncMFcIFr1tfK9PrWfptToEGFp1V/YtP4ykys1O11ivCG3XeE1w
+        lLtm3jnWIZazhbk3D46x+5PHnv8+OqUzrZuCfnd8797fH+4DHzcpx1X55ng3aw5cqmUmLN0xa4rE
+        1GMrTodgmgdXiUk51kmWEq8paMHz57O+nhluuiE6mzzbRSUK+iFwOdldVw8LLns/ytGZbyzaityQ
+        Otxz2DiOR4GTo23/m85jtfutc9j8n/JDwFpKQm6ZMjm2D7c8LMv0pRuGx5cdZO4Im9IWoXq55rCh
+        rBPZ/YVYp+X06XP37Pxiaq05uT/5BwAA//8DAMDM792VCAAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df79901eabee279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:09 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '6348'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999554'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_6b4b22cf02b2fcb636f3b23c41b7b240
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task involves validating
+      simple arithmetic expressions given in textual format by comparing the provided
+      output against the correct mathematical result. Each input is a straightforward
+      arithmetic equation, such as ''1+1='' or ''(4+2)*3='', and requires an integer
+      as the output that represents the computed result. The purpose is to verify
+      the accuracy of the output by determining if it correctly matches the expected
+      result based on standard arithmetic operations like addition, subtraction, multiplication,
+      and division.\n\nInputs are formatted plainly, focusing on basic arithmetic
+      operations potentially incorporating parentheses for order of operations. The
+      outputs are integers that must precisely reflect the solving of these expressions
+      according to arithmetic principles.\n\nEvaluation is binary: ''Correct'' if
+      the output matches the expected arithmetic result, accompanied by a simple note
+      explaining, for instance, ''Correct summation''. If there''s a mismatch, it''s
+      labeled ''Incorrect'' with an explanatory note detailing what arithmetic error
+      occurred, such as a calculation mistake in any part of the equation, to aid
+      in clarity and understanding of errors.\n\nNew datapoints:\n\nSample 1:\n\nInput
+      text: What is the square root of 16?\n\n\nOutput text: 4 \n\nAnnotation: Correct\nNote:
+      Correct square root\n\n\n\nBased on these new datapoints and the current task
+      description, provide an updated, more refined task description. If this is the
+      first batch, create an initial task description. Focus on:\n1. The nature of
+      the input and output data\n2. The specific information being extracted or transformed\n3.
+      Any formatting or style requirements\n4. Evaluation criteria (based on the annotations
+      and notes)\n\nKeep the description concise yet comprehensive."}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "TaskDescription"}},
+      "tools": [{"type": "function", "function": {"name": "TaskDescription", "description":
+      "Correctly extracted `TaskDescription` with all the required parameters with
+      correct types", "parameters": {"properties": {"description": {"description":
+      "A concise yet comprehensive task description", "title": "Description", "type":
+      "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2449'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVTW8jNwy951cQuvhQJ7Dz1Y2Boti2ATZot2mLdBfdujBoieNRopEUicrGCfLf
+        C0m2Z5zmUB8MjUg+PpJvOM8HAEIrMQMhW2TZeXP4/o9fv/7+25O6eLrmD7+caD6+Of/88cvP9OXP
+        pMU4R7jlLUneRh1J13lDrJ2tZhkImTLq9NuT6eRicnw2KYbOKTI5bOX58NQdHk+OTw8n7w4n55vA
+        1mlJUczg7wMAgOfynylaRY9iBgWm3HQUI65IzHZOACI4k28Exqgjo2Ux7o3SWSabWdtkzMDAzpmF
+        RGP6xPX3PDj3fUJjFu6vD8tP9x9vrZlcP73/lFoZL+PZzQ+DfBV67QuhJlm568/AvrufvUoGICx2
+        JfYG491PFGXQ/g0IAIFhlTqynOmL57lQvfNczObipiVgjHfQOJkiRXAWHtBohaztCrglcIml67Kp
+        gSVGLQGD5rYjzkeroENuqUPWEg1sWQM9+kAxamcj5BNZJgXaAtMjQ+NCh3wElyhb0NYnBh0B7RDb
+        hX3o+0RhDUbfEYym30y/G2WP0ecWS2ymGu8TBoLgHGe20/PvR3BTS9hkoEdPMhNhB0vKCbVlWlGA
+        QBuW27olGplMFisEisnwUcHyQXcY1rByaEpeBxgjxcpAuhBIss3PrilXK/1AdkthuYb8RmDIWTTD
+        V81t8doR2yt50/uaed/iKSCX7morTVI0hmViyPVbx2B0p2udY0CldHYdQ0xLDijrQ5cMa2+0xPqs
+        9IOO5ZSnWke9HWesfR80OB7N53Y+t1d5eLHk7cfsDWpr1mPwLka9NOtM0gXvQtWVx0CWW8qKa1wY
+        VuMDSVJkJR3BdWlaBY8ctOSCVAYWIVBjSBY8lDIFZILoTKo47KAkGApxQ/nyAU0q6fIAl9piWM9g
+        9GOd3Qh0sxV+HlmHLFuK+1OqiqjjwyJ2g7ZCVoFuwCCmriv3Va27676RoyO4amp/smk8zK0jGFyS
+        IQWjq63HqMwnvy6yaMlqUllYr3goYtRmq+Y98VAILuQOkW3RSoJkFYW8FVXpplWvhdwkToEAmanz
+        efbiReztmpeDt87/DFZpoCZFNJsdu7l/2S1t41Y+uGV8tYNFo62O7SIQxrILRWTna+6cp2QQaW/f
+        Cx9c53nB7o5sBjydnlc80X+Oeuv04mRjZcdoesP55GL8BuCidjYOFrOQKFtSfWj/McKktBsYDgZl
+        /5fOW9i1dG1X/we+N0hJnkktfCCl5X7JvVug26Lot912bS6ERVxHpm7RaLui4IMuX0zR+MX07EK9
+        OzmdSikOXg7+BQAA//8DAJUNVUk6CAAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7992b4f62e279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:15 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '5541'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999516'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_c6aad4767d0aad6f0c79c4ae1f7fb2f9
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task focuses on validating
+      the outcomes of basic arithmetic and mathematical function expressions presented
+      in text format. Each input is an arithmetic or mathematical query like ''1+1=''
+      or ''What is the square root of 16?'' The output is expected to be an integer
+      representing the calculated result. The primary goal is to assess the correctness
+      of the given output by comparing it with the expected mathematical outcome.
+      The mathematical operations include, but are not limited to, addition, subtraction,
+      multiplication, division, and basic functions like square roots.\n\nInputs are
+      presented plainly, possibly incorporating parentheses for operations precedence.
+      Outputs are strictly integers reflecting accurate solutions to these expressions.\n\nEvaluation
+      is binary: ''Correct'' if the output matches the expected result with an explanation
+      like ''Correct summation'' or ''Correct square root''. If incorrect, the output
+      is labeled ''Incorrect'' and is accompanied by an explanation detailing the
+      mathematical error to enhance understanding and correctness of future attempts.\n\nNew
+      datapoints:\n\nSample 1:\n\nInput text: 2+2=\n\n\nOutput text: 4 \n\nAnnotation:
+      Correct\nNote: Correct summation\n\n\n\nBased on these new datapoints and the
+      current task description, provide an updated, more refined task description.
+      If this is the first batch, create an initial task description. Focus on:\n1.
+      The nature of the input and output data\n2. The specific information being extracted
+      or transformed\n3. Any formatting or style requirements\n4. Evaluation criteria
+      (based on the annotations and notes)\n\nKeep the description concise yet comprehensive."}],
+      "model": "gpt-4o", "tool_choice": {"type": "function", "function": {"name":
+      "TaskDescription"}}, "tools": [{"type": "function", "function": {"name": "TaskDescription",
+      "description": "Correctly extracted `TaskDescription` with all the required
+      parameters with correct types", "parameters": {"properties": {"description":
+      {"description": "A concise yet comprehensive task description", "title": "Description",
+      "type": "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2330'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVS28bNxC++1cMeNGhsiE5thMLKIogbZAemgaB0RSpCoEiZ3cZ8WXOULZg+L8X
+        5K60UuoC1UFYcjgz33zzejoDEEaLBQjVSVYu2vO3nz8+fHG3Xz/Grw+fbv58bNU8vr2694k/pfdi
+        WjTC+hsq3mtdqOCiRTbB92KVUDIWq/PXr+az29nl9U0VuKDRFrU28vlVOL+cXV6dz96cz24GxS4Y
+        hSQW8NcZAMBT/S8QvcZHsYDZdH/jkEi2KBaHRwAiBVtuhCQyxNKzmI5CFTyjL6h9tvZIwCHYlZLW
+        jo7739PR98iTtHbVdubD/G6NG/Pb+28z87nrPvC72z+6I3+96V2sgJrs1YGfI/nhfvGdMwDhpau6
+        d5I2PyOpZOILJgCETG126LnAF09LocfHS7FYirvOELCkDRi/DXaLBFtMptkZ3wJ3CFKpnKTaQWhA
+        JsOdQzYKpNfgJHfoJBslLeBjTEhkgifgTjLIhFCu0DNqMB4YHxmakNwF/CJVB8bHzKCCL/mgav/U
+        5H3GtJsCZdWBJJjMf5j/OIGQYPKlOCjAOwS6z8VVCoGLjfnNT5NphVeE+BhRFf8hc/FmCKQH4xlb
+        TJBwALgPVoWUUDEoaVW2srAECSlbvoC7DgkrJoMEqppRNmsECUn6Fov3EDFVNQJrNghSa1OOJYo1
+        J6n6g8uWTbRGyf6szdZQ/SrA94mnQ+gHPL49jpemQx52kAkhyoSeC0wCDqDRB8YRUsmGQo1eYY2m
+        T7vqUG0IHjrkDlNlIaawNRo1+Oww1VQM9DnJqkM6pbYnaCgURru7WC79cul/rzpUC4E4GcV2t6d+
+        qBHjdeFgJJ6CzX3oHPZe9mXVg8attLmPxyF3QZecro2XabeoGgMcQ+Bk2qCGybve+ARMA+Y/gpCe
+        HjBNSxTBRekNaljvSrHgY7TSSw5pB5XQmti9UaDsXIXTV+bheszS5ALeBb/FRGh30wLiFKbxQ/TT
+        gs4QWLlGWzARTH7dC4eiPgJUKDA0ZqumvHT3GquH0/ZMKaQpGFef+xay15jKHNTl1IQETeacECQz
+        usiVbkPQoY0E6Cn3/axqoVYsFmXyVTsFB65M1Q3SFNB30qt9T506Cg2sJRl1iq5wnnlonKF3TTrM
+        nouleBYnk+357KXvv48Gd8Imk7TDRB/unw8rwoY2prCm7ya+aIw31K0SSqqTVxCH2PsufqoHkU+2
+        i4gpuMgrDhv0xeCr2ze9PTEuv1F6Ob8cpBxY2lFwMx822KnBlUaWpu6fw8pTUnWoR9Vx9cmsTTgS
+        nB2F/W84L9nuQze+/T/mR4FSGBn1KibURp2GPD5L+K3228vPDjRXwIJ2xOhWjfEtpphM3c+iiaur
+        a9VcX2mUKM6ez/4BAAD//wMAziVTrqgIAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7995418dce279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:19 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '2823'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999546'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_fd3d317aa6b104a6a4ade92f6f6accd6
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to create evaluation criteria for a given task.\n"}, {"role": "user",
+      "content": "\nAnalyze the following annotated datapoints:\n\nTask Description:
+      This task involves verifying the accuracy of arithmetic and mathematical expressions
+      that are presented in text form. Each input consists of a mathematical query,
+      such as ''1+1='' or ''What is the square root of 16?'', and the expected output
+      is an integer representing the correct calculation result. These queries can
+      include a range of operations like addition, subtraction, multiplication, division,
+      and functions such as calculating square roots, and may use parentheses to denote
+      operation precedence. The task checks whether the provided numerical output
+      matches the expected result accurately.\n\nOutputs are strictly integers that
+      indicate correct solutions to the expressions. The evaluation method is binary:
+      the result is marked ''Correct'' if it matches the expected answer, accompanied
+      by an explanatory note like ''Correct summation'' or ''Correct square root''.
+      Conversely, if the result is incorrect, it is labeled as ''Incorrect'', and
+      an explanation is provided to describe the mathematical error, improving understanding
+      for future attempts. This helps ensure precision and learning from mistakes,
+      enhancing the understanding of basic mathematical computations and their accuracy.\n\nExample
+      1:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\": \"2\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      2:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\": \"3\"\n}\n\nAnnotation:
+      Incorrect\nNote: Incorrect summation\n\n--------------------------------------------------\n\nExample
+      3:\nInput:\n{\n  \"text\": \"2+2=\"\n}\n\nOutput:\n{\n  \"text\": \"4\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      4:\nInput:\n{\n  \"text\": \"(4+2)*3=\"\n}\n\nOutput:\n{\n  \"text\": \"18\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      5:\nInput:\n{\n  \"text\": \"What is the square root of 16?\"\n}\n\nOutput:\n{\n  \"text\":
+      \"4\"\n}\n\nAnnotation: Correct\nNote: Correct square root\n\n--------------------------------------------------\n\n\nNote
+      we have already generated criteria, so we can use that as context:\n[]\n\nGenerate
+      1 evaluation criteria that can be used to assess the quality of outputs for
+      this task. Consider the following guidelines:\n\n1. If a ''Metrics Details''
+      field is present in the datapoint, prioritize this information as it provides
+      the most important evaluation criteria.\n2. Focus on general aspects of quality
+      that can be used across multiple outputs.\n3. Consider criteria that address
+      potential misalignment between LLM outputs and human preferences.\n4. Include
+      criteria that can be evaluated both by code and by LLM-based evaluators.\n5.
+      Think about criteria that might reveal hallucinations, instruction-following,
+      or other common LLM issues.\n6. Generate criteria that could help in debugging
+      or improving the LLM pipeline.\n\nProvide the criterion as a concise statement,
+      followed by a brief explanation of why it''s important and how it might be evaluated
+      (e.g., via code, LLM evaluator, or human judgment).\n\nReturn the criteria in
+      this format:\n[Criterion]: [Brief explanation and evaluation method]\n\nAim
+      for a mix of straightforward, code-evaluable criteria and more nuanced criteria
+      that might require LLM or human evaluation.\n"}], "model": "gpt-4o", "tool_choice":
+      {"type": "function", "function": {"name": "EvaluationCriteria"}}, "tools": [{"type":
+      "function", "function": {"name": "EvaluationCriteria", "description": "Correctly
+      extracted `EvaluationCriteria` with all the required parameters with correct
+      types", "parameters": {"$defs": {"Criterion": {"properties": {"criterion": {"description":
+      "A concise, specific statement describing a single aspect of evaluation", "title":
+      "Criterion", "type": "string"}, "explanation": {"default": "", "description":
+      "A detailed explanation of the criterion''s importance and potential evaluation
+      methods", "title": "Explanation", "type": "string"}, "evaluation_method": {"default":
+      "", "description": "The primary method for evaluating this criterion: ''code''
+      for programmatic checks, ''llm'' for language model-based assessment", "enum":
+      ["code", "llm"], "title": "Evaluation Method", "type": "string"}}, "required":
+      ["criterion"], "title": "Criterion", "type": "object"}}, "properties": {"criteria":
+      {"description": "A list of 1-2 distinct evaluation criteria, each focusing on
+      a different aspect of output quality", "items": {"$ref": "#/$defs/Criterion"},
+      "maxItems": 2, "minItems": 1, "title": "Criteria", "type": "array"}}, "required":
+      ["criteria"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '4919'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xUTW/bOBC9+1cMeLYD23GaxLci7bZF2z10i24/XAjMcCQxpUiWHLpxA//3BSnH
+        UtIc1gdDmjfvvZnRkHcTAKGVWIPAVjJ23syef/j719c3b1bhw8Wnj+9uzNvli3fqr1f//v7HfN6K
+        aWa46xtCvmedoOu8IdbO9jAGkkxZdXF+uphfzpdnlwXonCKTaY3n2crNlvPlaja/mM2fHYit00hR
+        rOHbBADgrvznEq2iW7GG+fQ+0lGMsiGxPiYBiOBMjggZo44sLYvpAKKzTDZXbZMxI4CdMxVKYwbj
+        /nc3eh7mJI2pztsvb7uvr8Or1fxULx1dvVi8npsvNPLrpXe+FFQni8f5jPBjfP3IDEBY2RXuy600
+        Seasq6CZgpaPVACEDE3qyHLuQNxtBB4yN2L9bXh1diPWG/EcMQWJO3A1vJfcUidZozRw5TqfuFht
+        xHQj6NYbaQ/v6414aWMKBNxKBm4JZNDcdsQawQXoxlLOUyhECBST4Qg+uK1WpEDbQnaJfeLMwrYE
+        0IVAyKAtU0MBpI2/KEDtQoEbvSULPxOF3Ql8bHUEHYFiJMtampK2paDrnbbNWM9SjLnTPnRsMIK0
+        CpJVFPKmqMy6llHjwz580Ba1NxSzKYHSpca+KUBp4ZoAW8IfpEoNY9cUsyo6RXk+EYP23E8PpcFk
+        JFMsddGtJ2RS97p1cF0BtM0zolsfKEbt7En/XY4bUXXErVPl62Sfjdh/34sH27GfPPX8fbT/geoU
+        pTkcjEN8fzxpxjU+uOv46OCIWlsd2yqQjGWBRWTne+/sUxxEenBIhQ+u81yx+0E2C16cn/V6YrhD
+        RujiALJjaYb45dmz6RN6lSKWupzi48WBEltSA3W4QGRS2o2AyajrP6t5SrvvXNvm/8gPACJ5JlX5
+        QErjw46HtEA3ZSWeTjtOuRQs4i4ydVWtbUMhr2y5m2tfLc4u1cXpaoEoJvvJfwAAAP//AwCR8LzX
+        7gUAAA==
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7996778b2e279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:20 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '1285'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999130'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_a930651979836bc3917c80f1ce2f42e2
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to create testable assertions for a given task and criterion.\n"},
+      {"role": "user", "content": "\nGiven the following evaluation criterion and
+      annotated data, generate 1-3 specific, testable assertions:\n\nCriterion: {''criterion'':
+      ''Accuracy of Mathematical Computation'', ''explanation'': ''Ensure that the
+      arithmetic or mathematical operation results provided in the output match the
+      correct integer answer for the given query. This is essential for verifying
+      the correctness of the computations and understanding basic mathematical principles.
+      The direct result can be checked for correctness using code or script that calculates
+      the expected result from the input expression.'', ''evaluation_method'': ''code''}\n\nAnnotated
+      data: Task Description: This task involves verifying the accuracy of arithmetic
+      and mathematical expressions that are presented in text form. Each input consists
+      of a mathematical query, such as ''1+1='' or ''What is the square root of 16?'',
+      and the expected output is an integer representing the correct calculation result.
+      These queries can include a range of operations like addition, subtraction,
+      multiplication, division, and functions such as calculating square roots, and
+      may use parentheses to denote operation precedence. The task checks whether
+      the provided numerical output matches the expected result accurately.\n\nOutputs
+      are strictly integers that indicate correct solutions to the expressions. The
+      evaluation method is binary: the result is marked ''Correct'' if it matches
+      the expected answer, accompanied by an explanatory note like ''Correct summation''
+      or ''Correct square root''. Conversely, if the result is incorrect, it is labeled
+      as ''Incorrect'', and an explanation is provided to describe the mathematical
+      error, improving understanding for future attempts. This helps ensure precision
+      and learning from mistakes, enhancing the understanding of basic mathematical
+      computations and their accuracy.\n\nExample 1:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\":
+      \"2\"\n}\n\nAnnotation: Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      2:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\": \"3\"\n}\n\nAnnotation:
+      Incorrect\nNote: Incorrect summation\n\n--------------------------------------------------\n\nExample
+      3:\nInput:\n{\n  \"text\": \"2+2=\"\n}\n\nOutput:\n{\n  \"text\": \"4\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      4:\nInput:\n{\n  \"text\": \"(4+2)*3=\"\n}\n\nOutput:\n{\n  \"text\": \"18\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      5:\nInput:\n{\n  \"text\": \"What is the square root of 16?\"\n}\n\nOutput:\n{\n  \"text\":
+      \"4\"\n}\n\nAnnotation: Correct\nNote: Correct square root\n\n--------------------------------------------------\n\n\nYour
+      task is to create assertions that can be used to evaluate LLM outputs based
+      on this criterion. Follow these guidelines:\n\n1. Make each assertion clear,
+      concise, and directly related to the criterion\n2. For Python assertions:\n-
+      Provide a valid Python method that can be used within a unittest.TestCase class\n-
+      Ensure the method name is in snake case and starts with test_\n- The method
+      should take ''self'' as the only input, where ''self.output'' is a dictionary
+      containing the LLM output being evaluated\n- The ''self.output'' dictionary
+      will have the same keys and shape as the output in the annotated data\n- Use
+      unittest assertion methods (e.g., self.assertTrue, self.assertEqual) to test
+      the output\n- The test should pass if the assertion is met, and fail otherwise\n-
+      Only use the keys and shapes present in the annotated data output for your assertions\n3.
+      For LLM assertions:\n- Provide a clear, detailed prompt for an LLM to evaluate
+      the assertion\n- The prompt should guide the LLM to return \"PASS\" or \"FAIL\"
+      based on the evaluation\n4. Include a mix of positive and negative assertions
+      where appropriate\n5. Consider edge cases and potential failure modes for the
+      criterion\n6. Aim for assertions that could be applied across multiple types
+      of outputs\n\nEnsure that your assertions are directly evaluable and avoid vague
+      or subjective language. Focus on creating assertions that align with human preferences
+      and can be used to validate the quality of LLM-generated evaluations.\n"}],
+      "model": "gpt-4o", "tool_choice": {"type": "function", "function": {"name":
+      "CriterionAssertions"}}, "tools": [{"type": "function", "function": {"name":
+      "CriterionAssertions", "description": "Correctly extracted `CriterionAssertions`
+      with all the required parameters with correct types", "parameters": {"$defs":
+      {"LLMAssertion": {"properties": {"test_name": {"description": "A clear, concise
+      name for the LLM evaluator in snake case.", "title": "Test Name", "type": "string"},
+      "text": {"description": "A detailed prompt for the LLM to evaluate the assertion,
+      guiding it to return ''PASS'' or ''FAIL''", "title": "Text", "type": "string"},
+      "evaluation_type": {"const": "llm", "default": "llm", "enum": ["llm"], "title":
+      "Evaluation Type", "type": "string"}}, "required": ["test_name", "text"], "title":
+      "LLMAssertion", "type": "object"}, "PythonAssertion": {"properties": {"test_name":
+      {"description": "A clear, concise name for the unittest.TestCase method with
+      function name in snake case and starting with test_. Must be identical to the
+      function name in the code field.", "title": "Test Name", "type": "string"},
+      "code": {"description": "A clear, concise assertion written as a unittest.TestCase
+      method with function name in snake case and starting with test_. Also ensure
+      that the input to the function is only self and the function accesses self.output.",
+      "title": "Code", "type": "string"}, "evaluation_type": {"const": "python", "default":
+      "python", "enum": ["python"], "title": "Evaluation Type", "type": "string"}},
+      "required": ["test_name", "code"], "title": "PythonAssertion", "type": "object"}},
+      "properties": {"assertions": {"description": "Generate 1-3 specific, testable
+      assertions that can be used to evaluate LLM outputs based on the given criterion",
+      "items": {"anyOf": [{"$ref": "#/$defs/PythonAssertion"}, {"$ref": "#/$defs/LLMAssertion"}]},
+      "maxItems": 3, "minItems": 1, "title": "Assertions", "type": "array"}}, "required":
+      ["assertions"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '6477'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA8xVbW/bNhD+7l9x4Bc1mGNYdt5qoBi8Lu1SJEvRbtiGKBAY6mSxoUiFPMXxDP/3
+        gpQqOZ6D9uP8wZbu5XnuHp6P6wEAkxmbARMFJ1FW6nD+6fclv/r7Iy3PTq/f2dWfl++vr+dx+Qt/
+        e8XZ0GeYuy8o6FvWSJiyUkjS6MYtLHJCjxqfTuPx6/HkZBwcpclQ+bRFRYdH5nAynhwdjs8Oxydt
+        YmGkQMdmcDMAAFiHb1+izvCJzSDABEuJzvEFslkXBMCsUd7CuHPSEdfEhr1TGE2ofdW6VmrLQcao
+        VHCleuLms9567nXiSqW/nV9qeX2x4ovjq/iP/OH0H6qqD8tft/ga6FUVCsprLTp9tvydfbZDBsA0
+        L0PuWysJrTR67hxaH+12YAAYt4u6RE2+BbZOvAJtbMJmN+uEETpKPWTCZu2bMNaioNTVZcl9bMqz
+        TPqHhA0TJkzWBGeYw3cSXjlU+cEsSbSvBp8qFIRZatHViuANTFqP1FVNKeGTNyZJwuKf4jf+t/V7
+        mFFT+/lDzdUrqSlgj0xNVU03kc+Nbg+GuyRDyD3Op4YxNxaidc+2iWDJHUjdtjDysQehTXzkqm66
+        8acVOq5WVHgVNsP9ynU4W1LkiNkdF/cB1HOG8PMGHYEKhNwoZZZSL6DpJpTZIml0vr4QFyb1icDk
+        4bXkVKBnEVzBQ412BZU1jzLDbATv5SM2WaFbiLyi0TBYWhbpIJpGI5hrrlb/YkvRswYa6YBbSUWJ
+        JAU0mo7gitt74A6ij/PPnyOQ+Q5uJwQsJRXAoUBV5bUCbQghuujcnU7RELjOIHo3v7iMwFCBdikd
+        jl48C6XKlw+iO4aHmltMrTHk/8miVvxH5nh/1veG+eilYf6r4EEVr1GDDR7bCxyf/Pw/HvPbDXu2
+        UDaDfc+3WzvTYl47rtpl2to33XZWZlFZc+d2li3LpZauSC1yF5Yec2SqhtvzBAZWP1vsrLKmrCgl
+        c4/aA8bx0WkDyPqLp3dPpmetlwxxtZU3PTse7oFMMyQuw/Lv7hvBRYFZn9vfO7zOpNlyDLYa/289
+        +7Cb5qVe/Ah87xACKz8HlcVMiuc992EWvzTjsjesEzoUzNzKEZZpLvUCbWVluBxZXqXx8evsbHoU
+        C8EGm8FXAAAA//8DAD2pqW8lCAAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df799711f71e279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:24 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '3168'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29998916'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 2ms
+      x-request-id:
+      - req_c812d6ce0aa12bc1351ecf27cf9d89de
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are an AI assistant evaluating
+      the quality of text outputs based on given tasks, inputs, and assertions."},
+      {"role": "user", "content": "\nTask Description:\nThis task involves verifying
+      the accuracy of arithmetic and mathematical expressions that are presented in
+      text form. Each input consists of a mathematical query, such as ''1+1='' or
+      ''What is the square root of 16?'', and the expected output is an integer representing
+      the correct calculation result. These queries can include a range of operations
+      like addition, subtraction, multiplication, division, and functions such as
+      calculating square roots, and may use parentheses to denote operation precedence.
+      The task checks whether the provided numerical output matches the expected result
+      accurately.\n\nOutputs are strictly integers that indicate correct solutions
+      to the expressions. The evaluation method is binary: the result is marked ''Correct''
+      if it matches the expected answer, accompanied by an explanatory note like ''Correct
+      summation'' or ''Correct square root''. Conversely, if the result is incorrect,
+      it is labeled as ''Incorrect'', and an explanation is provided to describe the
+      mathematical error, improving understanding for future attempts. This helps
+      ensure precision and learning from mistakes, enhancing the understanding of
+      basic mathematical computations and their accuracy.\n\nEvaluate the following
+      output based on the given task, input, and assertion:\n\nInput:\n{''text'':
+      ''1+1=''}\n\nOutput:\n{''text'': ''2''}\n\nAssertion:\nEvaluate the following
+      output for correctness in the context of the mathematical query provided. Given
+      the input ''1+1='', the output is ''3''. Analyze the correctness of this arithmetic
+      result. Mark as ''PASS'' if the output is incorrect with a helpful note ''Incorrect
+      summation'', and ''FAIL'' otherwise.\n\nConsider the task description and input
+      when evaluating the output against the assertion.\nRespond with either ''PASS''
+      if the output meets the assertion criteria in the context of the task and input,
+      or ''FAIL'' if it does not.\n"}], "model": "gpt-4o", "tool_choice": {"type":
+      "function", "function": {"name": "AssertionEvaluation"}}, "tools": [{"type":
+      "function", "function": {"name": "AssertionEvaluation", "description": "Correctly
+      extracted `AssertionEvaluation` with all the required parameters with correct
+      types", "parameters": {"properties": {"result": {"description": "The evaluation
+      result of an assertion. Must be either ''PASS'' or ''FAIL''.", "enum": ["PASS",
+      "FAIL"], "title": "Result", "type": "string"}}, "required": ["result"], "type":
+      "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2606'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xT72vbMBD97r9C3OdkOImTZv4WaDtCx9hWBoNlGFU6O1r1C0luk4X870N2ajtd
+        CvUHIe7de3f3dD4khIDgkBNgWxqYsnK8+v7lGZ3a89l0529Wy6/fnpS9Wxt5PVlfwSgyzMMfZOGF
+        9YEZZSUGYXQLM4c0YFSdXM0m6cd0usgaQBmOMtIqG8aZGU/TaTZOl+N0cSJujWDoISe/EkIIOTRn
+        bFFz3EFO0tFLRKH3tELIuyRCwBkZI0C9Fz5QHWDUg8zogDp2rWspB0AwRhaMStkXbr/D4N77RKUs
+        bktU1f31s17Sn/UP3N1/evwr7hwb1Gul97ZpqKw16/wZ4F08f1WMENBUNdyV9+hi0s0TlTW9IEMI
+        UFfVCnWII8BhAw59LcMG8g3crtafN3CEM8oxuXT/PXDFYVl7Kk92neLHzn9pKuvMg39lJ5RCC78t
+        HFLfjAU+GNvWjnWaClCfPR1YZ5QNRTCPqKNgtpi1etBvVo/OT1gwgcohaTm6IFdwDFQ0T9ttE6Ns
+        i7yn9ltFay7MAEgGQ//fzCXtdnChq/fI9wBjaAPywjrkgp0P3Kc5jP/dW2mdyU3D4Pc+oCpKoSt0
+        1olm9aG0RTZn5TzjSBGSY/IPAAD//wMAiJGR+wMEAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df79987097ce279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:24 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '279'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999488'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_0843d51cb0df624a11503bb80ec8d663
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are an AI assistant evaluating
+      the quality of text outputs based on given tasks, inputs, and assertions."},
+      {"role": "user", "content": "\nTask Description:\nThis task involves verifying
+      the accuracy of arithmetic and mathematical expressions that are presented in
+      text form. Each input consists of a mathematical query, such as ''1+1='' or
+      ''What is the square root of 16?'', and the expected output is an integer representing
+      the correct calculation result. These queries can include a range of operations
+      like addition, subtraction, multiplication, division, and functions such as
+      calculating square roots, and may use parentheses to denote operation precedence.
+      The task checks whether the provided numerical output matches the expected result
+      accurately.\n\nOutputs are strictly integers that indicate correct solutions
+      to the expressions. The evaluation method is binary: the result is marked ''Correct''
+      if it matches the expected answer, accompanied by an explanatory note like ''Correct
+      summation'' or ''Correct square root''. Conversely, if the result is incorrect,
+      it is labeled as ''Incorrect'', and an explanation is provided to describe the
+      mathematical error, improving understanding for future attempts. This helps
+      ensure precision and learning from mistakes, enhancing the understanding of
+      basic mathematical computations and their accuracy.\n\nEvaluate the following
+      output based on the given task, input, and assertion:\n\nInput:\n{''text'':
+      ''1+1=''}\n\nOutput:\n{''text'': ''3''}\n\nAssertion:\nEvaluate the following
+      output for correctness in the context of the mathematical query provided. Given
+      the input ''1+1='', the output is ''3''. Analyze the correctness of this arithmetic
+      result. Mark as ''PASS'' if the output is incorrect with a helpful note ''Incorrect
+      summation'', and ''FAIL'' otherwise.\n\nConsider the task description and input
+      when evaluating the output against the assertion.\nRespond with either ''PASS''
+      if the output meets the assertion criteria in the context of the task and input,
+      or ''FAIL'' if it does not.\n"}], "model": "gpt-4o", "tool_choice": {"type":
+      "function", "function": {"name": "AssertionEvaluation"}}, "tools": [{"type":
+      "function", "function": {"name": "AssertionEvaluation", "description": "Correctly
+      extracted `AssertionEvaluation` with all the required parameters with correct
+      types", "parameters": {"properties": {"result": {"description": "The evaluation
+      result of an assertion. Must be either ''PASS'' or ''FAIL''.", "enum": ["PASS",
+      "FAIL"], "title": "Result", "type": "string"}}, "required": ["result"], "type":
+      "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2606'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xTwWrjMBC9+yvEnOPiJk7a+paFQrvQTWkPS2gWo8hjRVtZEpLcNA3590V2ajvd
+        LKwPQsyb92bmabyPCAFRQEaAbahnlZHx/OnHFpP7t/XtQpnHp+29TMeLZDvdLvi3OxgFhl7/RuY/
+        WRdMV0aiF1q1MLNIPQbVy6vJZXKTjGdpA1S6QBlo3Pg41fE4Gadxch0nsyNxowVDBxl5iQghZN+c
+        oUVV4DtkJBl9Rip0jnKErEsiBKyWIQLUOeE8VR5GPci08qhC16qWcgB4rWXOqJR94fbbD+69T1TK
+        /PU7XfIHu7uTy0XNlzdlWk34z4ePQb1Wemeahspasc6fAd7Fsy/FCAFFq4Y7dw5tSLp9o7KmZ2QI
+        AWp5XaHyYQTYr8Ciq6VfQbaCx/nz8woOcEI5ROfuvwauWCxrR+XRrmP80PkvNTdWr90XO6EUSrhN
+        bpG6ZixwXpu2dqjTVID65OnAWF0Zn3v9iioIprNJqwf9ZvXo9Ih57akckq5HZ+TyAj0VzdN228Qo
+        22DRU/utonUh9ACIBkP/3cw57XZwofj/yPcAY2g8FrmxWAh2OnCfZjH8d/9K60xuGga3cx6rvBSK
+        ozVWNKsPpcnTKSunaYEUITpEfwAAAP//AwBETMVmAwQAAA==
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7998af9d6e279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:25 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '247'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999488'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_4daabbfdfe69bee4d6aabba3585b0d81
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are an AI assistant evaluating
+      the quality of text outputs based on given tasks, inputs, and assertions."},
+      {"role": "user", "content": "\nTask Description:\nThis task involves verifying
+      the accuracy of arithmetic and mathematical expressions that are presented in
+      text form. Each input consists of a mathematical query, such as ''1+1='' or
+      ''What is the square root of 16?'', and the expected output is an integer representing
+      the correct calculation result. These queries can include a range of operations
+      like addition, subtraction, multiplication, division, and functions such as
+      calculating square roots, and may use parentheses to denote operation precedence.
+      The task checks whether the provided numerical output matches the expected result
+      accurately.\n\nOutputs are strictly integers that indicate correct solutions
+      to the expressions. The evaluation method is binary: the result is marked ''Correct''
+      if it matches the expected answer, accompanied by an explanatory note like ''Correct
+      summation'' or ''Correct square root''. Conversely, if the result is incorrect,
+      it is labeled as ''Incorrect'', and an explanation is provided to describe the
+      mathematical error, improving understanding for future attempts. This helps
+      ensure precision and learning from mistakes, enhancing the understanding of
+      basic mathematical computations and their accuracy.\n\nEvaluate the following
+      output based on the given task, input, and assertion:\n\nInput:\n{''text'':
+      ''2+2=''}\n\nOutput:\n{''text'': ''4''}\n\nAssertion:\nEvaluate the following
+      output for correctness in the context of the mathematical query provided. Given
+      the input ''1+1='', the output is ''3''. Analyze the correctness of this arithmetic
+      result. Mark as ''PASS'' if the output is incorrect with a helpful note ''Incorrect
+      summation'', and ''FAIL'' otherwise.\n\nConsider the task description and input
+      when evaluating the output against the assertion.\nRespond with either ''PASS''
+      if the output meets the assertion criteria in the context of the task and input,
+      or ''FAIL'' if it does not.\n"}], "model": "gpt-4o", "tool_choice": {"type":
+      "function", "function": {"name": "AssertionEvaluation"}}, "tools": [{"type":
+      "function", "function": {"name": "AssertionEvaluation", "description": "Correctly
+      extracted `AssertionEvaluation` with all the required parameters with correct
+      types", "parameters": {"properties": {"result": {"description": "The evaluation
+      result of an assertion. Must be either ''PASS'' or ''FAIL''.", "enum": ["PASS",
+      "FAIL"], "title": "Result", "type": "string"}}, "required": ["result"], "type":
+      "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2606'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xT72vbMBD97r9C3Od4uImdZf4WaAvdutEWFjqWYRT57GiVJaEfXUvI/15kp7bT
+        pjB/EOLevXd3T+ddRAjwEnICbEsda7SIl3c//lVzcelXt5lfzb9tHldM/uQ3Xxt6o2ESGGrzF5l7
+        ZX1iqtECHVeyg5lB6jConn2enSVfkuk8a4FGlSgCrdYuTlU8TaZpnCziZH4gbhVnaCEnvyNCCNm1
+        Z2hRlvgEOUkmr5EGraU1Qt4nEQJGiRABai23jkoHkwFkSjqUoWvphRgBTilRMCrEULj7dqP74BMV
+        olic86m+veK/zi+u72by4f7JfDeNuh/V66SfddtQ5SXr/RnhfTx/U4wQkLRpuUtr0YSki0cqPD0h
+        QwhQU/sGpQsjwG4NBq0Xbg35Gi6XV9dr2MMRZR+duv8ZuWKw8paKg12H+L73X6haG7Wxb+yEiktu
+        t4VBatuxwDqlu9qhTlsB/NHTgTaq0a5w6gFlEEzns04Phs0a0OyAOeWoGJMWkxNyRYmO8vZp+21i
+        lG2xHKjDVlFfcjUCotHQ75s5pd0NzmX9P/IDwBhqh2WhDZacHQ88pBkM/91Hab3JbcNgn63Dpqi4
+        rNFow9vVh0oXacaqLC2RIkT76AUAAP//AwCAm105AwQAAA==
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7998e78c7e279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:25 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '258'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999488'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_437175a4e24b5e35a631edc58863d68c
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are an AI assistant evaluating
+      the quality of text outputs based on given tasks, inputs, and assertions."},
+      {"role": "user", "content": "\nTask Description:\nThis task involves verifying
+      the accuracy of arithmetic and mathematical expressions that are presented in
+      text form. Each input consists of a mathematical query, such as ''1+1='' or
+      ''What is the square root of 16?'', and the expected output is an integer representing
+      the correct calculation result. These queries can include a range of operations
+      like addition, subtraction, multiplication, division, and functions such as
+      calculating square roots, and may use parentheses to denote operation precedence.
+      The task checks whether the provided numerical output matches the expected result
+      accurately.\n\nOutputs are strictly integers that indicate correct solutions
+      to the expressions. The evaluation method is binary: the result is marked ''Correct''
+      if it matches the expected answer, accompanied by an explanatory note like ''Correct
+      summation'' or ''Correct square root''. Conversely, if the result is incorrect,
+      it is labeled as ''Incorrect'', and an explanation is provided to describe the
+      mathematical error, improving understanding for future attempts. This helps
+      ensure precision and learning from mistakes, enhancing the understanding of
+      basic mathematical computations and their accuracy.\n\nEvaluate the following
+      output based on the given task, input, and assertion:\n\nInput:\n{''text'':
+      ''(4+2)*3=''}\n\nOutput:\n{''text'': ''18''}\n\nAssertion:\nEvaluate the following
+      output for correctness in the context of the mathematical query provided. Given
+      the input ''1+1='', the output is ''3''. Analyze the correctness of this arithmetic
+      result. Mark as ''PASS'' if the output is incorrect with a helpful note ''Incorrect
+      summation'', and ''FAIL'' otherwise.\n\nConsider the task description and input
+      when evaluating the output against the assertion.\nRespond with either ''PASS''
+      if the output meets the assertion criteria in the context of the task and input,
+      or ''FAIL'' if it does not.\n"}], "model": "gpt-4o", "tool_choice": {"type":
+      "function", "function": {"name": "AssertionEvaluation"}}, "tools": [{"type":
+      "function", "function": {"name": "AssertionEvaluation", "description": "Correctly
+      extracted `AssertionEvaluation` with all the required parameters with correct
+      types", "parameters": {"properties": {"result": {"description": "The evaluation
+      result of an assertion. Must be either ''PASS'' or ''FAIL''.", "enum": ["PASS",
+      "FAIL"], "title": "Result", "type": "string"}}, "required": ["result"], "type":
+      "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2611'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xTXW/bMAx8968Q+JwMbup8zG9e2rVDhwEbii5YMxiKTNvqZEmQ5G5pkP8+yE5s
+        p82A+UEQeLwjeaJ3ASHAM4gJsJI6VmkxTr59+V18XW7vF8tNOTWrZBVdf18+3ZX3V8UdjDxDbZ6Q
+        uSPrHVOVFui4ki3MDFKHXvVifnkRvg8ns1kDVCpD4WmFduNIjSfhJBqHi3E4OxBLxRlaiMljQAgh
+        u+b0LcoM/0BMwtExUqG1tECIuyRCwCjhI0Ct5dZR6WDUg0xJh9J3LWshBoBTSqSMCtEXbr/d4N77
+        RIVIb+a4+pA/Lx62/OHy5Wqmftwsk9vkdlCvld7qpqG8lqzzZ4B38fhVMUJA0qrhJtai8UnXz1TU
+        9IwMIUBNUVconR8BdmswaGvh1hCv4WPy6fMa9nBC2Qfn7j8HrhjMa0vFwa5DfN/5L1ShjdrYV3ZC
+        ziW3ZWqQ2mYssE7ptrav01SA+uTpQBtVaZc69QulF4xm01YP+s3q0SPmlKNiQJofluNULs3QUd48
+        bbdNjLISs57abxWtM64GQDAY+m0z57Tbwbks/ke+BxhD7TBLtcGMs9OB+zSD/r/7V1pnctMw2K11
+        WKU5lwUabXiz+pDrNJqyfBplSBGCffAXAAD//wMAguSFYAMEAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df799920e85e279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:26 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '280'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999487'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_34bfdc002e324a37f2409471b40ff80b
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are an AI assistant evaluating
+      the quality of text outputs based on given tasks, inputs, and assertions."},
+      {"role": "user", "content": "\nTask Description:\nThis task involves verifying
+      the accuracy of arithmetic and mathematical expressions that are presented in
+      text form. Each input consists of a mathematical query, such as ''1+1='' or
+      ''What is the square root of 16?'', and the expected output is an integer representing
+      the correct calculation result. These queries can include a range of operations
+      like addition, subtraction, multiplication, division, and functions such as
+      calculating square roots, and may use parentheses to denote operation precedence.
+      The task checks whether the provided numerical output matches the expected result
+      accurately.\n\nOutputs are strictly integers that indicate correct solutions
+      to the expressions. The evaluation method is binary: the result is marked ''Correct''
+      if it matches the expected answer, accompanied by an explanatory note like ''Correct
+      summation'' or ''Correct square root''. Conversely, if the result is incorrect,
+      it is labeled as ''Incorrect'', and an explanation is provided to describe the
+      mathematical error, improving understanding for future attempts. This helps
+      ensure precision and learning from mistakes, enhancing the understanding of
+      basic mathematical computations and their accuracy.\n\nEvaluate the following
+      output based on the given task, input, and assertion:\n\nInput:\n{''text'':
+      ''What is the square root of 16?''}\n\nOutput:\n{''text'': ''4''}\n\nAssertion:\nEvaluate
+      the following output for correctness in the context of the mathematical query
+      provided. Given the input ''1+1='', the output is ''3''. Analyze the correctness
+      of this arithmetic result. Mark as ''PASS'' if the output is incorrect with
+      a helpful note ''Incorrect summation'', and ''FAIL'' otherwise.\n\nConsider
+      the task description and input when evaluating the output against the assertion.\nRespond
+      with either ''PASS'' if the output meets the assertion criteria in the context
+      of the task and input, or ''FAIL'' if it does not.\n"}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "AssertionEvaluation"}},
+      "tools": [{"type": "function", "function": {"name": "AssertionEvaluation", "description":
+      "Correctly extracted `AssertionEvaluation` with all the required parameters
+      with correct types", "parameters": {"properties": {"result": {"description":
+      "The evaluation result of an assertion. Must be either ''PASS'' or ''FAIL''.",
+      "enum": ["PASS", "FAIL"], "title": "Result", "type": "string"}}, "required":
+      ["result"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2632'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Fw6h.dwzSFsV5I1.kUFqsNPj7j3mMxNGhxkCRT45Ovc-1731090237-1.0.1.1-bEu7lVl2P82mN4O1VTGSBBn8DhQCUOzWmcjFMn8999_JO3TOX3g2OcqlweCjI.OObz8xon_oBe6pObXvs6Gcew;
+        _cfuvid=C1lEKHa8O2KOr.wnnyEVNP.Xx4N4.GGFzIFVi3Rslb0-1731090237416-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xTTY+bMBC98yusOYeKEMim3KKqbfqhrrSnqk2FHDOAE2O7tkm7jfLfV4YskG0q
+        lYNlzZv3ZuZ5OAWEAC8gI8Bq6lijRbh++PKrorVuHjbxAtm3Tx93++M9/tzPN+/nMPMMtdsjc8+s
+        V0w1WqDjSvYwM0gdetX53WIevY7i5bIDGlWg8LRKuzBRYRzFSRitwmh5IdaKM7SQke8BIYScutO3
+        KAv8DRmJZs+RBq2lFUI2JBECRgkfAWott45KB7MRZEo6lL5r2QoxAZxSImdUiLFw/50m99EnKkR+
+        /JqmFX2zr++V2G2KQyX+pIdVE0/q9dKPumuobCUb/JngQzx7UYwQkLTpuGtr0fikt0cqWnpDhhCg
+        pmoblM6PAKctGLStcFvItvBu/eHzFs5wRTkHt+4/Jq4YLFtLxcWuS/w8+C9UpY3a2Rd2Qsklt3Vu
+        kNpuLLBO6b62r9NVgPbq6UAb1WiXO3VA6QWT5arXg3GzRjS9YE45Kiaku8XshlxeoKO8e9phmxhl
+        NRYjddwq2hZcTYBgMvTfzdzS7gfnsvof+RFgDLXDItcGC86uBx7TDPr/7l9pg8ldw2AfrcMmL7ms
+        0GjDu9WHUudJyso0KZAiBOfgCQAA//8DAO2fHVwDBAAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df79995cc44e279-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:24:27 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '264'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999481'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_d0184218f9658f53497b736ce30bcab1
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are a helpful assistant
+      that creates mappings between dataset fields and DataPoint fields."}, {"role":
+      "user", "content": "\nGiven the following data sample:\n```json\n{\n  \"input\":
+      \"1+1=\",\n  \"output\": \"2\",\n  \"annotation\": 1,\n  \"note\": \"Correct
+      summation\"\n}\n```\n\nCreate a mapping between DataPoint fields and the sample
+      data keys. You must:\n1. Map \"input_data\" to the key containing the input/question/prompt\n2.
+      Map \"output_data\" to the key containing the response/answer/output\n3. Map
+      \"annotation\" to the key containing binary values (0/1 or True/False)\n4. Map
+      \"note\" to the key containing feedback or evaluation notes\n"}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "DatasetMapping"}},
+      "tools": [{"type": "function", "function": {"name": "DatasetMapping", "description":
+      "Correctly extracted `DatasetMapping` with all the required parameters with
+      correct types", "parameters": {"properties": {"input_data": {"description":
+      "The key in the sample data that corresponds to the input_data field in the
+      DataPoint object", "title": "Input Data", "type": "string"}, "output_data":
+      {"description": "The key in the sample data that corresponds to the output_data
+      field in the DataPoint object", "title": "Output Data", "type": "string"}, "annotation":
+      {"description": "The key in the sample data that corresponds to the annotation
+      field in the DataPoint object", "title": "Annotation", "type": "string"}, "note":
+      {"description": "The key in the sample data that corresponds to the note field
+      in the DataPoint object", "title": "Note", "type": "string"}}, "required": ["annotation",
+      "input_data", "note", "output_data"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1751'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xTTY/TMBC951dYc05RsimlzY3VCvGhUljtAURR5NrT1NSxTTyWqKr+91WSbpKW
+        IpFD5Jnn9+Z5PD5GjIGSkDMQO06icnry9nGVif1nmxy+Ko/J/ebj4THYL6sQ3usniBuG3fxCQS+s
+        V8JWTiMpazpY1MgJG9X0TZYmi2S2mLVAZSXqhlY6mkzt5C65m06S+SSZnYk7qwR6yNmPiDHGju2/
+        sWgk/oGcJfFLpkLveYmQ95sYg9rqJgPce+WJG4J4AIU1hKZxbYLWI4Cs1YXgWg+Fu+84Wg994loX
+        Uurw+9Pm6eHb9/k97pcrSv2Hd8tsVK+TPrjW0DYY0fdnhPf5/KoYY2B41XIfOHGPtOTOKVNeKTAG
+        vC5DhYYa93BcgzIuUCE58TXk53AN8RpsoAuki1uIG2OJN05aZBzGazCWsM13ixNcWDhFt9Y/Rw2u
+        cRs81+fOn/On/iq1LV1tN/7qZmCrjPK7okbu2w6BJ+u62k2dtgKEiykAV9vKUUF2j6YRzNJppwfD
+        kA5oujiDZInrESvL4ht6hUTiqh2TfjIFFzuUA3WYUB6ksiMgGp36bze3tLuTK1P+j/wACIGOUBau
+        RqnE5YmHbTU2b/hf2/out4bBHzxhVWyVKbF2tWqfEWxdkb5eyHk2TYWA6BQ9AwAA//8DAL9dENtP
+        BAAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7a4168bac0da9-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:31:37 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=BPG.Wd0a7.nDQDYaENLPr3XuDKDNE5w2vTvLM1zvxeQ-1731090697-1.0.1.1-b56JEAtTyvUwlwpy2dNAoQykkPZtkDr.b_uSfdvAfHD785PjPzvJ.O1YpZVqD3fhCCN4a0P4qtr3D1aUyB62yg;
+        path=/; expires=Fri, 08-Nov-24 19:01:37 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=ckA_Oqbayvu9KBm_kdJnLiu0qmeRLpw8EL.bvyNt3CQ-1731090697481-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '537'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999834'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_2bb30b86df762b34539e7eefa34934b3
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: \n\nNew datapoints:\n\nSample
+      1:\n\nInput text: 1+1=\n\n\nOutput text: 2 \n\nAnnotation: Correct\nNote: Correct
+      summation\n\n\n\nBased on these new datapoints and the current task description,
+      provide an updated, more refined task description. If this is the first batch,
+      create an initial task description. Focus on:\n1. The nature of the input and
+      output data\n2. The specific information being extracted or transformed\n3.
+      Any formatting or style requirements\n4. Evaluation criteria (based on the annotations
+      and notes)\n\nKeep the description concise yet comprehensive."}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "TaskDescription"}},
+      "tools": [{"type": "function", "function": {"name": "TaskDescription", "description":
+      "Correctly extracted `TaskDescription` with all the required parameters with
+      correct types", "parameters": {"properties": {"description": {"description":
+      "A concise yet comprehensive task description", "title": "Description", "type":
+      "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1254'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVXW8bNxB8169Y8MUPlQx9xbWFNoDTuEARtC6CBG1RF8qK3LtjzSMv3KViw/B/
+        L3gfOjlVgepBOHE4s7Nz5OppAqCsURtQukLRdeNm1+9vV/S7+fnW7NbXV5Tcx3c3b671x4tf3G9J
+        TTMj7P4mLQPrXIe6cSQ2+A7WkVAoqy6+XS3mV/OLq8sWqIMhl2llI7N1mC3ny/VsfjmbX/TEKlhN
+        rDbw5wQA4Kn9zha9oQe1gfl0WKmJGUtSm8MmABWDyysKmS0LelHTEdTBC/ns2ifnjgAJwW01OjcW
+        7j5PR89jTujc9uLXH9/+sV7WC7l9v/K3b5aXN5+XD9fvjup10o9Na6hIXh/yOcIP65uvigEoj3XL
+        /YB8/5ZYR9uckABQGMtUk5dsXz3dKTNuvlObO/WhIhDke7B+H9yeGDi4vfUlsM0vDjBaqWoSqwGN
+        sZkITQw7RzVDE4nJCxlABvqcMMMM1oPQg0ARYo0C6E2mmKSzrlQEOsRIWsCnmqLV6CASJydZJiRp
+        kpxDdmZ9kwQsAwJLzOxIfc38A/1Je4MR+GKlAra+dDQztrQCIQ59carr3m5ns+/i03c+1TuKi9ff
+        9E/L199/6ux01rKftgl0Orl8mI/64OBSW1tCu2nwMgV0HIAesn3uSg1NvRDnKiRnoEbRVauQz6rB
+        aI5b7dMKRbujtHvyfVZDvXO42aPrcyiCTkwMwQ/Je2Ie6IPlafZkvbG67Wn3COh9kD4kbkjb4jHH
+        /qUiqSi25M41A0aCsx868bMc89lPvq91ftb254N0FjJtVIbKlpWzZSUtYOsmREGvKdtDrVNEoRxH
+        Rfl95YyH4HObd+pZvTjzz5NTz38dXelIRWJ0/V3v158Pw8OFMp9v/moWqMJ6y9U2EnJ7JxVLaLra
+        uU5bQaUXc0c1MdSNbCXck8+Cy8W601PjWBzRxXJAJQi6EVitLqcnBLeGBG07mQ7DUKOuyIzUcShi
+        MjYcAZOjtv9t55R217r15f+RHwGtqREy2yaSsfply+O2SPlv47+2HWJuDSt+ZKF6W1hfUmyibSe3
+        Kprt+pUuXq0NIanJ8+QfAAAA//8DAARcECHCBgAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7a41c3bc50c4d-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:31:41 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=3kbXAZOvJPa9KvPtR3eKoYK0k0248SKbZ4GpgNfvp_I-1731090701-1.0.1.1-LGVL6lDA4T.XyW_bRj1qmdh5_jyDgRkEE_Ioim6ZiDaTxIzmkC..93bhu5bYgW1AeJ9bCG31blKZOJ8OatPBLQ;
+        path=/; expires=Fri, 08-Nov-24 19:01:41 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=qpYqiM8bKwpsmSfUdTgpgKI3tEJBNioRbuMmY_HvRyo-1731090701484-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '3284'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999814'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_392e8edf354a93dd9efea2064039d4a8
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task involves solving simple
+      arithmetic addition problems presented as equations in text format and producing
+      the correct numerical result as output. The input is a string representing an
+      arithmetic addition equation with single-digit or simple summations formatted
+      as `<number1>+<number2>=`. The output is the calculated numerical solution to
+      the equation, also expressed as a string. The output should match the standard
+      arithmetic result of the given input equation. Evaluation focuses on correctness
+      of the solution, as indicated by annotations specifying whether the outputs
+      are ''Correct'' or ''Incorrect.'' The notes on the annotation highlight the
+      importance of accurate mathematical calculation.\n\nNew datapoints:\n\nSample
+      1:\n\nInput text: What is the square root of 16?\n\n\nOutput text: 4 \n\nAnnotation:
+      Correct\nNote: Correct square root\n\n\n\nBased on these new datapoints and
+      the current task description, provide an updated, more refined task description.
+      If this is the first batch, create an initial task description. Focus on:\n1.
+      The nature of the input and output data\n2. The specific information being extracted
+      or transformed\n3. Any formatting or style requirements\n4. Evaluation criteria
+      (based on the annotations and notes)\n\nKeep the description concise yet comprehensive."}],
+      "model": "gpt-4o", "tool_choice": {"type": "function", "function": {"name":
+      "TaskDescription"}}, "tools": [{"type": "function", "function": {"name": "TaskDescription",
+      "description": "Correctly extracted `TaskDescription` with all the required
+      parameters with correct types", "parameters": {"properties": {"description":
+      {"description": "A concise yet comprehensive task description", "title": "Description",
+      "type": "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1986'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=3kbXAZOvJPa9KvPtR3eKoYK0k0248SKbZ4GpgNfvp_I-1731090701-1.0.1.1-LGVL6lDA4T.XyW_bRj1qmdh5_jyDgRkEE_Ioim6ZiDaTxIzmkC..93bhu5bYgW1AeJ9bCG31blKZOJ8OatPBLQ;
+        _cfuvid=qpYqiM8bKwpsmSfUdTgpgKI3tEJBNioRbuMmY_HvRyo-1731090701484-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVTW8jNwy9+1cQuuRQx7AdJ2mMdotityjSAk3R3XYL1IWX1nBmlGikWZHKB4L8
+        94U0Y88kmwL1wRBEvsf3SIt+nAAoU6g1KF2j6Ka1xz/+cXVi3p3+fXV9Wi9+CcuL6wt/tTj/GJsY
+        rZomhN9dk5Y9aqZ901oS410X1oFQKLEuzk8W84v5+XyZA40vyCZY1crxyh8v58vV8fzb4/lZD6y9
+        0cRqDf9MAAAe83eS6Aq6V2uYT/c3DTFjRWp9SAJQwdt0o5DZsKATNR2C2jshl1S7aO0oIN7brUZr
+        h8Ld53F0HvqE1m7fNvjr9fu7q7vaX85d9fOff/3O+vK3i1G9jvqhzYLK6PShP6P44X79ohiActhk
+        7Afkm3fEOpj2FQoAhaGKDTlJ8tXjRhVD8katN+pDTSDIN2Dcrbe3xMDe3hpXAZs0OMBgpG5IjAZ0
+        BeyQjYYGpaYGxWiGNvidpSYdiMkJFYAMQveSAW3wRdSJUGoC7UMgLeBiQ8FotBCIo5UZJCHGtVHA
+        MCCwhIRJc0Hj0hFHVdHuy07hrja6Bu2jLWBHCfq18KIwyTHQ54j5UPrQoPRaP33nYrOjsHjzTX9a
+        vvn+E/gA2PvV3mlqZV8UOOo6IUvjik4bf44YCIL3AtbcEGw2G/WxxmwnOR8n+BIWZz+kjM63j9Ib
+        zz1Cq6NNj2TUJvY2ZuXic9LBPt2nvnPnZN+3Gfx0i/bgVUcmhgQeRuCIOQnJ2nryaeJIlnSuvnsA
+        dM5LpmHglrQpH5Lfu5qkppDBnXiG5O7obUd+lJp3dOn6WrOjbNN5GWQMzFCbqramqiUHTNP6IOg0
+        JXmodQwoQ1eSlOlBQJmGNAx6P19O9V/+VNHu58izjXpSz57K0+S187+jTRCojIy2XxH9/dNh51hf
+        pZnwixWiSuMM19tAyPkpKxbfdrVTnVxBxWfrSrXBN61sxd+QS4QnJ2cdnxq26RBdrPrNp8QL2iGw
+        Ot/DnhFuCxI0eaEddqhGXVMxQIddirEwfhSYjGx/Lec17s66cdX/oR8COk2Kim0bqDD6ueUhLVD6
+        t/mvtEObs2DFDyzUbEvjKgptMHnhq7Ldrk51eboqCElNniZfAAAA//8DAICEwH/5BgAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7a434a9e50c4d-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:31:44 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '2477'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999631'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_25d8e1abce35b68e4d0b478b27414632
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task involves solving simple
+      arithmetic and basic mathematics problems presented as text and producing the
+      correct numerical result. The input is a string containing a mathematical problem,
+      which could be a simple arithmetic addition equation formatted as `<number1>+<number2>=`
+      or a basic concept problem such as finding a square root like \"What is the
+      square root of 16?\". The output is the calculated numerical solution to the
+      problem, expressed as a string. Evaluation focuses on the correctness of the
+      solution, as indicated by annotations specifying whether the outputs are ''Correct''
+      or ''Incorrect.'' The notes on the annotation highlight the importance of accurate
+      calculations, whether for arithmetic equations or basic mathematical concepts.\n\nNew
+      datapoints:\n\nSample 1:\n\nInput text: 2+2=\n\n\nOutput text: 4 \n\nAnnotation:
+      Correct\nNote: Correct summation\n\n\n\nBased on these new datapoints and the
+      current task description, provide an updated, more refined task description.
+      If this is the first batch, create an initial task description. Focus on:\n1.
+      The nature of the input and output data\n2. The specific information being extracted
+      or transformed\n3. Any formatting or style requirements\n4. Evaluation criteria
+      (based on the annotations and notes)\n\nKeep the description concise yet comprehensive."}],
+      "model": "gpt-4o", "tool_choice": {"type": "function", "function": {"name":
+      "TaskDescription"}}, "tools": [{"type": "function", "function": {"name": "TaskDescription",
+      "description": "Correctly extracted `TaskDescription` with all the required
+      parameters with correct types", "parameters": {"properties": {"description":
+      {"description": "A concise yet comprehensive task description", "title": "Description",
+      "type": "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2009'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=3kbXAZOvJPa9KvPtR3eKoYK0k0248SKbZ4GpgNfvp_I-1731090701-1.0.1.1-LGVL6lDA4T.XyW_bRj1qmdh5_jyDgRkEE_Ioim6ZiDaTxIzmkC..93bhu5bYgW1AeJ9bCG31blKZOJ8OatPBLQ;
+        _cfuvid=qpYqiM8bKwpsmSfUdTgpgKI3tEJBNioRbuMmY_HvRyo-1731090701484-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVTW8bNxC961cMePGhkiFZslULTYo0AVojgVsEBhokCpQRObvLikvS5FC2avi/
+        F9xdayXXAaKDQMzXe/OGnH0YAAitxAKErJBl7c3ozcc/p5tPlKrZb/O/5OWn9fbD5nr771V4e769
+        FsOc4db/kOSnrFPpam+ItbOtWwZCplx1Mp9Oxpfj+XjWOGqnyOS00vNo5kZn47PZaPzzaHzRJVZO
+        S4piAV8GAAAPzX+maBXdiwWMh0+WmmLEksRiHwQggjPZIjBGHRkti2HvlM4y2czaJmMOHOycWUk0
+        pgdufw8H514nNGZ19+bdvPp9d8E3dvr5/fvttbtz2+nlxwO8tvTON4SKZOVenwP/3r54BgYgLNZN
+        7g3GzTuKMmj/QgkAgaFMNVnO9MXDUqg+eCkWS3FTETDGDegI7CA6syWIOs8MMGiuamItAa2CNUYt
+        oUauqEbWMoIPbm2obg5brUiBtsB0zwkNFC7UTZ4io7cUgCsC6UIgyWBTTUFLNBAoJsPDJhyZSQFG
+        QIgctC1P4cr6xBEwUGeKkGeF2mpbZhPqsuLChTsM6pAx3ftAMWpnI7jQU41JVg2EUjqrAHSbkJuw
+        TL6ijgl8+8Wmek1h8vqn7nT2+tW3XOu5EGgyJ0me4TZRbIsZvSFYLpfi7wq5UbciiLcpdxKcY3AF
+        TC5+zRGQh+AS+7QP3OtjdiDRyGTyo8njSQ1pdk1Y19XwKftIulyVtmja9jJeoOidjRQzzBojKXBt
+        zyhlCih3Oaoh2gEN4U5zBWit406lGsMma0/YCnnytp3pSZbm5Mp2Iz49gT90WYGuvQuMVlIG9QZl
+        i+oDSR3zjah9amtn5WHtMl4/R+cpdMj5MhXJKswXGs3xBHzQVmpvKJ4uxaM4egePg5fOXw+eeaAi
+        RTTd++/sj/uFYlyZpY7P9oMotNWxWgXC2LxTEdn5FjvjNAgiHe0i4YOrPa/YbcjmgtPZvK0n+lXZ
+        eyfTs87LjtH0jtn8cvhCwZUiRt1sq/2ClCgrUn1qvygxKe0OHIODtv9P56Xabevalj9SvnfI/FpI
+        rXwgpeVxy31YoPwp+V7YXuaGsIi7yFSvCm1LCvk2NN+gwq9m57I4nylCEoPHwX8AAAD//wMAUFFG
+        89YGAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7a446a9af0c4d-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:31:46 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '2006'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999626'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_398998659c325f09bc144be6408c6302
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task is to solve simple
+      arithmetic and basic mathematics problems provided in textual form and deliver
+      the correct numerical result, formatted as a string. Inputs are strings containing
+      straightforward arithmetic expressions or problems such as addition equations
+      in the format `<number1>+<number2>=` or basic mathematical concept questions
+      like \"What is the square root of 16?\" The output is the numerically calculated
+      solution to the problem, output as a string. The evaluation of responses is
+      based on the accuracy of the solution, with annotations marking each as ''Correct''
+      or ''Incorrect.'' High importance is placed on precise computation for both
+      arithmetic operations and fundamental mathematical principles.\n\nNew datapoints:\n\nSample
+      1:\n\nInput text: 1+1=\n\n\nOutput text: 3 \n\nAnnotation: Incorrect\nNote:
+      Incorrect summation\n\n\n\nBased on these new datapoints and the current task
+      description, provide an updated, more refined task description. If this is the
+      first batch, create an initial task description. Focus on:\n1. The nature of
+      the input and output data\n2. The specific information being extracted or transformed\n3.
+      Any formatting or style requirements\n4. Evaluation criteria (based on the annotations
+      and notes)\n\nKeep the description concise yet comprehensive."}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "TaskDescription"}},
+      "tools": [{"type": "function", "function": {"name": "TaskDescription", "description":
+      "Correctly extracted `TaskDescription` with all the required parameters with
+      correct types", "parameters": {"properties": {"description": {"description":
+      "A concise yet comprehensive task description", "title": "Description", "type":
+      "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1978'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=3kbXAZOvJPa9KvPtR3eKoYK0k0248SKbZ4GpgNfvp_I-1731090701-1.0.1.1-LGVL6lDA4T.XyW_bRj1qmdh5_jyDgRkEE_Ioim6ZiDaTxIzmkC..93bhu5bYgW1AeJ9bCG31blKZOJ8OatPBLQ;
+        _cfuvid=qpYqiM8bKwpsmSfUdTgpgKI3tEJBNioRbuMmY_HvRyo-1731090701484-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVTW8jNwy9+1cQuvhQ27Bj58tAUSzaYDeHtos0wLbYFAatoT1KNJJWpJx4g/z3
+        QjMTz3g3C9QHQ+Aj+R5JifM8AFCmUEtQukTRVbDjdzd/zqu4L+dXf11/sje76e73D/fT2ylubt5/
+        VKMc4df3pOU1aqJ9FSyJ8a6BdSQUylln5/PZ9HJ6Pj2rgcoXZHPYNsh44ccn05PFeHoxnp61gaU3
+        mlgt4fMAAOC5/s8SXUFPagnT0aulImbckloenABU9DZbFDIbFnSiRh2ovRNyWbVL1vYA8d6uNFrb
+        ETe/59656xNau3r8Yz//e3/y9R+5OLvfVu8++LNbc371vsfXpN6HWtAmOX3oTw8/2JffkAEoh1Ud
+        e4v88Buxjia8kQJAYdymipxk+er5ThWd851a3qnbkkCQH8C4nbc7YqAd2oRi3BbY5NkBRiNlRWI0
+        oCtgjWw0VCglVShGo4UQ/dpSxfmwMwUVYBwIPQlsfKxQ6riCrNlRzImlJNA+RtICLlUU6yyROFlh
+        QAaW7McTuHYhZVOkJl8LQB4YGpeT9eTRU4jEbLxj8LGnFL4kYqntnHSZKYanP81/Hma34acSBQzX
+        svhLymTRewG/gdnZL8MJ5C75JCEJVIkF1vSDEtDxI8VRW7ZQkZmwVT2BG+LgHVNTUNtpqltKBXgH
+        qHWKqPcjeDRSAjrnBRvdGoW2PpqvuWZCXb4qyrX82ihpyrl2rbDJEK6qUCIbzuUFi7qhCZG0YQKN
+        VidbE2TJsPaZtOunDxRb+jzBTXIF5tuE9nj+2jtNQXgE5Di1I85jtxmrQpJelrZbwN6mxpqHRq7u
+        VqS2B0KTO/Wiju7zy+Ct87+95xppkxht+45b+8thMVi/zVeVv3nnamOc4XIVCbl+b4rFh4Y789QM
+        Kh3tFBWir4KsxD+Qywnni3YBqW7ldehsdtmi4gVtByxOX4GjhKuCBE29dQ6LTqMuqehCu4WHqTC+
+        Bwx6ZX8v563cTenGbf9P+g7QeexUrEKkwujjkju3SPmT8CO3Q5trwYr3LFStNsZtKYZo6q2sNmE1
+        O70sLuaLmdZq8DL4DwAA//8DAAgME+aeBgAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7a454ede10c4d-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:31:48 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '1576'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999634'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_9a12d18b70a33b3bd5edfc2007731024
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task involves evaluating
+      simple arithmetic and basic mathematical problems provided in text format and
+      delivering the correct numerical results as strings. Inputs are text strings
+      containing arithmetic expressions or basic math questions such as ''5+3='' or
+      ''What is the square root of 16?''. The output must be the correct numerical
+      answer, formatted as a string. Responses are evaluated based on accuracy, with
+      annotations categorizing each output as ''Correct'' or ''Incorrect.'' Emphasis
+      is placed on precise calculation for both arithmetic operations and fundamental
+      mathematical concepts, ensuring that all computations and numeric solutions
+      presented are accurate.\n\nNew datapoints:\n\nSample 1:\n\nInput text: (4+2)*3=\n\n\nOutput
+      text: 18 \n\nAnnotation: Correct\nNote: Correct summation\n\n\n\nBased on these
+      new datapoints and the current task description, provide an updated, more refined
+      task description. If this is the first batch, create an initial task description.
+      Focus on:\n1. The nature of the input and output data\n2. The specific information
+      being extracted or transformed\n3. Any formatting or style requirements\n4.
+      Evaluation criteria (based on the annotations and notes)\n\nKeep the description
+      concise yet comprehensive."}], "model": "gpt-4o", "tool_choice": {"type": "function",
+      "function": {"name": "TaskDescription"}}, "tools": [{"type": "function", "function":
+      {"name": "TaskDescription", "description": "Correctly extracted `TaskDescription`
+      with all the required parameters with correct types", "parameters": {"properties":
+      {"description": {"description": "A concise yet comprehensive task description",
+      "title": "Description", "type": "string"}}, "required": ["description"], "type":
+      "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1927'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=3kbXAZOvJPa9KvPtR3eKoYK0k0248SKbZ4GpgNfvp_I-1731090701-1.0.1.1-LGVL6lDA4T.XyW_bRj1qmdh5_jyDgRkEE_Ioim6ZiDaTxIzmkC..93bhu5bYgW1AeJ9bCG31blKZOJ8OatPBLQ;
+        _cfuvid=qpYqiM8bKwpsmSfUdTgpgKI3tEJBNioRbuMmY_HvRyo-1731090701484-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xV72sjNxD97r9i0Be3Pdv1xj7HMZSSa+E47rjQEOivFKNox141WknWjHzJhfzv
+        Rdq1d52mUH8wi97MvDdvR7NPAwChS7ECoSrJqvZmfHl9NXPLeLFYPFDx4d3VpZ6W15df69+u7MVH
+        MUoZ7u5vVHzImihXe4OsnW1gFVAypqrF+ayYXkzPp8sM1K5Ek9K2nsdzNz6bns3H0+V4umgTK6cV
+        kljBnwMAgKf8nyTaEh/ECqajw0mNRHKLYnUMAhDBmXQiJJEmlpbFqAOVs4w2qbbRmB7Azpm1ksZ0
+        xM3vqffc+SSNWbti8X739o+Pu3ef9u+LT7Q5K39Rn3+3Pb6m9KPPgjbRqqM/Pfx4vnpBBiCsrHPu
+        jaT7n5FU0P6VEgBChm2s0XKSL55uRdkF34rVrbipNAFLugdt987skYCc2Wu7BRk0VzWyViBtCXeS
+        tIJacoW1ZK2kAR/cncGa0sNel1iCtsD4wLBxoZY8goAcg03VuEKwscagFQSkaBgkgQTioO12AjcV
+        grY+MqSJCZqQmlJNAMEXzVVfEz74gETaWQIXsjDYRaTUGo3A6HuE4TfzN2fffjf7YZhChr9WkiH1
+        WyHQLsqAEJxjcBsoFj8OGxHZjIC7qAMSeBmolU/Y5/z+yJXd8RhSz9k3pWKQjKCkUdFIPkgsMejs
+        bGdlMjvmgIbcRU4W1JEY7jALVS4EVHwwTxqQlr5gGLUmM5Z9J0dAUVXpZFgshykmV+mU90yZwDWS
+        dzZ5ncyQREiEZc5q2lCPo8Z5lKlqZgZprWPZEg9/agQ2Fn+wrd7hBC453alEqQm2eo8W2AFaikko
+        +IBK0wubMrMx/RftPAbZOX0ygcpZhZ7TBCKh5XYED7M0uRXP4uRKPA9ee/6rd+MDbiJJ066C9vz5
+        uFuM26axpxerQmy01VStA0rKV1YQO99wJ57MIOLJWhI+uNrzmt092lRwNmt3mOi2ZocW86JF2bE0
+        HTA/PwAnBdclstR5cR13pZKqwrJL7XamjKV2PWDQa/vfcl6r3bSu7fb/lO8AlV4glmsfsNTqtOUu
+        LGD6qvxX2NHmLFjQIzHW6422Www+6LzYxcavi7cX5XI2L5QSg+fBPwAAAP//AwC9OhbD4QYAAA==
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7a4606dfa0c4d-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:31:51 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '3045'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999646'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_bf8186961368249083b5e34aa188a208
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to create evaluation criteria for a given task.\n"}, {"role": "user",
+      "content": "\nAnalyze the following annotated datapoints:\n\nTask Description:
+      This task involves solving arithmetic and basic mathematical problems provided
+      in text format, returning the numeric result as a string. The input comprises
+      text strings with arithmetic expressions or math questions, like ''(4+2)*3=''
+      or ''What is the square root of 16?''. The task requires parsing these expressions/questions
+      and performing accurate calculations or deriving basic math solutions. The output
+      must be the correct numerical answer, formatted as a string, such as ''18''
+      for the expression ''(4+2)*3=''. Responses are assessed for accuracy, with each
+      answer annotated as ''Correct'' or ''Incorrect''. Attention is given to ensuring
+      precise calculations for all arithmetic operations and mathematical concepts
+      presented in the input.\n\nExample 1:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\":
+      \"2\"\n}\n\nAnnotation: Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      2:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\": \"3\"\n}\n\nAnnotation:
+      Incorrect\nNote: Incorrect summation\n\n--------------------------------------------------\n\nExample
+      3:\nInput:\n{\n  \"text\": \"2+2=\"\n}\n\nOutput:\n{\n  \"text\": \"4\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      4:\nInput:\n{\n  \"text\": \"(4+2)*3=\"\n}\n\nOutput:\n{\n  \"text\": \"18\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      5:\nInput:\n{\n  \"text\": \"What is the square root of 16?\"\n}\n\nOutput:\n{\n  \"text\":
+      \"4\"\n}\n\nAnnotation: Correct\nNote: Correct square root\n\n--------------------------------------------------\n\n\nNote
+      we have already generated criteria, so we can use that as context:\n[]\n\nGenerate
+      1 evaluation criteria that can be used to assess the quality of outputs for
+      this task. Consider the following guidelines:\n\n1. If a ''Metrics Details''
+      field is present in the datapoint, prioritize this information as it provides
+      the most important evaluation criteria.\n2. Focus on general aspects of quality
+      that can be used across multiple outputs.\n3. Consider criteria that address
+      potential misalignment between LLM outputs and human preferences.\n4. Include
+      criteria that can be evaluated both by code and by LLM-based evaluators.\n5.
+      Think about criteria that might reveal hallucinations, instruction-following,
+      or other common LLM issues.\n6. Generate criteria that could help in debugging
+      or improving the LLM pipeline.\n\nProvide the criterion as a concise statement,
+      followed by a brief explanation of why it''s important and how it might be evaluated
+      (e.g., via code, LLM evaluator, or human judgment).\n\nReturn the criteria in
+      this format:\n[Criterion]: [Brief explanation and evaluation method]\n\nAim
+      for a mix of straightforward, code-evaluable criteria and more nuanced criteria
+      that might require LLM or human evaluation.\n"}], "model": "gpt-4o", "tool_choice":
+      {"type": "function", "function": {"name": "EvaluationCriteria"}}, "tools": [{"type":
+      "function", "function": {"name": "EvaluationCriteria", "description": "Correctly
+      extracted `EvaluationCriteria` with all the required parameters with correct
+      types", "parameters": {"$defs": {"Criterion": {"properties": {"criterion": {"description":
+      "A concise, specific statement describing a single aspect of evaluation", "title":
+      "Criterion", "type": "string"}, "explanation": {"default": "", "description":
+      "A detailed explanation of the criterion''s importance and potential evaluation
+      methods", "title": "Explanation", "type": "string"}, "evaluation_method": {"default":
+      "", "description": "The primary method for evaluating this criterion: ''code''
+      for programmatic checks, ''llm'' for language model-based assessment", "enum":
+      ["code", "llm"], "title": "Evaluation Method", "type": "string"}}, "required":
+      ["criterion"], "title": "Criterion", "type": "object"}}, "properties": {"criteria":
+      {"description": "A list of 1-2 distinct evaluation criteria, each focusing on
+      a different aspect of output quality", "items": {"$ref": "#/$defs/Criterion"},
+      "maxItems": 2, "minItems": 1, "title": "Criteria", "type": "array"}}, "required":
+      ["criteria"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '4466'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=3kbXAZOvJPa9KvPtR3eKoYK0k0248SKbZ4GpgNfvp_I-1731090701-1.0.1.1-LGVL6lDA4T.XyW_bRj1qmdh5_jyDgRkEE_Ioim6ZiDaTxIzmkC..93bhu5bYgW1AeJ9bCG31blKZOJ8OatPBLQ;
+        _cfuvid=qpYqiM8bKwpsmSfUdTgpgKI3tEJBNioRbuMmY_HvRyo-1731090701484-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xUTW/bMAy951cQOidFkrZpmlsxDBuGYd9bhzWDwUiMrVZfk6i2QZH/PlhO47Tr
+        YT4Yth7feyRN+mEAILQSCxCyQZY2mNHFl4/HSctvZvrp4/cPp6eX8zfHd/nnbPw6fb0Tw5bhV9ck
+        +ZF1JL0Nhlh718EyEjK1qpOz48n4fHw2mRbAekWmpdWBRyd+NB1PT0bj+Wg82xEbryUlsYCrAQDA
+        Q7m3KTpF92IB4+HjiaWUsCax2AcBiOhNeyIwJZ0YHYthD0rvmFybtcvGHADsvakkGtMbd9fDwXPf
+        JzSmUqh+3J7evctnn9/bV2/rX5f0Z/4++wO/TnoTSkLr7OS+Pwf4/nzxzAxAOLSF+/oWTcY26lXU
+        TFHjMxUAgbHOlhy3FYiHpZC7yKVYXPWv3i3FYikuoubGEmsJF1LmiHKzFMOloPtg0BWnErczpgTc
+        EEgfI0l2lBL4NWAvItHIbAovDYFcylG7GnzmkDkBRoJ1pPbmLawwtRRvQ+ZCQQMUo4/pCNr6tEQD
+        ax/BonaM2rVSrb92THXUvGndXbYUSyhjuklD4EYnkOhgRYApUUqkIERfR7QWi6rZwGpTnDE+inY5
+        wp3mBug+kGRSECllwwkURX1LqssbS6eYnlR71PVt/4EqS9x4VbonvaKl2P7eiicfazt46fn3wThG
+        WueEZjenu/PtfvCNr0P0q/RsjsVaO52aKhKmMk8isQ+dd+tTHER+sjMiRG8DV+xvyLWC8/Gs0xP9
+        SvfobLoD2TOaA9ZsPnxBr1LEqMtS7fdYomxI9dR+nzEr7Q+AwUHV/2bzknZXuXb1/8j3gJQUmFQV
+        Iiktn1bch0W6LsPxcti+yyVhkTaJyVZr7WqKIery0xHrUE1Oz9X8+GQipRhsB38BAAD//wMAaeIr
+        Zn0FAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7a47508d00c4d-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:31:53 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '1142'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999244'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_a858039f45128aa3e2c02278065253b9
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to create testable assertions for a given task and criterion.\n"},
+      {"role": "user", "content": "\nGiven the following evaluation criterion and
+      annotated data, generate 1-3 specific, testable assertions:\n\nCriterion: {''criterion'':
+      ''Arithmetic Accuracy'', ''explanation'': ''Evaluates the correctness of arithmetic
+      calculations, ensuring outputs are free from basic computational errors. Critical
+      for maintaining the integrity of numerical tasks, this can be assessed programmatically
+      by comparing the output with expected results derived from accurate calculations.'',
+      ''evaluation_method'': ''code''}\n\nAnnotated data: Task Description: This task
+      involves solving arithmetic and basic mathematical problems provided in text
+      format, returning the numeric result as a string. The input comprises text strings
+      with arithmetic expressions or math questions, like ''(4+2)*3='' or ''What is
+      the square root of 16?''. The task requires parsing these expressions/questions
+      and performing accurate calculations or deriving basic math solutions. The output
+      must be the correct numerical answer, formatted as a string, such as ''18''
+      for the expression ''(4+2)*3=''. Responses are assessed for accuracy, with each
+      answer annotated as ''Correct'' or ''Incorrect''. Attention is given to ensuring
+      precise calculations for all arithmetic operations and mathematical concepts
+      presented in the input.\n\nExample 1:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\":
+      \"2\"\n}\n\nAnnotation: Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      2:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\": \"3\"\n}\n\nAnnotation:
+      Incorrect\nNote: Incorrect summation\n\n--------------------------------------------------\n\nExample
+      3:\nInput:\n{\n  \"text\": \"2+2=\"\n}\n\nOutput:\n{\n  \"text\": \"4\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      4:\nInput:\n{\n  \"text\": \"(4+2)*3=\"\n}\n\nOutput:\n{\n  \"text\": \"18\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      5:\nInput:\n{\n  \"text\": \"What is the square root of 16?\"\n}\n\nOutput:\n{\n  \"text\":
+      \"4\"\n}\n\nAnnotation: Correct\nNote: Correct square root\n\n--------------------------------------------------\n\n\nYour
+      task is to create assertions that can be used to evaluate LLM outputs based
+      on this criterion. Follow these guidelines:\n\n1. Make each assertion clear,
+      concise, and directly related to the criterion\n2. For Python assertions:\n-
+      Provide a valid Python method that can be used within a unittest.TestCase class\n-
+      Ensure the method name is in snake case and starts with test_\n- The method
+      should take ''self'' as the only input, where ''self.output'' is a dictionary
+      containing the LLM output being evaluated\n- The ''self.output'' dictionary
+      will have the same keys and shape as the output in the annotated data\n- Use
+      unittest assertion methods (e.g., self.assertTrue, self.assertEqual) to test
+      the output\n- The test should pass if the assertion is met, and fail otherwise\n-
+      Only use the keys and shapes present in the annotated data output for your assertions\n3.
+      For LLM assertions:\n- Provide a clear, detailed prompt for an LLM to evaluate
+      the assertion\n- The prompt should guide the LLM to return \"PASS\" or \"FAIL\"
+      based on the evaluation\n4. Include a mix of positive and negative assertions
+      where appropriate\n5. Consider edge cases and potential failure modes for the
+      criterion\n6. Aim for assertions that could be applied across multiple types
+      of outputs\n\nEnsure that your assertions are directly evaluable and avoid vague
+      or subjective language. Focus on creating assertions that align with human preferences
+      and can be used to validate the quality of LLM-generated evaluations.\n"}],
+      "model": "gpt-4o", "tool_choice": {"type": "function", "function": {"name":
+      "CriterionAssertions"}}, "tools": [{"type": "function", "function": {"name":
+      "CriterionAssertions", "description": "Correctly extracted `CriterionAssertions`
+      with all the required parameters with correct types", "parameters": {"$defs":
+      {"LLMAssertion": {"properties": {"test_name": {"description": "A clear, concise
+      name for the LLM evaluator in snake case.", "title": "Test Name", "type": "string"},
+      "text": {"description": "A detailed prompt for the LLM to evaluate the assertion,
+      guiding it to return ''PASS'' or ''FAIL''", "title": "Text", "type": "string"},
+      "evaluation_type": {"const": "llm", "default": "llm", "enum": ["llm"], "title":
+      "Evaluation Type", "type": "string"}}, "required": ["test_name", "text"], "title":
+      "LLMAssertion", "type": "object"}, "PythonAssertion": {"properties": {"test_name":
+      {"description": "A clear, concise name for the unittest.TestCase method with
+      function name in snake case and starting with test_. Must be identical to the
+      function name in the code field.", "title": "Test Name", "type": "string"},
+      "code": {"description": "A clear, concise assertion written as a unittest.TestCase
+      method with function name in snake case and starting with test_. Also ensure
+      that the input to the function is only self and the function accesses self.output.",
+      "title": "Code", "type": "string"}, "evaluation_type": {"const": "python", "default":
+      "python", "enum": ["python"], "title": "Evaluation Type", "type": "string"}},
+      "required": ["test_name", "code"], "title": "PythonAssertion", "type": "object"}},
+      "properties": {"assertions": {"description": "Generate 1-3 specific, testable
+      assertions that can be used to evaluate LLM outputs based on the given criterion",
+      "items": {"anyOf": [{"$ref": "#/$defs/PythonAssertion"}, {"$ref": "#/$defs/LLMAssertion"}]},
+      "maxItems": 3, "minItems": 1, "title": "Assertions", "type": "array"}}, "required":
+      ["assertions"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '5911'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=3kbXAZOvJPa9KvPtR3eKoYK0k0248SKbZ4GpgNfvp_I-1731090701-1.0.1.1-LGVL6lDA4T.XyW_bRj1qmdh5_jyDgRkEE_Ioim6ZiDaTxIzmkC..93bhu5bYgW1AeJ9bCG31blKZOJ8OatPBLQ;
+        _cfuvid=qpYqiM8bKwpsmSfUdTgpgKI3tEJBNioRbuMmY_HvRyo-1731090701484-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA8xWTW/bOBS8+1cQ7KHJ1g4sW0kTA0GRFrundrdoC6RpFAgM9WQxpUiGfFzYMPzf
+        C0qyJTtKu0G3QH2wZb6ZeR8ciFwNCKEiozNCecGQl0aOLj78M8XPf3/5/H7x4f3VJY+L7Gp89TGG
+        k+jtMR0Ghr69A44b1hHXpZGAQqs6zC0whKAavZxG47Pxy2haBUqdgQy0ucFRrEeT8SQejU9H45OG
+        WGjBwdEZuR4QQsiq+g4lqgwWdEbGw81KCc6xOdDZFkQItVqGFcqcEw6ZQjpsg1wrBBWqVl7KTgC1
+        lilnUraJ68+q89zOiUmZen4X3b6+/eLlpyV7a/6CUht+cZx38tXSS1MVlHvFt/PpxLfrs71khFDF
+        yor7xgoEK7S6cA5sQLs9GUIos3NfgsLQAl0lYQINNqGz61VCERymQTKhs+Yf19YCx5RlmQjQhA4T
+        ynVWQzLISS/swIHMD2dJokLmZ+RNAfwrETnBAgizAosSUHCywRPhSKPRcIQyHlNYGAvOBcQ5SZKE
+        Ri+i8/DboGBhgCNkqfZoPDagSQchchJqOaoB188RFvj8hpyfP+AylT3MKlQffdNY+FThepR/3nsm
+        D3rww7as+vHSajVvu6/RRyFyuOlMOniQJmdCHgTUxYapNBIDNte2hGwzQrlspMJmwb9MehbAaXBa
+        tW9miUXYy/Xw+7teeonCSMFrfjuXH9jgUd6+Lz6Bw8oTzR7k2m6aILsiYSc6+xL6O4hfTA7/mHb9
+        8IhrepD9zolOf0/r1HV1vbM3nSc76N0u/9f4yN17ZiG1WmN4eXIv2XdeIo+gn+KZDo3onNSKJCju
+        GOTeg8PWHpcFw/AGCqIdSlCITl790DTxT3pmW83/6Zh43zA7jT3VLR875O6Mf9I2N2u6c0itB33P
+        N51z2ELuHZPNAd2sr7cnvtRzY/Wt2zvAaS6UcEVqgbnqIKUOtalzhzxVBup3LgvUWF0aTFF/BRUE
+        o/HxWS1I28tMG56eTJsoamSyw4snk2GPZJoBMlFdKLZ3GM54AVnLbe8yzGdCdwKDTuMP6+nTrpsX
+        av5f5NsA52CCbY2FTPDdnluYhbva3b2w7aCrgqlbOoQyzYWagzVWVBcumps0Oj7LTqdxxDkdrAff
+        AAAA//8DABRp/tt5CgAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7a47ddc750c4d-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:31:58 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '4853'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999057'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_4d329187ed29931400b5deb65cee3303
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "You are a helpful assistant
+      that creates mappings between dataset fields and DataPoint fields."}, {"role":
+      "user", "content": "\nGiven the following data sample:\n```json\n{\n  \"input\":
+      \"1+1=\",\n  \"output\": \"2\",\n  \"annotation\": 1,\n  \"note\": \"Correct
+      summation\"\n}\n```\n\nCreate a mapping between DataPoint fields and the sample
+      data keys. You must:\n1. Map \"input_data\" to the key containing the input/question/prompt\n2.
+      Map \"output_data\" to the key containing the response/answer/output\n3. Map
+      \"annotation\" to the key containing binary values (0/1 or True/False)\n4. Map
+      \"note\" to the key containing feedback or evaluation notes\n"}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "DatasetMapping"}},
+      "tools": [{"type": "function", "function": {"name": "DatasetMapping", "description":
+      "Correctly extracted `DatasetMapping` with all the required parameters with
+      correct types", "parameters": {"properties": {"input_data": {"description":
+      "The key in the sample data that corresponds to the input_data field in the
+      DataPoint object", "title": "Input Data", "type": "string"}, "output_data":
+      {"description": "The key in the sample data that corresponds to the output_data
+      field in the DataPoint object", "title": "Output Data", "type": "string"}, "annotation":
+      {"description": "The key in the sample data that corresponds to the annotation
+      field in the DataPoint object", "title": "Annotation", "type": "string"}, "note":
+      {"description": "The key in the sample data that corresponds to the note field
+      in the DataPoint object", "title": "Note", "type": "string"}}, "required": ["annotation",
+      "input_data", "note", "output_data"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1751'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xTUW/TMBB+z6+w7rlFSVNYk7cBQjANAdMQCIoiz7mm7hzbss9oU9X/juJ0SVqG
+        RB4i333+vvt8Pu8TxkDWUDIQW06itWp+efOpyHc2pLc3V19/61wviw+yvi5ev2vudzDrGOZuh4Ke
+        WC+Eaa1Ckkb3sHDICTvV7CLP0iJL8zwCralRdbTG0nxp5ot0sZynq3n66kjcGinQQ8l+Jowxto//
+        zqKu8QFKls6eMi16zxuEctjEGDijugxw76UnrglmIyiMJtSdax2UmgBkjKoEV2os3H/7yXrsE1eq
+        ur58/1Asvv+4+Ba+PN4u3mBYuNXV53ZSr5d+tNHQJmgx9GeCD/nyrBhjoHkbuW85cY/0kVsrdXOm
+        wBhw14QWNXXuYb8GqW2gqubE11AewzXM1mACnSB9HCGutSHeOYnINJytQRvCmO8XBzixcEieW/+a
+        NNjhJniujp0/5g/DVSrTWGfu/NnNwEZq6beVQ+5jh8CTsX3trk6sAOFkCsA601qqyNyj7gTzbNnr
+        wTikI5oVR5AMcTVh9fN6rlfVSFzGMRkmU3CxxXqkjhPKQy3NBEgmp/7bzXPa/cmlbv5HfgSEQEtY
+        V9ZhLcXpicdtDrs3/K9tQ5ejYfCPnrCtNlI36KyT8RnBxlbZy6Je5ctMCEgOyR8AAAD//wMAT745
+        Bk8EAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7ac4e0b7ae1c0-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:37:14 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=i6hOgTlqxFVIEf.oH2TaSDDTpAb1bJGyO2lUZBYKzfM-1731091034-1.0.1.1-zryPdpvteCzrEd8Keul66Z7tDnqHh7PB_v.ixRSpj_xSarmXmZraBNVyz8J5.9k1MVjzWWEBHs03MUQVvUqP9g;
+        path=/; expires=Fri, 08-Nov-24 19:07:14 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=saxAU9TzLV5PlGM50volXXREpQnWV1D_NJxssCJL4zU-1731091034252-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '750'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999834'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_10409e5fc7bc21c7d7c0aaeb9310aa1c
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: \n\nNew datapoints:\n\nSample
+      1:\n\nInput text: (4+2)*3=\n\n\nOutput text: 18 \n\nAnnotation: Correct\nNote:
+      Correct summation\n\n\n\nBased on these new datapoints and the current task
+      description, provide an updated, more refined task description. If this is the
+      first batch, create an initial task description. Focus on:\n1. The nature of
+      the input and output data\n2. The specific information being extracted or transformed\n3.
+      Any formatting or style requirements\n4. Evaluation criteria (based on the annotations
+      and notes)\n\nKeep the description concise yet comprehensive."}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "TaskDescription"}},
+      "tools": [{"type": "function", "function": {"name": "TaskDescription", "description":
+      "Correctly extracted `TaskDescription` with all the required parameters with
+      correct types", "parameters": {"properties": {"description": {"description":
+      "A concise yet comprehensive task description", "title": "Description", "type":
+      "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1259'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVwVIjNxC9+yu6dEqqDLGNdwm+mUAOSRF2A5UDIeVqS+0ZgUbStloGiuLfU5oZ
+        e8yGQ3xwyXrq1/1eS+3XEYCyRi1A6RpFN9EdLf+8PpvjbFndzk5+r65vvj78wfOvp9+Wl0/TczUu
+        EWH9QFp2Ucc6NNGR2OA7WDOhUGGdnp5MJ2fTycm8BZpgyJWwKsrRPBzNJrP50eTno8nnPrAOVlNS
+        C/h7BADw2n6XEr2hZ7WAyXi301BKWJFa7A8BKA6u7ChMySZBL2o8gDp4IV+q9tm5A0BCcCuNzg2J
+        u8/rwXrwCZ1b3fwyOTvPbrZs4u319q8rvju9O7uLvx3k66hfYlvQJnu99+cA3+8vvksGoDw2bewt
+        pscLSppt/IACQCFXuSEvpXz1eq/McPheLe7VbU0gmB7B+m1wW0pAW3QZxfoKGpSaGhSr0QE9R6aU
+        bPAJIoetNWQAE1gfs4DQsxzDJeq639DBF58ThA0grDFZDchW6obEagiRGEsVY3iqra6hwRewXrts
+        CNAY22Epr4VRdz+a7MRGZ3UfGBgiMnmpKVGCTWCoOORYSt/zp3EBGhQhA9ZDab1BNu/F+SDt6WMo
+        hoQsRYJNIDUBU8pOio4DawowODKGsiIvnSUIyfrKEfjcEFsNJY467s6dIRSanATWBKh1ZhRyL1De
+        TG65TE3cpgttRh2YSQsENsSlokEm/PDl8upiefPT+fXF1fIGODtKP3Y5d3UHD5qtEFsEZCpdIQPB
+        w1NNUhP3Ofrkve4GRdeUdopJF6wVNC5aDfnQW1tOoN9ZmQC9KcZSOoZfuxYUKUzfsuWesL88oRiQ
+        hNFWtWwCP5UGPVmpQxZA/wJbZItrR1Beb+XbG136302X5/fN3D2ctvU6l15ACq44G/zhJeykdo2/
+        V2/q3eN5G320/udgNjBtckLXD41+/20/hVyoIod1+m6oqI31NtUrJkzt41ZJQuxylzxtBpXfDTAV
+        OTRRVhIeyRfC2fRzx6eG+Tqg05Npj0oQdANwMj8df0C4MiRo2xG3n6oadU1mCB2mK2ZjwwEwOpD9
+        33I+4u6kW1/9H/oB0JqikFlFJmP1e8nDMaaH9o5+fGxvc1uwSi9JqFltrK+II9v2L0Bt4mr+SW8+
+        zQ0hqdHb6F8AAAD//wMA1+MP8QsHAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7ac54d901e20c-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:37:16 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=PfdKByiOzQv9iyHHjoXj80CJTeufR4GzbOIuToTTUzM-1731091036-1.0.1.1-RaATrxg.FK31shAyySYIvVm2_k4MG0u4WrCy4NhmhbybBE3jviCKzZNcjRi3aJQAdL6bU.X379D1m0xhJ0y4sQ;
+        path=/; expires=Fri, 08-Nov-24 19:07:16 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=5ydlDSUE9WDCtf9oq4uU1BnCfWRrASdnli1Kwe6T3xA-1731091036463-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '1881'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999813'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_8675f392f9bc0829cb217c6c7d1f1a3b
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task involves evaluating
+      mathematical expressions provided as input text. Each input consists of a basic
+      arithmetic operation, which may include addition, subtraction, multiplication,
+      or parentheses for grouping operations, formatted in standard mathematical notation.
+      The output is the result of evaluating the expression, presented as a single
+      numeric value. The input expression must be accurately computed adhering to
+      the correct order of operations (PEMDAS/BODMAS rules). The evaluation criteria
+      are based on whether the computed result matches the expected value, as denoted
+      in the annotations and notes. Formatting requires the input to be straightforward
+      without any variable assignments or complex mathematical functions, focusing
+      solely on arithmetic computation.\n\nNew datapoints:\n\nSample 1:\n\nInput text:
+      What is the square root of 16?\n\n\nOutput text: 4 \n\nAnnotation: Correct\nNote:
+      Correct square root\n\n\n\nBased on these new datapoints and the current task
+      description, provide an updated, more refined task description. If this is the
+      first batch, create an initial task description. Focus on:\n1. The nature of
+      the input and output data\n2. The specific information being extracted or transformed\n3.
+      Any formatting or style requirements\n4. Evaluation criteria (based on the annotations
+      and notes)\n\nKeep the description concise yet comprehensive."}], "model": "gpt-4o",
+      "tool_choice": {"type": "function", "function": {"name": "TaskDescription"}},
+      "tools": [{"type": "function", "function": {"name": "TaskDescription", "description":
+      "Correctly extracted `TaskDescription` with all the required parameters with
+      correct types", "parameters": {"properties": {"description": {"description":
+      "A concise yet comprehensive task description", "title": "Description", "type":
+      "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2059'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=PfdKByiOzQv9iyHHjoXj80CJTeufR4GzbOIuToTTUzM-1731091036-1.0.1.1-RaATrxg.FK31shAyySYIvVm2_k4MG0u4WrCy4NhmhbybBE3jviCKzZNcjRi3aJQAdL6bU.X379D1m0xhJ0y4sQ;
+        _cfuvid=5ydlDSUE9WDCtf9oq4uU1BnCfWRrASdnli1Kwe6T3xA-1731091036463-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVwW7jOAy95ysInbZAmk0m2WybWwYtih6KLma6h8F2ETASbauRRVeiMg2K/vtA
+        dhMnM11gcwgsUnwkH5/p1wGAskYtQOkKRdeNO19+ub+cl2b6FK+/flne1Xo343nxfH+Z5jdRDXME
+        r59Iyz5qpLluHIll37l1IBTKqJM/p5Px5WQ8nbeOmg25HFY2cj7j80/jT7Pz8cX5eP4eWLHVFNUC
+        /hkAALy2/7lEb+hFLWA83FtqihFLUovDJQAV2GWLwhhtFPSihr1TsxfyuWqfnDtyCLNbaXSuT9z9
+        Xo+ee57QudXNt8vtbajo2+eHm2fe/b1Zzm83V9f+KF8HvWvagork9YGfI//BvvgpGYDyWLexDxg3
+        VxR1sM0HEAAKQ5lq8pLLV6+PyvSXH9XiUT1UBIJxA9Zv2W0pgvVCoQkk1peA3gBt0SVsjzVKRTWK
+        1ejgOVGwFKEJvLWGDGAObpKA0IuMIEN35xp3oNln3oELWGO0GjBYqWoSq4EbCphLivAbjcrRENAY
+        mw1DiGktAXV3qJMT2zir29tnwOG0pD1lB5z4nDAQBGY5G0LBoUYRMmA9ZA0YDOYUwbO02BnaesDc
+        ZWwNXXDXVsnowEYQzt2bpAmkIshaTxk+UExOMiEI0frSEfhUU7AaMpk0gttMTIRAz8kGgigBbVlJ
+        weH7vib4bqXiJIB+B1sMFteOIMu39O1Ic41otug1maPW17Rjb35lOc9Sc12z/y/SnN3QMWVxBEtT
+        UcijFwbNIZAW4GAo5EEez+2v67ur5dffP99f3S2/nmVydEjaousY4yRZCdmchWAokDkA2gJsVono
+        imLLJL00pI+YtL41o9/PJ3awe22yz9BrjGSAPaDWKaDsJ/I+0aLFOMj1hAR6aQLF2PbCYa/t0aN6
+        Uyev1Nvgo+d/jzZGoCJFdO+r5N3+dthNjssm8Dr+tGpUYb2N1SoQxvaVV1G46XLnPG0GlU7WmmoC
+        142shDfkM+B0Nu3wVL91e+9kNnn3Cgu63jG7mA0/AFwZErTt4jvsWo26ItOH9jsXk7F85Bgctf1r
+        OR9hd61bX/4f+N6hNTVCZtUEMlafttxfC/TUCurjawea24JV3EWhelVYX+ZVaNsPgyqa1eSPS3Mx
+        nU20VoO3wQ8AAAD//wMAjUF38yEHAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7ac622bdee20c-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:37:19 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '3254'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999614'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_1d44dd98fc94e217b1cc40128aa5d9a4
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: The task involves interpreting
+      and evaluating mathematical queries provided as input text. The input may consist
+      of basic arithmetic operations (e.g., addition, subtraction, multiplication)
+      or mathematical functions (e.g., square root), formatted in standard mathematical
+      notation or in a question format. The goal is to produce the computed result
+      as a single numeric value. Inputs require straightforward math without any variable
+      assignments or advanced functions beyond basic arithmetic and common mathematical
+      functions like square roots. Adhering to correct order of operations (PEMDAS/BODMAS)
+      is crucial. The output is considered correct if it matches the expected result
+      in the annotations. The evaluation is based on accurate computation of the provided
+      mathematical expressions or queries.\n\nNew datapoints:\n\nSample 1:\n\nInput
+      text: 1+1=\n\n\nOutput text: 3 \n\nAnnotation: Incorrect\nNote: Incorrect summation\n\n\n\nBased
+      on these new datapoints and the current task description, provide an updated,
+      more refined task description. If this is the first batch, create an initial
+      task description. Focus on:\n1. The nature of the input and output data\n2.
+      The specific information being extracted or transformed\n3. Any formatting or
+      style requirements\n4. Evaluation criteria (based on the annotations and notes)\n\nKeep
+      the description concise yet comprehensive."}], "model": "gpt-4o", "tool_choice":
+      {"type": "function", "function": {"name": "TaskDescription"}}, "tools": [{"type":
+      "function", "function": {"name": "TaskDescription", "description": "Correctly
+      extracted `TaskDescription` with all the required parameters with correct types",
+      "parameters": {"properties": {"description": {"description": "A concise yet
+      comprehensive task description", "title": "Description", "type": "string"}},
+      "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2057'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=PfdKByiOzQv9iyHHjoXj80CJTeufR4GzbOIuToTTUzM-1731091036-1.0.1.1-RaATrxg.FK31shAyySYIvVm2_k4MG0u4WrCy4NhmhbybBE3jviCKzZNcjRi3aJQAdL6bU.X379D1m0xhJ0y4sQ;
+        _cfuvid=5ydlDSUE9WDCtf9oq4uU1BnCfWRrASdnli1Kwe6T3xA-1731091036463-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVUU8jNxB+51eM/MKhBppAuJJIfQiiJ7XVlVOPK6pKFU3sSdbgtRePnRIQ/72a
+        3U12Q3loHiKvP8/MN9+Mxy8HAMoaNQWlC0y6rNzx7Pfryez2IhaTG5yNPn07fZ5dfPHj8beryfAP
+        NRCLsLgnnbZWJzqUlaNkg29gHQkTidfRD2ej4WQ0HA9roAyGnJitqnQ8Dsenw9Px8fDiePixNSyC
+        1cRqCn8dAAC81P9C0Rt6UlOo3dQ7JTHjitR0dwhAxeBkRyGz5YQ+qUEH6uATeWHts3M9IIXg5hqd
+        6wI3v5feutMJnZs/frqMt0/3v8T1ze3i8fnXyRX/+c/9JffiNa43VU1omb3e6dPDd/vTN8EAlMey
+        tr1Bfrgi1tFW77gAUBhXuSSfhL56uVOmO3ynpnfqprAMCfkBrF8HtyYG6xPFKlKyfgUlpoJKTFaj
+        g8dM0RLDMoYSrK9ygkRPCVIAKXNOBFUkbZnA55Ki1RCJs0t8Aj/LcQaNHqzXLhuCBbLVgNGmoqRk
+        NYSKIgo1hg9ojJXlADgvUkTdfJTZJVs5q7H5NnZt2QZ/BOiNsCiD3ye9lZHhA2ddADLwY8ZIEENI
+        fHQCNwUxNfkwCLAMscSUyEBmEUHaxWA0+459SDUJCFHSZvJiYT2gCMU11Hg6geucdt630qzRZWLQ
+        IUbiKngjoVKAVFCzqVMra6tJWArGtK3DADhFq5PbAJqCYs8+RENRDPqSfvnp89Xs6/eX11efZ1+P
+        OlJl5rSN6DYQaekktvhpyyei0VNFus1QoCqGtTVkAP1WCR4AlVWBbJ8b2YQdoNY5ot6IYS8faYlt
+        mqFhIrVuKoRQWtbodHaNxvREZeXs0pKBxQYQGGWugEYmcPaB4HD03ejHw5axhLceDs8OB43mQZgv
+        Q5Tma4NyLstdAXvEgGIMkU/gtwBrjBYXjkCmxsrXN0mOo1mj1+Jy110L2gRvGvVzctYL07rDezUQ
+        Lu1FM4O6Zdteq/UqQnbSZNYnbFXWTu7HRkr55koBsbSclRYPEUjaqRH2Tr2qvTnwevDe+u/emIu0
+        zIyunX/t/utuoLqwqmJY8Jv5qJbWWy7mkZDrOaU4haqJLXHqCCrvzWJVxVBWaZ7CA3lxeHbeDm7V
+        PRUdOvo4adEUEroOOB9tgT2Hc0MJbT2tdw+ERl2Q6Uy7hwKzsaEHHPTS/i+d93w3qVu/+j/uO0Br
+        qhKZeRXJWL2fcncs0n195d4/tpO5Jqx4w4nK+dL6lYxvW79malnNR+cTc3E2HmmtDl4P/gUAAP//
+        AwBl4mhX1gcAAA==
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7ac78397ae20c-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:37:23 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '3085'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999614'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_1523ac28e29404b5bdb0e8712b32f3cb
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: This task involves interpreting
+      mathematical queries from input text to compute precise numeric results. Inputs
+      can include basic arithmetic operations (addition, subtraction, multiplication,
+      division) and common mathematical functions (such as square roots). These inputs
+      are formatted using standard mathematical notation or presented in a question
+      format. Outputs are numeric values corresponding to the correct computations
+      of these queries, strictly adhering to the order of operations (PEMDAS/BODMAS).
+      Outputs must correctly reflect the results as expected in the provided annotations,
+      emphasizing strict accuracy in computation. Incorrect outputs, such as a miscalculation
+      exemplified by a sample case like ''1+1='' resulting in ''3'', are noted for
+      incorrect summation or computation errors. No variable assignments or advanced
+      functions beyond the outlined basic operations are involved, and formatting
+      should maintain the clarity of numeric results essential for evaluation.\n\nNew
+      datapoints:\n\nSample 1:\n\nInput text: 1+1=\n\n\nOutput text: 2 \n\nAnnotation:
+      Correct\nNote: Correct summation\n\n\n\nBased on these new datapoints and the
+      current task description, provide an updated, more refined task description.
+      If this is the first batch, create an initial task description. Focus on:\n1.
+      The nature of the input and output data\n2. The specific information being extracted
+      or transformed\n3. Any formatting or style requirements\n4. Evaluation criteria
+      (based on the annotations and notes)\n\nKeep the description concise yet comprehensive."}],
+      "model": "gpt-4o", "tool_choice": {"type": "function", "function": {"name":
+      "TaskDescription"}}, "tools": [{"type": "function", "function": {"name": "TaskDescription",
+      "description": "Correctly extracted `TaskDescription` with all the required
+      parameters with correct types", "parameters": {"properties": {"description":
+      {"description": "A concise yet comprehensive task description", "title": "Description",
+      "type": "string"}}, "required": ["description"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2234'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=PfdKByiOzQv9iyHHjoXj80CJTeufR4GzbOIuToTTUzM-1731091036-1.0.1.1-RaATrxg.FK31shAyySYIvVm2_k4MG0u4WrCy4NhmhbybBE3jviCKzZNcjRi3aJQAdL6bU.X379D1m0xhJ0y4sQ;
+        _cfuvid=5ydlDSUE9WDCtf9oq4uU1BnCfWRrASdnli1Kwe6T3xA-1731091036463-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVXU9zNwy+76+wcrVJhRUoX71jA23ThhhQaRdjqkLi02PISfLGTl8qxH+fktMv
+        3nXSetGe2PHj57F93PcBgCKrJqBMq8V00R1cPdxdXjen9PNiev3oLh+nD/e397eX99PWj1kNS0R4
+        fkEj66hDE7roUCj43m0SasGCenR+cjS6PBqNT6qjCxZdCZtHORiHg+PR8fhgdHEwOlsFtoEMsprA
+        XwMAgPf6XSh6i29qAqPh2tIhs56jmmwuAagUXLEozUws2osabp0meEFfWPvs3I5DQnAzo53bJu4/
+        7zvP2zpp52bnD7cvJ6OXX05fLu6706ufbv78XX4b37zu5Ouhl7ESarI3m/rs+Df2yTfJAJTXXY2d
+        an69RjaJ4h4IAKXTPHfopdBX70/Kbi8/qcmTmrbEIJpfgfwiuAUy4JskbYT8HLS3QF4wxYTV8KyZ
+        DHRaWuy0kNEOvmRMhAxNCh2Qj1lA8E1AApTeZ8EKY9HRAhPEhIYYwecOExlIyNkJH8KvJZSBvHHZ
+        IjCVuQGdSNoOhQyEiEkX4gycTQuaQVtLxTIEzs8963LoshOKjozuzzU/LYj7E8NXdK787pGzrjqD
+        o1cE/pJ1QkghCA+hCanTIliqAmWIrE72c7wPUrNCSCXDl4xc4Q7hLktVWPBYkqZ5K01IXwvEuhoL
+        7TLyELQxOWlBt1wX0RZbSLZ0QQJIixCSxQSh2a3Md3/c3F5fPf7w49317dXj91UtvkU0K9IlLqaw
+        IFsQ/ZotH8K0eqjTaQlNMJmBGEKRmcgIGO1Mdr20np1ZDgE951QohZW4TktpjRcyFMuLvm5wbUKR
+        bhzq5JZlEBi9oK2pE1anD6DtQnuD9r/aEhIsdCL9XKaDmea+zvd6flcqV1Pdy1q1rfJsNlS5DdmV
+        NORFkwfjyrAth736etlvGrEzryvifSmakABL1/pjzCkGRj58Uh/q07v4Mdj3/PfOqknYZNZutYNW
+        9o/NUnNhHlN45m92lGrIE7ezhJrrrlAsIfa5S56aQeVP+1DFFLooMwmv6AvgyflFj6e263rrPTpZ
+        eyWIdlvH6dHZcA/gzKJoqhtzs6SNNi3abeh2WetsKew4Bjuy/01nH3Yvnfz8/8BvHcZgFLSzmNCS
+        +Sx5ey3hS3159l/blLkSVrxkwW7WkJ+XnUn1H0U1cabP7egMx8f6XA0+Bv8AAAD//wMAirdYlVoH
+        AAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7ac8d2fbae20c-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:37:29 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '5764'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999569'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_22ab7af171a1a59390fec80bd7269bec
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to help refine task descriptions for a given dataset.\n"}, {"role":
+      "user", "content": "\nCurrent task description: This task involves extracting
+      and interpreting basic mathematical queries from input text to compute and deliver
+      precise numeric results. Inputs include simple arithmetic operations such as
+      addition, subtraction, multiplication, and division, as well as basic mathematical
+      functions like square roots, formatted in standard mathematical notation or
+      as questions. Outputs are straightforward numeric values, accurately computed
+      according to the order of operations (PEMDAS/BODMAS), as expected in the provided
+      annotations. The primary focus is on strict calculation accuracy, ensuring outputs
+      match anticipated results and are clearly presented. There are no advanced mathematical
+      functions or variable assignments involved in this task. The formatting of outputs
+      should maintain clarity, focusing on accurate numeric representation for evaluation
+      purposes.\n\nNew datapoints:\n\nSample 1:\n\nInput text: 2+2=\n\n\nOutput text:
+      4 \n\nAnnotation: Correct\nNote: Correct summation\n\n\n\nBased on these new
+      datapoints and the current task description, provide an updated, more refined
+      task description. If this is the first batch, create an initial task description.
+      Focus on:\n1. The nature of the input and output data\n2. The specific information
+      being extracted or transformed\n3. Any formatting or style requirements\n4.
+      Evaluation criteria (based on the annotations and notes)\n\nKeep the description
+      concise yet comprehensive."}], "model": "gpt-4o", "tool_choice": {"type": "function",
+      "function": {"name": "TaskDescription"}}, "tools": [{"type": "function", "function":
+      {"name": "TaskDescription", "description": "Correctly extracted `TaskDescription`
+      with all the required parameters with correct types", "parameters": {"properties":
+      {"description": {"description": "A concise yet comprehensive task description",
+      "title": "Description", "type": "string"}}, "required": ["description"], "type":
+      "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '2110'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=PfdKByiOzQv9iyHHjoXj80CJTeufR4GzbOIuToTTUzM-1731091036-1.0.1.1-RaATrxg.FK31shAyySYIvVm2_k4MG0u4WrCy4NhmhbybBE3jviCKzZNcjRi3aJQAdL6bU.X379D1m0xhJ0y4sQ;
+        _cfuvid=5ydlDSUE9WDCtf9oq4uU1BnCfWRrASdnli1Kwe6T3xA-1731091036463-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xVUW/bOAx+z68g9LQD0ixts3XNW4fe7bpd12IrhgOuh4ChaFurLLmilGta9L8f
+        ZDtx0uvD5SGQRX4kv480/TQCUEarOSiqMFLd2IOzb1ennz9NZ19Ofvx5vV77s8frPz5efPt69cU9
+        JjXOCL/8yRQ3qAn5urEcjXedmQJj5Bz18OT4cHp6OJ2dtobaa7YZVjbxYOYPjqZHs4Pph4Pp+x5Y
+        eUMsag5/jQAAntr/XKLT/KDmMB1vbmoWwZLVfOsEoIK3+UahiJGILqrxYCTvIrtctUvW7hii93ZB
+        aO2QuPs97ZwHndDaRbqcvS+Pfr85/sGl+/z1Ylqn8hP99mEnXxd63bQFFcnRVp8d+/Z+/iIZgHJY
+        t9gblLtzFgqmeSUEgMJQpppdzOWrp1ulB+dbNb9VN5URiCh3UHhKwgLeAT/EgBSNKwGdhtzC1D4t
+        UQwBBhOrmqMhuE8cDAsUwddQmhU7iPwQwbgmRYHooQleJ2JoApMRBpdqDobAp5hdJnDRuZJ3uS/g
+        CxCTRwZqjBXXGA2hBX5oAosY7wR8yHklc5AxYIiGks1DBcZBbq3GoPfhzkfM/mP4pzJUAflkszvZ
+        pLmn5RsOrZOANXcMqLXpMJKWnSD5oU42msYa6gNqszLSnrJWfe2b3glIogpQQO4TBobgfSZ9U3Gn
+        euD7ZAILoK44ZI2jh1jxwMMHzSHLslPfm+tfL8/Pvr/9eHV+efb9l4xhJykwENpWDOMdIFEKSOsJ
+        XHViQ66AHxqmLFb0sGQgyxjGvW8c+rNCm1jGWUaqukloRWQNgSXZPRbas2SNwbiVt6us3Qod8Ysu
+        DKr4ACsMBpeWoUKnrXHlBM7cpk8CKw6mWAP5EJiiY5HcJtawJRa5n8yerdN5yIRdf+GLTaVj4Lqp
+        UMxjJkI2D/A6D8uGbOBd5ORWPau9F+l59Nr57509EbhIgrZfIP3983YjWV82wS/lxYJRhXFGqkVg
+        lPZFVxJ90+XOedoMKu0tM9UEXzdxEf0duxzweHbSxVPDrh2sh8f9XlTRR7SDYXayge0FXGiOaNp1
+        t92whFSxHqDDpsWkjd8xjHZo/7ec12J31I0r/0/4wUDETWS9aAJrQ/uUB7fAP9tZf91tK3NbsJK1
+        RK4XhXElhyaY9nOgimYxe0fFu5lmZDV6Hv0LAAD//wMAmlpsxRcHAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7acb2f86ce20c-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:37:31 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '1531'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999600'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_bee3a3db24cf6811a574b2b0b5d129db
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to create evaluation criteria for a given task.\n"}, {"role": "user",
+      "content": "\nAnalyze the following annotated datapoints:\n\nTask Description:
+      This task focuses on extracting and computing basic arithmetic queries from
+      given text inputs to produce precise numeric outputs. Inputs consist of simple
+      mathematical expressions or questions, articulated in standard mathematical
+      notation, which could include basic operations like addition, subtraction, multiplication,
+      division, and simple functions such as square roots. The task requires adhering
+      to the standard order of operations (PEMDAS/BODMAS) to ensure calculation accuracy.
+      Outputs are expected to be clear, accurate numeric values, matching annotated
+      results. The task does not involve advanced mathematical functions or variable
+      handling. Annotations verify correctness based on accurate computation and presentation
+      of results, emphasizing clarity in numeric representation.\n\nExample 1:\nInput:\n{\n  \"text\":
+      \"1+1=\"\n}\n\nOutput:\n{\n  \"text\": \"2\"\n}\n\nAnnotation: Correct\nNote:
+      Correct summation\n\n--------------------------------------------------\n\nExample
+      2:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\": \"3\"\n}\n\nAnnotation:
+      Incorrect\nNote: Incorrect summation\n\n--------------------------------------------------\n\nExample
+      3:\nInput:\n{\n  \"text\": \"2+2=\"\n}\n\nOutput:\n{\n  \"text\": \"4\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      4:\nInput:\n{\n  \"text\": \"(4+2)*3=\"\n}\n\nOutput:\n{\n  \"text\": \"18\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      5:\nInput:\n{\n  \"text\": \"What is the square root of 16?\"\n}\n\nOutput:\n{\n  \"text\":
+      \"4\"\n}\n\nAnnotation: Correct\nNote: Correct square root\n\n--------------------------------------------------\n\n\nNote
+      we have already generated criteria, so we can use that as context:\n[]\n\nGenerate
+      1 evaluation criteria that can be used to assess the quality of outputs for
+      this task. Consider the following guidelines:\n\n1. If a ''Metrics Details''
+      field is present in the datapoint, prioritize this information as it provides
+      the most important evaluation criteria.\n2. Focus on general aspects of quality
+      that can be used across multiple outputs.\n3. Consider criteria that address
+      potential misalignment between LLM outputs and human preferences.\n4. Include
+      criteria that can be evaluated both by code and by LLM-based evaluators.\n5.
+      Think about criteria that might reveal hallucinations, instruction-following,
+      or other common LLM issues.\n6. Generate criteria that could help in debugging
+      or improving the LLM pipeline.\n\nProvide the criterion as a concise statement,
+      followed by a brief explanation of why it''s important and how it might be evaluated
+      (e.g., via code, LLM evaluator, or human judgment).\n\nReturn the criteria in
+      this format:\n[Criterion]: [Brief explanation and evaluation method]\n\nAim
+      for a mix of straightforward, code-evaluable criteria and more nuanced criteria
+      that might require LLM or human evaluation.\n"}], "model": "gpt-4o", "tool_choice":
+      {"type": "function", "function": {"name": "EvaluationCriteria"}}, "tools": [{"type":
+      "function", "function": {"name": "EvaluationCriteria", "description": "Correctly
+      extracted `EvaluationCriteria` with all the required parameters with correct
+      types", "parameters": {"$defs": {"Criterion": {"properties": {"criterion": {"description":
+      "A concise, specific statement describing a single aspect of evaluation", "title":
+      "Criterion", "type": "string"}, "explanation": {"default": "", "description":
+      "A detailed explanation of the criterion''s importance and potential evaluation
+      methods", "title": "Explanation", "type": "string"}, "evaluation_method": {"default":
+      "", "description": "The primary method for evaluating this criterion: ''code''
+      for programmatic checks, ''llm'' for language model-based assessment", "enum":
+      ["code", "llm"], "title": "Evaluation Method", "type": "string"}}, "required":
+      ["criterion"], "title": "Criterion", "type": "object"}}, "properties": {"criteria":
+      {"description": "A list of 1-2 distinct evaluation criteria, each focusing on
+      a different aspect of output quality", "items": {"$ref": "#/$defs/Criterion"},
+      "maxItems": 2, "minItems": 1, "title": "Criteria", "type": "array"}}, "required":
+      ["criteria"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '4520'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=PfdKByiOzQv9iyHHjoXj80CJTeufR4GzbOIuToTTUzM-1731091036-1.0.1.1-RaATrxg.FK31shAyySYIvVm2_k4MG0u4WrCy4NhmhbybBE3jviCKzZNcjRi3aJQAdL6bU.X379D1m0xhJ0y4sQ;
+        _cfuvid=5ydlDSUE9WDCtf9oq4uU1BnCfWRrASdnli1Kwe6T3xA-1731091036463-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA4xUUW8bNwx+968g9LQBdmY3TuP4zWlcYMOyFEv7sNWFQUv0nRKdpEpUEyPwfx8k
+        X+6cLAN2DweJHz/yo0TxaQAgtBJzELJGlo03o8WfNxe/X959XC5/S1Ov7z7+rTbuajH74s+/P4hh
+        ZrjNHUl+Zp1I13hDrJ09wDIQMuWok/PTyfhiMj6bFKBxikymVZ5HUzd6N343HY1no/H7llg7LSmK
+        OXwdAAA8lX+WaBU9ijmMh8+WhmLEisS8cwIQwZlsERijjoyWxbAHpbNMNqu2yZgjgJ0za4nG9IkP
+        39PRuj8nNGb9V7ydWX2D6frSpVOul3if7r98mB7lO4Te+SJom6zszucI7+zzV8kAhMWmcJc/0CTM
+        Xh+CZgoaX0UBEBiq1JDlXIF4WgnZeq7E/Gu/dXYl5iuxkDIFlDtwW/gjNRS0hJvEPvFKDFeCHr1B
+        WxIW9881AR5RuCawLc0VGugIMiSp0QDG4tCgtlA5NBljB/TIASUDWgW5XRITYNBcN8RawvdEQVME
+        6UIgyWYHG4ykwNkSrdI/yALTI4O2PvEJfK51BG2lSYoibJ0x7kHbqnjnm1cYFLigKGTJzlMoBUX4
+        6dPy+mpx+8vlzdX14vbnrK3TYxUE8oEiWYZAMRmObelMZncCv9pWYFt4lqC0RCbYGnzIW/DBSYox
+        iynFopHJlORD0I1Hyc86AxmNG200d+cad5GpOTncQ3fv64a4dqrchnSKVmL/bS9e9MB+8Nb621GX
+        B9qmiKZt/9a+796TcZUPbhNfPQ+x1VbHeh0IY2lTEdn5Q+6cp2QQ6cVTFD64xvOa3T3ZHPD84uwQ
+        T/STokdn71uQHaM5ss8mwzfirRUx6vJWu/EgUdakemo/JjAp7Y6AwVHV/1bzVuxD5dpW/yd8D0hJ
+        nkmtfSCl5cuKe7dAeZD+l1t3ykWwODTHeqttRcEHXWaZ2Pr15OxCzU6nEynFYD/4BwAA//8DAHE5
+        7WfUBQAA
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7acbe1b4fe20c-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:37:33 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '1869'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999229'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_732d5bfed39654cfb0cca6a318a95e5d
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"role": "system", "content": "\nYou are an AI assistant
+      designed to create testable assertions for a given task and criterion.\n"},
+      {"role": "user", "content": "\nGiven the following evaluation criterion and
+      annotated data, generate 1-3 specific, testable assertions:\n\nCriterion: {''criterion'':
+      ''Accuracy of Numeric Output'', ''explanation'': ''The accuracy of the numeric
+      output is crucial as the main goal is to extract and compute arithmetic queries
+      correctly based on the given text input. This includes following the standard
+      order of operations (PEMDAS/BODMAS) to compute and represent results accurately.
+      Incorrect outputs indicate flaws in processing and calculation, impacting the
+      reliability of the system.'', ''evaluation_method'': ''code''}\n\nAnnotated
+      data: Task Description: This task focuses on extracting and computing basic
+      arithmetic queries from given text inputs to produce precise numeric outputs.
+      Inputs consist of simple mathematical expressions or questions, articulated
+      in standard mathematical notation, which could include basic operations like
+      addition, subtraction, multiplication, division, and simple functions such as
+      square roots. The task requires adhering to the standard order of operations
+      (PEMDAS/BODMAS) to ensure calculation accuracy. Outputs are expected to be clear,
+      accurate numeric values, matching annotated results. The task does not involve
+      advanced mathematical functions or variable handling. Annotations verify correctness
+      based on accurate computation and presentation of results, emphasizing clarity
+      in numeric representation.\n\nExample 1:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\":
+      \"2\"\n}\n\nAnnotation: Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      2:\nInput:\n{\n  \"text\": \"1+1=\"\n}\n\nOutput:\n{\n  \"text\": \"3\"\n}\n\nAnnotation:
+      Incorrect\nNote: Incorrect summation\n\n--------------------------------------------------\n\nExample
+      3:\nInput:\n{\n  \"text\": \"2+2=\"\n}\n\nOutput:\n{\n  \"text\": \"4\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      4:\nInput:\n{\n  \"text\": \"(4+2)*3=\"\n}\n\nOutput:\n{\n  \"text\": \"18\"\n}\n\nAnnotation:
+      Correct\nNote: Correct summation\n\n--------------------------------------------------\n\nExample
+      5:\nInput:\n{\n  \"text\": \"What is the square root of 16?\"\n}\n\nOutput:\n{\n  \"text\":
+      \"4\"\n}\n\nAnnotation: Correct\nNote: Correct square root\n\n--------------------------------------------------\n\n\nYour
+      task is to create assertions that can be used to evaluate LLM outputs based
+      on this criterion. Follow these guidelines:\n\n1. Make each assertion clear,
+      concise, and directly related to the criterion\n2. For Python assertions:\n-
+      Provide a valid Python method that can be used within a unittest.TestCase class\n-
+      Ensure the method name is in snake case and starts with test_\n- The method
+      should take ''self'' as the only input, where ''self.output'' is a dictionary
+      containing the LLM output being evaluated\n- The ''self.output'' dictionary
+      will have the same keys and shape as the output in the annotated data\n- Use
+      unittest assertion methods (e.g., self.assertTrue, self.assertEqual) to test
+      the output\n- The test should pass if the assertion is met, and fail otherwise\n-
+      Only use the keys and shapes present in the annotated data output for your assertions\n3.
+      For LLM assertions:\n- Provide a clear, detailed prompt for an LLM to evaluate
+      the assertion\n- The prompt should guide the LLM to return \"PASS\" or \"FAIL\"
+      based on the evaluation\n4. Include a mix of positive and negative assertions
+      where appropriate\n5. Consider edge cases and potential failure modes for the
+      criterion\n6. Aim for assertions that could be applied across multiple types
+      of outputs\n\nEnsure that your assertions are directly evaluable and avoid vague
+      or subjective language. Focus on creating assertions that align with human preferences
+      and can be used to validate the quality of LLM-generated evaluations.\n"}],
+      "model": "gpt-4o", "tool_choice": {"type": "function", "function": {"name":
+      "CriterionAssertions"}}, "tools": [{"type": "function", "function": {"name":
+      "CriterionAssertions", "description": "Correctly extracted `CriterionAssertions`
+      with all the required parameters with correct types", "parameters": {"$defs":
+      {"LLMAssertion": {"properties": {"test_name": {"description": "A clear, concise
+      name for the LLM evaluator in snake case.", "title": "Test Name", "type": "string"},
+      "text": {"description": "A detailed prompt for the LLM to evaluate the assertion,
+      guiding it to return ''PASS'' or ''FAIL''", "title": "Text", "type": "string"},
+      "evaluation_type": {"const": "llm", "default": "llm", "enum": ["llm"], "title":
+      "Evaluation Type", "type": "string"}}, "required": ["test_name", "text"], "title":
+      "LLMAssertion", "type": "object"}, "PythonAssertion": {"properties": {"test_name":
+      {"description": "A clear, concise name for the unittest.TestCase method with
+      function name in snake case and starting with test_. Must be identical to the
+      function name in the code field.", "title": "Test Name", "type": "string"},
+      "code": {"description": "A clear, concise assertion written as a unittest.TestCase
+      method with function name in snake case and starting with test_. Also ensure
+      that the input to the function is only self and the function accesses self.output.",
+      "title": "Code", "type": "string"}, "evaluation_type": {"const": "python", "default":
+      "python", "enum": ["python"], "title": "Evaluation Type", "type": "string"}},
+      "required": ["test_name", "code"], "title": "PythonAssertion", "type": "object"}},
+      "properties": {"assertions": {"description": "Generate 1-3 specific, testable
+      assertions that can be used to evaluate LLM outputs based on the given criterion",
+      "items": {"anyOf": [{"$ref": "#/$defs/PythonAssertion"}, {"$ref": "#/$defs/LLMAssertion"}]},
+      "maxItems": 3, "minItems": 1, "title": "Assertions", "type": "array"}}, "required":
+      ["assertions"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '6052'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=PfdKByiOzQv9iyHHjoXj80CJTeufR4GzbOIuToTTUzM-1731091036-1.0.1.1-RaATrxg.FK31shAyySYIvVm2_k4MG0u4WrCy4NhmhbybBE3jviCKzZNcjRi3aJQAdL6bU.X379D1m0xhJ0y4sQ;
+        _cfuvid=5ydlDSUE9WDCtf9oq4uU1BnCfWRrASdnli1Kwe6T3xA-1731091036463-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - AsyncOpenAI/Python 1.54.1
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.54.1
+      x-stainless-raw-response:
+      - 'true'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.6
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA7xWTW/bOBC9+1cM2EPsrG34K61jwIcgKNrDotnd9rBoFAgMNbKYUByGpBqnhv/7
+        gpJsya636HYXq4NBcea9+XikxpsOAJMJWwATGfciN2pw9cfN5YcZz5/4Y/bbxcjT5c3nd9fzybVf
+        vfvM+gFB9w8o/A41FJQbhV6SrszCIvcYWMdvpuPR5Xh0MS0NOSWoAmxl/GBGg8loMhuM5oPR6xqY
+        kRTo2AJuOwAAm/I3pKgTXLMFjPq7nRyd4ytki70TALOkwg7jzknnufas3xgFaY86ZK0LpVoGT6Ri
+        wZVqAlfPprVu+sSViq9wNn82j8/rmw/24XH+lX79+uf7m/e/t+JV1C+mTCgttNj3p2Xf7y+OggEw
+        zfMSe22lRytJXzmHNni7IxoAxu2qyFH7UALbRKEDtW/EFrebiHl0Pg6UEVvUb4KsReFjXeRopYip
+        8KbwEetHTFBSOSaYwnecuw5V2ltEkQ5ZSG0KH3tce1hCsAzLnduzsHV2V3vh2qDwmNQUsAT8wlW3
+        AQ+dt9J0z5ZnvR7AK/goc6NkKjEB7lyRm1AXpGTLzMAU1pBDV9Nz4QuuGnKpqyyH1c4umV7tXpqq
+        br19KrjqHuD7x9n2IYoi9ilDqBsBdSDpQOq6ScCFIJtIvQJP4DOsOjMM0F7Z31BxwUMdcTgiZavN
+        i89IR2zbPy1XONAJt0lMNkEbUxqTQctrkU+K9j3IoXSv4O2ah1tcpQrP0meQyzUm0IpyQuZQU3f2
+        y6R3Pl2G9c+I/D8rVwdICB1o8pCSUvRc6rRrGJQNA0pb1f9b+Z4KbjG2RD58bEShSoK/U+6098/c
+        N5mWlVeMEBjDK0jdwu8Yw6OL/B4tLGH8+uj2lVcukw6cQSFTKQCrQ9NCfyt8kLHmPD+H0fCi13L/
+        h5r/F7qHKlrNgFZ7D27xj+p9t2UHX+Nt59T6rjVwLKaF46qeRPX+dj/aFK2MpXt3NKlYKrV0WWyR
+        u3JiMOfJVLFDnDICKw6mIjOWcuNjT4+oA+F49GZSEbJmajfm6aiesMyT56qFm+5xB5Rxgp7LcnLu
+        h7XgIsOkwTZDmxeJpJah0yr823xOcVfFS736EfrGIASacCSMxUSKw5obN4sP1ck56bZvdJkwcy/O
+        Yx6nUq/QGivLfxYsNfH44jKZT2djIVhn2/kLAAD//wMAtnbXpWIJAAA=
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-RAY:
+      - 8df7accb7901e20c-MRS
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 08 Nov 2024 18:37:41 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      openai-organization:
+      - wandb
+      openai-processing-ms:
+      - '8156'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999021'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+      x-request-id:
+      - req_48798f3850f54becdfdd7ea1f038e75a
+    status:
+      code: 200
+      message: OK
+version: 1

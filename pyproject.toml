@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["evalforge"]  # Only include the main package
+
+[project]
+name = "evalforge"
+dynamic = ["version"]
+description = "A tool to evaluate and improve your LLM applications"
+readme = "README.md" # Assuming you have a README.md file
+requires-python = ">=3.10"
+authors = [
+    {name = "Alex Volkov", email = "alex.volkov@wandb.com"},
+    {name = "Anish Shah", email = "anish@wandb.com"},
+    {name = "Thomas Capelle", email = "tcapelle@pm.me"},
+]
+license = {file = "LICENSE"} # Assuming you have a LICENSE file
+keywords = ["artificial intelligence", "generative models", "natural language processing", "openai"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+]
+dependencies = [
+    "weave>=0.50.3",
+    "openai>=1.0",
+    "rich>=13.9.0",
+    "simple_parsing>=0.1.5",
+    "litellm>=1.50.0",
+    "instructor>=1.6.0",
+    "autopep8>=2.3.1",
+    "isort>=5.12.0",
+    "autoflake>=2.3.0",
+]
+
+[project.urls]
+homepage = "https://github.com/wandb/evalforge"
+
+[project.scripts]
+"evalforge.forge" = "evalforge.cli:forge"
+
