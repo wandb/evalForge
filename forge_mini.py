@@ -49,8 +49,8 @@ weave.init("evalforge_test_judgebench")
 LLM_MODEL = "gpt-4o"
 DATASET_PATH = "data/mini_data.jsonl"
 dataset = load_data(DATASET_PATH)
-train_ds_formatted = dataset[:3]
-eval_ds_formatted = dataset[3:]
+train_ds_formatted = dataset[:5]
+eval_ds_formatted = dataset[5:]
 
 forger = EvalForge(batch_size=1, num_criteria_to_generate=1, llm_model=LLM_MODEL)
 results = asyncio.run(forger.fit(train_ds_formatted))
